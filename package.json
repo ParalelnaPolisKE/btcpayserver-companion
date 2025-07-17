@@ -14,7 +14,9 @@
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
-    "tauri:build:universal": "tauri build --target universal-apple-darwin"
+    "tauri:build:universal": "tauri build --target universal-apple-darwin",
+    "tauri:build:linux": "./scripts/build-linux-docker.sh",
+    "tauri:build:all": "bun run tauri:build:universal && bun run tauri:build:linux"
   },
   "dependencies": {
     "@radix-ui/react-dropdown-menu": "^2.1.15",

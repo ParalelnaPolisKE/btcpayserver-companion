@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  tauri-linux-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile.build-linux
+    volumes:
+      # Mount the output directory to get the built artifacts
+      - ./src-tauri/target:/app/src-tauri/target
+      # Mount cargo cache for faster rebuilds
+      - cargo-cache:/root/.cargo/registry
+      - cargo-git:/root/.cargo/git
+      - cargo-target:/app/target
+    environment:
+      # Ensure Tauri builds in release mode
+      - TAURI_SIGNING_PRIVATE_KEY=""
+      - TAURI_SIGNING_PRIVATE_KEY_PASSWORD=""
+
+volumes:
+  cargo-cache:
+  cargo-git:
+  cargo-target:

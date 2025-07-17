@@ -55,6 +55,11 @@
       },
       "appimage": {
         "bundleMediaFramework": true
+      },
+      "rpm": {
+        "depends": ["webkit2gtk4.1", "gtk3", "libappindicator-gtk3"],
+        "epoch": 0,
+        "release": "1"
       }
     },
     "resources": []
