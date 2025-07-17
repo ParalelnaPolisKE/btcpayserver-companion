@@ -1,10 +1,10 @@
 [package]
-name = "app"
+name = "ppke-btcpay-companion"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
-license = ""
-repository = ""
+description = "BTCPayServer companion app for financial analytics"
+authors = ["Michal Takac", "Paralelná Polis Košice"]
+license = "MIT"
+repository = "https://github.com/ppke/bps-companion"
 edition = "2021"
 rust-version = "1.77.2"
 

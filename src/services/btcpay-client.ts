@@ -18,7 +18,7 @@ const ticketSchema = z.object({
 
 export class BTCPayClient {
   private client: AxiosInstance;
-  private storeId: string;
+  protected storeId: string;
 
   constructor(config: BTCPayConfig) {
     this.storeId = config.storeId;
@@ -39,7 +39,7 @@ export class BTCPayClient {
           headers: {
             ...config.headers,
             Authorization: config.headers.Authorization ? 
-              `token ${config.headers.Authorization.substring(6, 10)}...` : 'none'
+              `token ${String(config.headers.Authorization).substring(6, 10)}...` : 'none'
           },
         });
         return config;

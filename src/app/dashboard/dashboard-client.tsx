@@ -10,7 +10,8 @@ import { PaymentMethodChart } from '@/components/dashboard/payment-method-chart'
 import { TopProducts } from '@/components/dashboard/top-products';
 import { MetricCard } from '@/components/dashboard/metric-card';
 import { EnhancedProjectionChart } from '@/components/dashboard/enhanced-projection-chart';
-import { getRevenueProjection, TimeFrame } from '@/app/actions/dashboard';
+import { getRevenueProjection } from '@/services/dashboard-api';
+import type { TimeFrame, DashboardMetrics } from '@/types/dashboard';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { STORES, ALL_STORES_ID } from '@/lib/stores';
@@ -24,7 +25,7 @@ import {
 } from '@/components/ui/tooltip';
 
 interface DashboardClientProps {
-  metrics: any;
+  metrics: DashboardMetrics;
   selectedStoreId: string;
   showPosOnly: boolean;
 }

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, QrCode } from 'lucide-react';
+import { LayoutDashboard, QrCode, Settings } from 'lucide-react';
 
 export function MainNav() {
   const pathname = usePathname();
@@ -18,6 +18,11 @@ export function MainNav() {
       href: '/check-in',
       label: 'Event Check-in',
       icon: QrCode,
+    },
+    {
+      href: '/settings',
+      label: 'Settings',
+      icon: Settings,
     },
   ];
 

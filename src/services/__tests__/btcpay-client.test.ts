@@ -40,7 +40,7 @@ describe('BTCPayClient', () => {
       },
     };
     mockedAxios.create.mockReturnValue(mockAxiosInstance);
-    mockedAxios.isAxiosError = jest.fn();
+    mockedAxios.isAxiosError = jest.fn(() => false) as any;
     
     // Suppress console logs in tests
     jest.spyOn(console, 'log').mockImplementation(() => {});

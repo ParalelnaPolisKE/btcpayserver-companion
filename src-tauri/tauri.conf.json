@@ -1,22 +1,24 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "bps-companion",
+  "productName": "PPKE BTCPay Companion",
   "version": "0.1.0",
-  "identifier": "com.ppke.sk.bps-companion",
+  "identifier": "sk.ppke.btcpay-companion",
   "build": {
-    "frontendDist": "..",
+    "frontendDist": "../out",
     "devUrl": "http://localhost:3000",
-    "beforeDevCommand": "bun dev",
-    "beforeBuildCommand": "bun build"
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
   },
   "app": {
     "windows": [
       {
         "title": "PPKE BTCPayServer Companion",
         "width": 1280,
-        "height": 720,
+        "height": 800,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "minWidth": 800,
+        "minHeight": 600
       }
     ],
     "security": {
@@ -26,12 +28,35 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "category": "Finance",
+    "copyright": "Copyright © 2024 Paralelná Polis Košice",
+    "shortDescription": "BTCPayServer companion app for financial analytics",
+    "longDescription": "A comprehensive financial dashboard and analytics tool for BTCPayServer, providing insights into revenue, expenses, and profitability for Paralelná Polis Košice.",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "macOS": {
+      "frameworks": [],
+      "minimumSystemVersion": "10.15",
+      "exceptionDomain": "",
+      "signingIdentity": "-",
+      "entitlements": null
+    },
+    "linux": {
+      "deb": {
+        "depends": ["webkit2gtk-4.1", "libgtk-3-0", "libayatana-appindicator3-1"],
+        "section": "utils",
+        "priority": "optional",
+        "files": {}
+      },
+      "appimage": {
+        "bundleMediaFramework": true
+      }
+    },
+    "resources": []
   }
 }

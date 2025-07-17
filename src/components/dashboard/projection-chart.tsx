@@ -24,13 +24,19 @@ interface ProjectionChartProps {
   }>;
 }
 
+type CombinedDataPoint = {
+  month: string;
+  revenue: number | null;
+  projection: number | null;
+};
+
 export function ProjectionChart({ historical, projections }: ProjectionChartProps) {
   // Combine historical and projection data
-  const combinedData = [
-    ...historical.map(item => ({ ...item, projection: null })),
+  const combinedData: CombinedDataPoint[] = [
+    ...historical.map(item => ({ ...item, projection: null as number | null })),
     ...projections.map(item => ({ 
       month: item.month, 
-      revenue: null,
+      revenue: null as number | null,
       projection: item.revenue 
     })),
   ];
@@ -41,6 +47,7 @@ export function ProjectionChart({ historical, projections }: ProjectionChartProp
     combinedData[historical.length - 1] = {
       ...lastHistorical,
       projection: lastHistorical.revenue,
+      revenue: lastHistorical.revenue,
     };
   }
 

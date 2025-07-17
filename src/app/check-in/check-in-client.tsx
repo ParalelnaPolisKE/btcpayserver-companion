@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { QRScanner } from '@/components/check-in/qr-scanner';
 import { ManualInput } from '@/components/check-in/manual-input';
 import { TicketDisplay } from '@/components/check-in/ticket-display';
-import { useCheckIn } from '@/hooks/use-check-in-server';
+import { useCheckIn } from '@/hooks/use-check-in';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { QrCode, Keyboard } from 'lucide-react';
@@ -21,6 +21,7 @@ export default function CheckInClient({ isUsingMockData }: CheckInClientProps) {
   const [scanMode, setScanMode] = useState<'qr' | 'manual'>('qr');
   const { ticket, checkInStatus, isLoading, handleTicketScan, reset } = useCheckIn({
     eventId: clientEnv.eventId,
+    storeId: clientEnv.storeId,
   });
 
   const handleReset = () => {

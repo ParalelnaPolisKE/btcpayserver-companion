@@ -15,7 +15,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import { TimeFrame } from '@/app/actions/dashboard';
+import type { TimeFrame } from '@/types/dashboard';
 import { formatExpenseBreakdown } from '@/lib/expenses';
 
 interface EnhancedProjectionChartProps {
@@ -130,7 +130,7 @@ export function EnhancedProjectionChart({ data, onTimeFrameChange, displayCurren
   };
 
   // Convert monthly expenses if needed
-  const convertedExpenses = convertValue(monthlyExpenses, 'EUR');
+  const convertedExpenses = convertValue(monthlyExpenses);
   
   // Calculate max value for better Y axis scaling
   const allValues = [...combinedData.map(d => d.revenue || d.projection || 0), convertedExpenses];
@@ -221,7 +221,7 @@ export function EnhancedProjectionChart({ data, onTimeFrameChange, displayCurren
                   
                   return (
                     <div className="bg-background p-3 border rounded-md shadow-md">
-                      <p className="font-semibold mb-2">{formatXAxisTick(label)}</p>
+                      <p className="font-semibold mb-2">{formatXAxisTick(label as string)}</p>
                       {payload.map((entry: any, index: number) => (
                         <p key={index} className="text-sm" style={{ color: entry.color }}>
                           {entry.name}: {formatCurrency(entry.value)}
