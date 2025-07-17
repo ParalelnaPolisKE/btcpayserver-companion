@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import { MainNav } from "@/components/layout/main-nav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BTCPay Companion - Event Check-in",
-  description: "Check-in service for BTCPayServer SatoshiTickets events",
+  title: "BTCPay Companion - Financial Dashboard",
+  description: "Financial analytics and event check-in for BTCPayServer",
 };
 
 export default function RootLayout({
@@ -28,7 +29,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <MainNav />
+          <main>{children}</main>
+        </Providers>
       </body>
     </html>
   );
