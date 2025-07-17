@@ -3,7 +3,7 @@
 import { BTCPayClient } from '@/services/btcpay-client';
 import { BTCPayMockClient } from '@/services/btcpay-mock';
 import { serverEnv, clientEnv } from '@/lib/env';
-import { startOfMonth, subMonths, endOfMonth, format, parseISO } from 'date-fns';
+import { startOfMonth, subMonths, endOfMonth, format } from 'date-fns';
 
 const getClient = () => {
   const isUsingMock = !serverEnv.btcpayApiKey || clientEnv.useMock;
@@ -71,12 +71,15 @@ export async function getDashboardMetrics() {
   const client = getClient();
   
   try {
-    // Get invoices for the last 6 months
+    // Get invoices for the last 6 months and BTC exchange rate
     const sixMonthsAgo = subMonths(new Date(), 6);
-    const invoices = await client.getInvoices({
-      startDate: sixMonthsAgo.toISOString(),
-      take: 1000, // Get more invoices for better analytics
-    });
+    const [invoices, exchangeRate] = await Promise.all([
+      client.getInvoices({
+        startDate: sixMonthsAgo.toISOString(),
+        take: 1000, // Get more invoices for better analytics
+      }),
+      getBTCExchangeRate()
+    ]);
 
     // Calculate metrics
     const metrics = calculateMetrics(invoices);
@@ -87,6 +90,7 @@ export async function getDashboardMetrics() {
     return {
       ...metrics,
       storeInfo,
+      exchangeRate,
       isUsingMockData: !serverEnv.btcpayApiKey || clientEnv.useMock,
     };
   } catch (error) {
@@ -100,8 +104,14 @@ function calculateMetrics(invoices: any[]) {
   const currentMonth = startOfMonth(now);
   const lastMonth = startOfMonth(subMonths(now, 1));
   
-  // Filter settled invoices (BTCPay uses capitalized status)
-  const settledInvoices = invoices.filter(inv => inv.status === 'Settled');
+  // Filter settled invoices that have actually been paid
+  const settledInvoices = invoices.filter(inv => {
+    if (inv.status !== 'Settled') return false;
+    
+    // Check if invoice has been paid
+    const paidAmount = typeof inv.paidAmount === 'string' ? parseFloat(inv.paidAmount) : inv.paidAmount;
+    return paidAmount > 0;
+  });
   
   // Debug: Log sample invoice to check structure
   if (settledInvoices.length > 0) {
@@ -113,6 +123,17 @@ function calculateMetrics(invoices: any[]) {
     });
   }
   
+  // First, calculate currency breakdown to determine primary currency
+  const currencyBreakdown = settledInvoices.reduce((acc, inv) => {
+    const currency = inv.currency || 'EUR';
+    acc[currency] = (acc[currency] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  
+  // For simplicity, we'll use the primary currency (most common one)
+  const primaryCurrency = Object.entries(currencyBreakdown)
+    .sort(([,a], [,b]) => b - a)[0]?.[0] || 'EUR';
+  
   // Calculate current month revenue
   const currentMonthInvoices = settledInvoices.filter(inv => {
     // Handle Unix timestamp (seconds since epoch)
@@ -120,11 +141,13 @@ function calculateMetrics(invoices: any[]) {
     return created >= currentMonth;
   });
   
-  const currentMonthRevenue = currentMonthInvoices.reduce((sum, inv) => {
-    const paidAmount = inv.paidAmount || inv.amount;
-    const amount = typeof paidAmount === 'string' ? parseFloat(paidAmount) : paidAmount;
-    return sum + (amount || 0);
-  }, 0);
+  // Group revenue by currency
+  const currentMonthRevenueByCurrency = currentMonthInvoices.reduce((acc, inv) => {
+    const amount = typeof inv.paidAmount === 'string' ? parseFloat(inv.paidAmount) : inv.paidAmount;
+    const currency = inv.currency || 'EUR';
+    acc[currency] = (acc[currency] || 0) + amount;
+    return acc;
+  }, {} as Record<string, number>);
   
   // Calculate last month revenue
   const lastMonthInvoices = settledInvoices.filter(inv => {
@@ -132,11 +155,15 @@ function calculateMetrics(invoices: any[]) {
     return created >= lastMonth && created < currentMonth;
   });
   
-  const lastMonthRevenue = lastMonthInvoices.reduce((sum, inv) => {
-    const paidAmount = inv.paidAmount || inv.amount;
-    const amount = typeof paidAmount === 'string' ? parseFloat(paidAmount) : paidAmount;
-    return sum + (amount || 0);
-  }, 0);
+  const lastMonthRevenueByCurrency = lastMonthInvoices.reduce((acc, inv) => {
+    const amount = typeof inv.paidAmount === 'string' ? parseFloat(inv.paidAmount) : inv.paidAmount;
+    const currency = inv.currency || 'EUR';
+    acc[currency] = (acc[currency] || 0) + amount;
+    return acc;
+  }, {} as Record<string, number>);
+  
+  const currentMonthRevenue = currentMonthRevenueByCurrency[primaryCurrency] || 0;
+  const lastMonthRevenue = lastMonthRevenueByCurrency[primaryCurrency] || 0;
   
   // Calculate MRR (simplified - assuming all revenue is recurring)
   const mrr = currentMonthRevenue;
@@ -157,11 +184,15 @@ function calculateMetrics(invoices: any[]) {
       return created >= monthStart && created <= monthEnd;
     });
     
-    const monthRevenue = monthInvoices.reduce((sum, inv) => {
-      const paidAmount = inv.paidAmount || inv.amount;
-      const amount = typeof paidAmount === 'string' ? parseFloat(paidAmount) : paidAmount;
-      return sum + (amount || 0);
-    }, 0);
+    const monthRevenueByCurrency = monthInvoices.reduce((acc, inv) => {
+      const amount = typeof inv.paidAmount === 'string' ? parseFloat(inv.paidAmount) : inv.paidAmount;
+      const currency = inv.currency || 'USD';
+      acc[currency] = (acc[currency] || 0) + amount;
+      return acc;
+    }, {} as Record<string, number>);
+    
+    // Use primary currency for this month
+    const monthRevenue = monthRevenueByCurrency[primaryCurrency] || 0;
     
     revenueByMonth.push({
       month: format(monthStart, 'MMM yyyy'),
@@ -178,9 +209,8 @@ function calculateMetrics(invoices: any[]) {
   // Calculate payment method breakdown (for settled invoices)
   const paymentMethodBreakdown = settledInvoices.reduce((acc, inv) => {
     // BTCPay API might have different structure for payment methods
-    const method = inv.checkout?.paymentMethods?.[0] || 
-                   inv.paymentMethod || 
-                   inv.paymentMethodId ||
+    const method = inv.checkout?.defaultPaymentMethod || 
+                   inv.checkout?.paymentMethods?.[0] || 
                    'Unknown';
     acc[method] = (acc[method] || 0) + 1;
     return acc;
@@ -191,8 +221,6 @@ function calculateMetrics(invoices: any[]) {
     // Try different metadata fields where product info might be stored
     const product = inv.metadata?.itemDesc || 
                    inv.metadata?.orderId || 
-                   inv.metadata?.itemCode || 
-                   inv.metadata?.physical?.name ||
                    'Unknown Product';
     acc[product] = (acc[product] || 0) + 1;
     return acc;
@@ -203,20 +231,67 @@ function calculateMetrics(invoices: any[]) {
     .slice(0, 5)
     .map(([product, count]) => ({ product, count }));
   
-  // Calculate average transaction value
-  // Use paidAmount if available, otherwise fall back to amount
-  const avgTransactionValue = settledInvoices.length > 0
-    ? settledInvoices.reduce((sum, inv) => {
-        // BTCPay returns paidAmount for what was actually paid
-        const paidAmount = inv.paidAmount || inv.amount;
-        const amount = typeof paidAmount === 'string' ? parseFloat(paidAmount) : paidAmount;
-        return sum + (amount || 0);
-      }, 0) / settledInvoices.length
+  // Calculate average transaction value per currency
+  const paidInvoicesByCurrency = settledInvoices.reduce((acc, inv) => {
+    const currency = inv.currency || 'USD';
+    if (!acc[currency]) acc[currency] = [];
+    acc[currency].push(inv);
+    return acc;
+  }, {} as Record<string, any[]>);
+  
+  // Calculate metrics for primary currency
+  const primaryCurrencyInvoices = paidInvoicesByCurrency[primaryCurrency] || [];
+  const totalRevenue = primaryCurrencyInvoices.reduce((sum, inv) => {
+    const amount = typeof inv.paidAmount === 'string' ? parseFloat(inv.paidAmount) : inv.paidAmount;
+    return sum + amount;
+  }, 0);
+  
+  const avgTransactionValue = primaryCurrencyInvoices.length > 0
+    ? totalRevenue / primaryCurrencyInvoices.length
     : 0;
     
-  console.log('Average transaction calculation:', {
+  // Find min, max, and check for outliers (for primary currency)
+  const amounts = primaryCurrencyInvoices.map(inv => {
+    const paidAmount = typeof inv.paidAmount === 'string' ? parseFloat(inv.paidAmount) : inv.paidAmount;
+    return paidAmount;
+  }).filter(a => a > 0);
+  
+  const sortedAmounts = [...amounts].sort((a, b) => a - b);
+  const median = sortedAmounts.length > 0 
+    ? sortedAmounts[Math.floor(sortedAmounts.length / 2)]
+    : 0;
+  
+  // Show currency breakdown
+  const currencyStats = Object.entries(paidInvoicesByCurrency).map(([currency, invoices]) => {
+    const total = invoices.reduce((sum, inv) => {
+      const amount = typeof inv.paidAmount === 'string' ? parseFloat(inv.paidAmount) : inv.paidAmount;
+      return sum + amount;
+    }, 0);
+    const avg = total / invoices.length;
+    return { currency, count: invoices.length, total, average: avg };
+  });
+  
+  console.log('Transaction analysis:', {
+    totalInvoices: invoices.length,
     settledCount: settledInvoices.length,
-    avgValue: avgTransactionValue,
+    primaryCurrency,
+    currencyStats,
+    primaryCurrencyMetrics: {
+      count: primaryCurrencyInvoices.length,
+      totalRevenue: totalRevenue.toFixed(2),
+      avgValue: avgTransactionValue.toFixed(2),
+      median: median.toFixed(2),
+      min: amounts.length > 0 ? Math.min(...amounts).toFixed(2) : '0',
+      max: amounts.length > 0 ? Math.max(...amounts).toFixed(2) : '0',
+    },
+    sampleInvoices: primaryCurrencyInvoices.slice(0, 3).map(inv => ({
+      id: inv.id,
+      amount: inv.amount,
+      paidAmount: inv.paidAmount,
+      currency: inv.currency,
+      createdTime: new Date(inv.createdTime * 1000).toISOString(),
+      metadata: inv.metadata?.itemDesc || inv.metadata?.orderId
+    }))
   });
   
   return {
@@ -229,48 +304,230 @@ function calculateMetrics(invoices: any[]) {
     paymentMethodBreakdown,
     topProducts,
     avgTransactionValue,
+    medianTransactionValue: median,
     totalInvoices: invoices.length,
     settledInvoices: settledInvoices.length,
+    primaryCurrency,
+    currencyStats,
+    revenueByCurrency: {
+      current: currentMonthRevenueByCurrency,
+      last: lastMonthRevenueByCurrency,
+    },
+    outlierInfo: {
+      hasLargeTransactions: amounts.length > 0 && Math.max(...amounts) > 1000,
+      largestTransaction: amounts.length > 0 ? Math.max(...amounts) : 0,
+      hasMixedCurrencies: Object.keys(currencyBreakdown).length > 1,
+      currencyBreakdown,
+    },
   };
 }
 
-export async function getRevenueProjection() {
-  const metrics = await getDashboardMetrics();
-  if (!metrics || !metrics.revenueByMonth) return null;
+export type TimeFrame = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+
+export async function getBTCExchangeRate(): Promise<{ eur: number; usd: number } | null> {
+  try {
+    // Using CoinGecko's free API (no key required)
+    const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=eur,usd');
+    if (!response.ok) {
+      throw new Error('Failed to fetch BTC price');
+    }
+    const data = await response.json();
+    return {
+      eur: data.bitcoin.eur,
+      usd: data.bitcoin.usd,
+    };
+  } catch (error) {
+    console.error('Failed to fetch BTC exchange rate:', error);
+    // Fallback to approximate rates if API fails
+    return {
+      eur: 95000, // Approximate fallback
+      usd: 100000, // Approximate fallback
+    };
+  }
+}
+
+export async function getRevenueData(timeFrame: TimeFrame = 'monthly') {
+  const client = getClient();
+  
+  try {
+    // Determine date range based on timeframe
+    const now = new Date();
+    const startDate = new Date('2022-01-01'); // Maximum historical data from 2022
+    
+    const invoices = await client.getInvoices({
+      startDate: startDate.toISOString(),
+      take: 5000, // Get more invoices for detailed analysis
+    });
+    
+    // Filter and group data based on timeframe
+    const groupedData = groupInvoicesByTimeFrame(invoices, timeFrame);
+    
+    return groupedData;
+  } catch (error) {
+    console.error('Failed to get revenue data:', error);
+    return null;
+  }
+}
+
+function groupInvoicesByTimeFrame(invoices: any[], timeFrame: TimeFrame) {
+  const settledInvoices = invoices.filter(inv => {
+    if (inv.status !== 'Settled') return false;
+    const paidAmount = typeof inv.paidAmount === 'string' ? parseFloat(inv.paidAmount) : inv.paidAmount;
+    return paidAmount > 0;
+  });
+  
+  // Get currency breakdown
+  const currencyBreakdown = settledInvoices.reduce((acc, inv) => {
+    const currency = inv.currency || 'EUR';
+    acc[currency] = (acc[currency] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  
+  const primaryCurrency = Object.entries(currencyBreakdown)
+    .sort(([,a], [,b]) => b - a)[0]?.[0] || 'EUR';
+  
+  // Group by time period
+  const grouped = new Map<string, number>();
+  
+  settledInvoices.forEach(inv => {
+    const date = new Date(inv.createdTime * 1000);
+    const key = getTimeKey(date, timeFrame);
+    const amount = typeof inv.paidAmount === 'string' ? parseFloat(inv.paidAmount) : inv.paidAmount;
+    
+    // Only count primary currency for consistency
+    if (inv.currency === primaryCurrency) {
+      grouped.set(key, (grouped.get(key) || 0) + amount);
+    }
+  });
+  
+  // Convert to array and sort
+  const data = Array.from(grouped.entries())
+    .map(([period, revenue]) => ({ period, revenue }))
+    .sort((a, b) => a.period.localeCompare(b.period));
+  
+  return { data, primaryCurrency, timeFrame };
+}
+
+function getTimeKey(date: Date, timeFrame: TimeFrame): string {
+  switch (timeFrame) {
+    case 'daily':
+      return format(date, 'yyyy-MM-dd');
+    case 'weekly':
+      const weekStart = new Date(date);
+      weekStart.setDate(date.getDate() - date.getDay());
+      return format(weekStart, 'yyyy-MM-dd');
+    case 'monthly':
+      return format(date, 'yyyy-MM');
+    case 'quarterly':
+      const quarter = Math.floor(date.getMonth() / 3) + 1;
+      return `${date.getFullYear()}-Q${quarter}`;
+    case 'yearly':
+      return date.getFullYear().toString();
+  }
+}
+
+export async function getRevenueProjection(timeFrame: TimeFrame = 'monthly') {
+  const [revenueData, exchangeRate] = await Promise.all([
+    getRevenueData(timeFrame),
+    getBTCExchangeRate()
+  ]);
+  
+  if (!revenueData) return null;
+  
+  const { data, primaryCurrency } = revenueData;
   
   // Simple linear regression for projection
-  const data = metrics.revenueByMonth.map((item, index) => ({
+  const regressionData = data.map((item, index) => ({
     x: index,
     y: item.revenue,
   }));
   
-  const n = data.length;
-  const sumX = data.reduce((sum, item) => sum + item.x, 0);
-  const sumY = data.reduce((sum, item) => sum + item.y, 0);
-  const sumXY = data.reduce((sum, item) => sum + item.x * item.y, 0);
-  const sumX2 = data.reduce((sum, item) => sum + item.x * item.x, 0);
+  const n = regressionData.length;
+  if (n < 2) return null; // Need at least 2 points for regression
+  
+  const sumX = regressionData.reduce((sum, item) => sum + item.x, 0);
+  const sumY = regressionData.reduce((sum, item) => sum + item.y, 0);
+  const sumXY = regressionData.reduce((sum, item) => sum + item.x * item.y, 0);
+  const sumX2 = regressionData.reduce((sum, item) => sum + item.x * item.x, 0);
   
   const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
   const intercept = (sumY - slope * sumX) / n;
   
-  // Project next 3 months
+  // Calculate projections based on timeframe
+  const projectionCount = getProjectionCount(timeFrame);
   const projections = [];
-  for (let i = 1; i <= 3; i++) {
+  
+  const lastDate = parseTimeKey(data[data.length - 1].period, timeFrame);
+  
+  for (let i = 1; i <= projectionCount; i++) {
     const x = n - 1 + i;
     const projectedRevenue = slope * x + intercept;
-    const monthDate = subMonths(new Date(), -i);
+    const projectionDate = addPeriod(lastDate, i, timeFrame);
     
     projections.push({
-      month: format(monthDate, 'MMM yyyy'),
-      revenue: Math.max(0, projectedRevenue), // Ensure non-negative
+      period: formatProjectionDate(projectionDate, timeFrame),
+      revenue: Math.max(0, projectedRevenue),
       isProjection: true,
     });
   }
   
   return {
-    historical: metrics.revenueByMonth,
+    historical: data.map(d => ({ period: d.period, revenue: d.revenue })),
     projections,
     trend: slope > 0 ? 'up' : slope < 0 ? 'down' : 'stable',
-    growthRate: metrics.growthRate,
+    primaryCurrency,
+    timeFrame,
+    exchangeRate,
   };
+}
+
+function getProjectionCount(timeFrame: TimeFrame): number {
+  switch (timeFrame) {
+    case 'daily': return 30; // 30 days
+    case 'weekly': return 12; // 12 weeks
+    case 'monthly': return 6; // 6 months
+    case 'quarterly': return 4; // 4 quarters
+    case 'yearly': return 2; // 2 years
+  }
+}
+
+function parseTimeKey(key: string, timeFrame: TimeFrame): Date {
+  switch (timeFrame) {
+    case 'daily':
+    case 'weekly':
+    case 'monthly':
+      return new Date(key);
+    case 'quarterly':
+      const [year, quarter] = key.split('-Q');
+      const month = (parseInt(quarter) - 1) * 3;
+      return new Date(parseInt(year), month, 1);
+    case 'yearly':
+      return new Date(parseInt(key), 0, 1);
+  }
+}
+
+function addPeriod(date: Date, count: number, timeFrame: TimeFrame): Date {
+  const result = new Date(date);
+  switch (timeFrame) {
+    case 'daily':
+      result.setDate(result.getDate() + count);
+      break;
+    case 'weekly':
+      result.setDate(result.getDate() + count * 7);
+      break;
+    case 'monthly':
+      result.setMonth(result.getMonth() + count);
+      break;
+    case 'quarterly':
+      result.setMonth(result.getMonth() + count * 3);
+      break;
+    case 'yearly':
+      result.setFullYear(result.getFullYear() + count);
+      break;
+  }
+  return result;
+}
+
+function formatProjectionDate(date: Date, timeFrame: TimeFrame): string {
+  return getTimeKey(date, timeFrame);
 }

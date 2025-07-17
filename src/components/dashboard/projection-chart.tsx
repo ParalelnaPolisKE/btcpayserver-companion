@@ -2,8 +2,8 @@
 
 import { 
   ResponsiveContainer, 
-  LineChart, 
-  Line, 
+  AreaChart,
+  Area,
   XAxis, 
   YAxis, 
   CartesianGrid, 
@@ -47,7 +47,7 @@ export function ProjectionChart({ historical, projections }: ProjectionChartProp
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'EUR',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value);
@@ -56,7 +56,17 @@ export function ProjectionChart({ historical, projections }: ProjectionChartProp
   return (
     <div className="h-[350px] w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={combinedData}>
+        <AreaChart data={combinedData}>
+          <defs>
+            <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+              <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+            </linearGradient>
+            <linearGradient id="colorProjection" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.2}/>
+              <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+            </linearGradient>
+          </defs>
           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
           <XAxis 
             dataKey="month" 
@@ -78,21 +88,23 @@ export function ProjectionChart({ historical, projections }: ProjectionChartProp
             labelStyle={{ color: 'hsl(var(--foreground))' }}
           />
           <Legend />
-          <Line 
+          <Area 
             type="monotone" 
             dataKey="revenue" 
             stroke="hsl(var(--primary))" 
             strokeWidth={2}
-            dot={{ fill: 'hsl(var(--primary))' }}
+            fillOpacity={1}
+            fill="url(#colorRevenue)"
             name="Historical"
           />
-          <Line 
+          <Area 
             type="monotone" 
             dataKey="projection" 
             stroke="hsl(var(--primary))" 
             strokeWidth={2}
             strokeDasharray="5 5"
-            dot={{ fill: 'hsl(var(--primary))' }}
+            fillOpacity={1}
+            fill="url(#colorProjection)"
             name="Projected"
           />
           {historical.length > 0 && (
@@ -100,10 +112,10 @@ export function ProjectionChart({ historical, projections }: ProjectionChartProp
               x={historical[historical.length - 1].month} 
               stroke="hsl(var(--muted-foreground))"
               strokeDasharray="3 3"
-              label="Current"
+              label={{ value: "Current", position: "top" }}
             />
           )}
-        </LineChart>
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   );

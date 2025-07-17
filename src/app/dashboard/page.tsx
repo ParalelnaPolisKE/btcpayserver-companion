@@ -1,11 +1,8 @@
-import { getDashboardMetrics, getRevenueProjection } from '@/app/actions/dashboard';
+import { getDashboardMetrics } from '@/app/actions/dashboard';
 import DashboardClient from './dashboard-client';
 
 export default async function DashboardPage() {
-  const [metrics, projections] = await Promise.all([
-    getDashboardMetrics(),
-    getRevenueProjection(),
-  ]);
+  const metrics = await getDashboardMetrics();
   
   if (!metrics) {
     return (
@@ -19,5 +16,5 @@ export default async function DashboardPage() {
     );
   }
   
-  return <DashboardClient metrics={metrics} projections={projections} />;
+  return <DashboardClient metrics={metrics} />;
 }
