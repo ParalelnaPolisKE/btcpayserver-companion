@@ -1,8 +1,22 @@
 import { getDashboardMetrics } from '@/app/actions/dashboard';
 import DashboardClient from './dashboard-client';
+import { STORES, ALL_STORES_ID } from '@/lib/stores';
 
-export default async function DashboardPage() {
-  const metrics = await getDashboardMetrics();
+interface DashboardPageProps {
+  searchParams: Promise<{ storeId?: string; posOnly?: string }>;
+}
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  const params = await searchParams;
+  const selectedStoreId = params.storeId || STORES[0].storeId;
+  const isAllStores = selectedStoreId === ALL_STORES_ID;
+  const showPosOnly = params.posOnly === 'true';
+  
+  const metrics = await getDashboardMetrics(
+    isAllStores ? undefined : selectedStoreId,
+    isAllStores,
+    showPosOnly
+  );
   
   if (!metrics) {
     return (
@@ -16,5 +30,5 @@ export default async function DashboardPage() {
     );
   }
   
-  return <DashboardClient metrics={metrics} />;
+  return <DashboardClient metrics={metrics} selectedStoreId={selectedStoreId} showPosOnly={showPosOnly} />;
 }

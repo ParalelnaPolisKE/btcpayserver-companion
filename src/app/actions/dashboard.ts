@@ -5,14 +5,15 @@ import { BTCPayMockClient } from '@/services/btcpay-mock';
 import { serverEnv, clientEnv } from '@/lib/env';
 import { startOfMonth, subMonths, endOfMonth, format } from 'date-fns';
 
-const getClient = () => {
+const getClient = (storeId?: string) => {
   const isUsingMock = !serverEnv.btcpayApiKey || clientEnv.useMock;
+  const finalStoreId = storeId || clientEnv.storeId;
   
   if (isUsingMock) {
     return new BTCPayMockClient({
       serverUrl: clientEnv.btcpayUrl,
       apiKey: 'mock-api-key',
-      storeId: clientEnv.storeId,
+      storeId: finalStoreId,
     });
   }
 
@@ -20,13 +21,13 @@ const getClient = () => {
     serverUrl: clientEnv.btcpayUrl,
     hasApiKey: !!serverEnv.btcpayApiKey,
     apiKeyLength: serverEnv.btcpayApiKey.length,
-    storeId: clientEnv.storeId,
+    storeId: finalStoreId,
   });
 
   return new BTCPayClient({
     serverUrl: clientEnv.btcpayUrl,
     apiKey: serverEnv.btcpayApiKey,
-    storeId: clientEnv.storeId,
+    storeId: finalStoreId,
   });
 };
 
@@ -67,36 +68,112 @@ export async function getPaymentMethods() {
   }
 }
 
-export async function getDashboardMetrics() {
-  const client = getClient();
-  
+export async function getDashboardMetrics(storeId?: string, allStores?: boolean, showPosOnly?: boolean) {
   try {
-    // Get invoices for the last 6 months and BTC exchange rate
-    const sixMonthsAgo = subMonths(new Date(), 6);
-    const [invoices, exchangeRate] = await Promise.all([
-      client.getInvoices({
-        startDate: sixMonthsAgo.toISOString(),
-        take: 1000, // Get more invoices for better analytics
-      }),
-      getBTCExchangeRate()
-    ]);
-
-    // Calculate metrics
-    const metrics = calculateMetrics(invoices);
+    const exchangeRate = await getBTCExchangeRate();
     
-    // Get store info
-    const storeInfo = await client.getStoreInfo();
-    
-    return {
-      ...metrics,
-      storeInfo,
-      exchangeRate,
-      isUsingMockData: !serverEnv.btcpayApiKey || clientEnv.useMock,
-    };
+    if (allStores) {
+      // Import STORES here to avoid circular dependency
+      const { STORES } = await import('@/lib/stores');
+      
+      // Fetch data from all stores in parallel
+      const allStoreData = await Promise.all(
+        STORES.map(async (store) => {
+          const client = getClient(store.storeId);
+          const sixMonthsAgo = subMonths(new Date(), 6);
+          
+          try {
+            const [invoices, storeInfo] = await Promise.all([
+              client.getInvoices({
+                startDate: sixMonthsAgo.toISOString(),
+                take: 1000,
+              }),
+              client.getStoreInfo()
+            ]);
+            
+            // Apply POS filter if needed for specific stores
+            let filteredInvoices = invoices;
+            if (showPosOnly && store.posFilter) {
+              filteredInvoices = filterPosInvoices(invoices, store.posFilter);
+            }
+            
+            return { invoices: filteredInvoices, storeInfo, storeName: store.label };
+          } catch (error) {
+            console.error(`Failed to get data for store ${store.label}:`, error);
+            return { invoices: [], storeInfo: null, storeName: store.label };
+          }
+        })
+      );
+      
+      // Combine all invoices
+      const allInvoices = allStoreData.flatMap(data => data.invoices);
+      const metrics = calculateMetrics(allInvoices);
+      
+      // Create aggregated store info
+      const storeInfo = {
+        name: 'All Stores',
+        website: '',
+        invoiceExpiration: 900,
+        monitoringExpiration: 3600,
+        speedPolicy: 'MediumSpeed',
+        stores: allStoreData.map(d => ({ name: d.storeName, info: d.storeInfo }))
+      };
+      
+      return {
+        ...metrics,
+        storeInfo,
+        exchangeRate,
+        isUsingMockData: !serverEnv.btcpayApiKey || clientEnv.useMock,
+        isAllStores: true,
+        isPosFiltered: showPosOnly,
+      };
+    } else {
+      // Single store
+      const client = getClient(storeId);
+      const sixMonthsAgo = subMonths(new Date(), 6);
+      
+      let [invoices, storeInfo] = await Promise.all([
+        client.getInvoices({
+          startDate: sixMonthsAgo.toISOString(),
+          take: 1000,
+        }),
+        client.getStoreInfo()
+      ]);
+      
+      // Check if this store has POS filter capability
+      const { STORES } = await import('@/lib/stores');
+      const storeConfig = STORES.find(s => s.storeId === storeId);
+      
+      // Apply POS filter if requested and available for this store
+      if (showPosOnly && storeConfig?.posFilter) {
+        invoices = filterPosInvoices(invoices, storeConfig.posFilter);
+      }
+      
+      const metrics = calculateMetrics(invoices);
+      
+      return {
+        ...metrics,
+        storeInfo,
+        exchangeRate,
+        isUsingMockData: !serverEnv.btcpayApiKey || clientEnv.useMock,
+        isAllStores: false,
+        isPosFiltered: showPosOnly && !!storeConfig?.posFilter,
+        hasPosFilter: !!storeConfig?.posFilter,
+      };
+    }
   } catch (error) {
     console.error('Failed to get dashboard metrics:', error);
     return null;
   }
+}
+
+// Helper function to filter invoices from Point of Sale memberships
+function filterPosInvoices(invoices: any[], posFilterString: string) {
+  return invoices.filter(invoice => {
+    // Check if invoice metadata contains orderUrl with the POS filter string
+    const orderUrl = invoice.metadata?.orderUrl || '';
+    return orderUrl.includes(posFilterString);
+  });
 }
 
 function calculateMetrics(invoices: any[]) {
@@ -324,7 +401,22 @@ function calculateMetrics(invoices: any[]) {
 
 export type TimeFrame = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
 
+// Simple in-memory cache for BTC price
+let btcPriceCache: {
+  data: { eur: number; usd: number } | null;
+  timestamp: number;
+} | null = null;
+
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+
 export async function getBTCExchangeRate(): Promise<{ eur: number; usd: number } | null> {
+  // Check if we have cached data that's still valid
+  if (btcPriceCache && Date.now() - btcPriceCache.timestamp < CACHE_DURATION) {
+    console.log('Using cached BTC price');
+    return btcPriceCache.data;
+  }
+
+  console.log('Fetching fresh BTC price');
   try {
     // Using CoinGecko's free API (no key required)
     const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=eur,usd');
@@ -332,13 +424,29 @@ export async function getBTCExchangeRate(): Promise<{ eur: number; usd: number }
       throw new Error('Failed to fetch BTC price');
     }
     const data = await response.json();
-    return {
+    
+    const exchangeRate = {
       eur: data.bitcoin.eur,
       usd: data.bitcoin.usd,
     };
+    
+    // Update cache
+    btcPriceCache = {
+      data: exchangeRate,
+      timestamp: Date.now(),
+    };
+    
+    return exchangeRate;
   } catch (error) {
     console.error('Failed to fetch BTC exchange rate:', error);
-    // Fallback to approximate rates if API fails
+    
+    // If we have stale cached data, use it as fallback
+    if (btcPriceCache?.data) {
+      console.log('Using stale cached BTC price as fallback');
+      return btcPriceCache.data;
+    }
+    
+    // Ultimate fallback to approximate rates
     return {
       eur: 95000, // Approximate fallback
       usd: 100000, // Approximate fallback
@@ -346,22 +454,54 @@ export async function getBTCExchangeRate(): Promise<{ eur: number; usd: number }
   }
 }
 
-export async function getRevenueData(timeFrame: TimeFrame = 'monthly') {
-  const client = getClient();
-  
+export async function getRevenueData(timeFrame: TimeFrame = 'monthly', storeId?: string, allStores?: boolean, showPosOnly?: boolean) {
   try {
-    // Determine date range based on timeframe
     const now = new Date();
-    const startDate = new Date('2022-01-01'); // Maximum historical data from 2022
+    const startDate = new Date('2022-01-01');
     
-    const invoices = await client.getInvoices({
-      startDate: startDate.toISOString(),
-      take: 5000, // Get more invoices for detailed analysis
-    });
+    let invoices: any[] = [];
+    const { STORES } = await import('@/lib/stores');
     
-    // Filter and group data based on timeframe
+    if (allStores) {
+      // Fetch from all stores
+      const allInvoicesPromises = STORES.map(async (store) => {
+        const client = getClient(store.storeId);
+        try {
+          let storeInvoices = await client.getInvoices({
+            startDate: startDate.toISOString(),
+            take: 5000,
+          });
+          
+          // Apply POS filter if needed
+          if (showPosOnly && store.posFilter) {
+            storeInvoices = filterPosInvoices(storeInvoices, store.posFilter);
+          }
+          
+          return storeInvoices;
+        } catch (error) {
+          console.error(`Failed to get invoices for store ${store.label}:`, error);
+          return [];
+        }
+      });
+      
+      const allInvoicesArrays = await Promise.all(allInvoicesPromises);
+      invoices = allInvoicesArrays.flat();
+    } else {
+      // Single store
+      const client = getClient(storeId);
+      invoices = await client.getInvoices({
+        startDate: startDate.toISOString(),
+        take: 5000,
+      });
+      
+      // Apply POS filter if requested and available
+      const storeConfig = STORES.find(s => s.storeId === storeId);
+      if (showPosOnly && storeConfig?.posFilter) {
+        invoices = filterPosInvoices(invoices, storeConfig.posFilter);
+      }
+    }
+    
     const groupedData = groupInvoicesByTimeFrame(invoices, timeFrame);
-    
     return groupedData;
   } catch (error) {
     console.error('Failed to get revenue data:', error);
@@ -426,9 +566,9 @@ function getTimeKey(date: Date, timeFrame: TimeFrame): string {
   }
 }
 
-export async function getRevenueProjection(timeFrame: TimeFrame = 'monthly') {
+export async function getRevenueProjection(timeFrame: TimeFrame = 'monthly', storeId?: string, allStores?: boolean, showPosOnly?: boolean) {
   const [revenueData, exchangeRate] = await Promise.all([
-    getRevenueData(timeFrame),
+    getRevenueData(timeFrame, storeId, allStores, showPosOnly),
     getBTCExchangeRate()
   ]);
   
