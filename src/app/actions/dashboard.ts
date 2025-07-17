@@ -4,6 +4,7 @@ import { BTCPayClient } from '@/services/btcpay-client';
 import { BTCPayMockClient } from '@/services/btcpay-mock';
 import { serverEnv, clientEnv } from '@/lib/env';
 import { startOfMonth, subMonths, endOfMonth, format } from 'date-fns';
+import { calculateTotalMonthlyExpenses } from '@/lib/expenses';
 
 const getClient = (storeId?: string) => {
   const isUsingMock = !serverEnv.btcpayApiKey || clientEnv.useMock;
@@ -371,6 +372,12 @@ function calculateMetrics(invoices: any[]) {
     }))
   });
   
+  // Calculate profit/loss based on monthly expenses
+  const monthlyExpensesNoVat = calculateTotalMonthlyExpenses(false);
+  const monthlyExpensesWithVat = calculateTotalMonthlyExpenses(true);
+  const profitNoVat = currentMonthRevenue - monthlyExpensesNoVat;
+  const profitWithVat = currentMonthRevenue - monthlyExpensesWithVat;
+  
   return {
     currentMonthRevenue,
     lastMonthRevenue,
@@ -395,6 +402,12 @@ function calculateMetrics(invoices: any[]) {
       largestTransaction: amounts.length > 0 ? Math.max(...amounts) : 0,
       hasMixedCurrencies: Object.keys(currencyBreakdown).length > 1,
       currencyBreakdown,
+    },
+    expenses: {
+      monthlyNoVat: monthlyExpensesNoVat,
+      monthlyWithVat: monthlyExpensesWithVat,
+      profitNoVat,
+      profitWithVat,
     },
   };
 }

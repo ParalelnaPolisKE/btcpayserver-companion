@@ -2,7 +2,7 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "bps-companion",
   "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "com.ppke.sk.bps-companion",
   "build": {
     "frontendDist": "..",
     "devUrl": "http://localhost:3000",
@@ -13,8 +13,8 @@
     "windows": [
       {
         "title": "PPKE BTCPayServer Companion",
-        "width": 800,
-        "height": 600,
+        "width": 1280,
+        "height": 720,
         "resizable": true,
         "fullscreen": false
       }

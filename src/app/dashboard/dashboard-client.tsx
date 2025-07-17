@@ -15,6 +15,13 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { STORES, ALL_STORES_ID } from '@/lib/stores';
 import { useRouter } from 'next/navigation';
+import { SLOVAK_VAT_RATE, formatExpenseBreakdown } from '@/lib/expenses';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface DashboardClientProps {
   metrics: any;
@@ -26,6 +33,7 @@ export default function DashboardClient({ metrics, selectedStoreId, showPosOnly 
   const [projections, setProjections] = useState<any>(null);
   const [loadingProjections, setLoadingProjections] = useState(false);
   const [displayCurrency, setDisplayCurrency] = useState<'EUR' | 'BTC'>('EUR');
+  const [includeVat, setIncludeVat] = useState(false);
   const router = useRouter();
   
   const btcRate = metrics.exchangeRate?.eur || 95000;
@@ -168,96 +176,140 @@ export default function DashboardClient({ metrics, selectedStoreId, showPosOnly 
       </div>
 
       {/* Store Selector and Currency Switcher */}
-      <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Store:</span>
-            <Select value={selectedStoreId} onValueChange={handleStoreChange}>
-              <SelectTrigger className="w-[250px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ALL_STORES_ID}>All Stores (Combined)</SelectItem>
-                {STORES.map(store => (
-                  <SelectItem key={store.storeId} value={store.storeId}>
-                    {store.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          {metrics.hasPosFilter && (
+      <div className="space-y-4 mb-8">
+        <div className="flex justify-between items-center flex-wrap gap-4">
+          <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <Button
-                variant={showPosOnly ? 'default' : 'outline'}
-                size="sm"
-                onClick={handlePosFilterToggle}
-              >
-                {showPosOnly ? 'POS Memberships Only' : 'All Revenues'}
-              </Button>
+              <span className="text-sm text-muted-foreground">Store:</span>
+              <Select value={selectedStoreId} onValueChange={handleStoreChange}>
+                <SelectTrigger className="w-[250px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL_STORES_ID}>All Stores (Combined)</SelectItem>
+                  {STORES.map(store => (
+                    <SelectItem key={store.storeId} value={store.storeId}>
+                      {store.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          )}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Display currency:</span>
-            <div className="flex">
-              <Button
-                variant={displayCurrency === 'EUR' ? 'default' : 'outline'}
-                size="sm"
-                className="rounded-r-none"
-                onClick={() => setDisplayCurrency('EUR')}
-              >
-                € EUR
-              </Button>
-              <Button
-                variant={displayCurrency === 'BTC' ? 'default' : 'outline'}
-                size="sm"
-                className="rounded-l-none"
-                onClick={() => setDisplayCurrency('BTC')}
-              >
-                ₿ BTC
-              </Button>
-            </div>
-            {displayCurrency === 'BTC' && (
-              <span className="text-sm text-muted-foreground ml-2">
-                (1 BTC = €{btcRate.toLocaleString()})
-              </span>
+            {metrics.hasPosFilter && (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={showPosOnly ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={handlePosFilterToggle}
+                >
+                  {showPosOnly ? 'POS Memberships Only' : 'All Revenues'}
+                </Button>
+              </div>
             )}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Display currency:</span>
+              <div className="flex">
+                <Button
+                  variant={displayCurrency === 'EUR' ? 'default' : 'outline'}
+                  size="sm"
+                  className="rounded-r-none"
+                  onClick={() => setDisplayCurrency('EUR')}
+                >
+                  € EUR
+                </Button>
+                <Button
+                  variant={displayCurrency === 'BTC' ? 'default' : 'outline'}
+                  size="sm"
+                  className="rounded-l-none"
+                  onClick={() => setDisplayCurrency('BTC')}
+                >
+                  ₿ BTC
+                </Button>
+              </div>
+              {displayCurrency === 'BTC' && (
+                <span className="text-sm text-muted-foreground ml-2">
+                  (1 BTC = €{btcRate.toLocaleString()})
+                </span>
+              )}
+            </div>
           </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Include VAT in expenses:</span>
+          <div className="flex">
+            <Button
+              variant={!includeVat ? 'default' : 'outline'}
+              size="sm"
+              className="rounded-r-none"
+              onClick={() => setIncludeVat(false)}
+            >
+              No VAT
+            </Button>
+            <Button
+              variant={includeVat ? 'default' : 'outline'}
+              size="sm"
+              className="rounded-l-none"
+              onClick={() => setIncludeVat(true)}
+            >
+              With {(SLOVAK_VAT_RATE * 100).toFixed(0)}% VAT
+            </Button>
+          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-sm text-muted-foreground ml-2 cursor-help underline decoration-dotted">
+                  (Monthly expenses: {formatCurrency(includeVat ? metrics.expenses.monthlyWithVat : metrics.expenses.monthlyNoVat, 'EUR')})
+                </span>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <pre className="text-xs whitespace-pre-wrap">{formatExpenseBreakdown(includeVat)}</pre>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mb-8">
         <MetricCard
-          title="Monthly Recurring Revenue"
+          title="MRR"
           value={formatCurrency(metrics.mrr)}
-          description={`Current month revenue (${displayCurrency})`}
+          description={`Current month (${displayCurrency})`}
           icon={<DollarSign className="h-4 w-4" />}
           trend={metrics.growthRate > 0 ? 'up' : metrics.growthRate < 0 ? 'down' : 'neutral'}
           trendValue={formatPercentage(metrics.growthRate)}
         />
         
         <MetricCard
-          title="Total Invoices"
+          title="Invoices"
           value={metrics.totalInvoices.toString()}
           description={`${metrics.settledInvoices} settled`}
           icon={<Receipt className="h-4 w-4" />}
         />
         
         <MetricCard
-          title="Typical Transaction"
+          title="Avg Transaction"
           value={formatCurrency(metrics.medianTransactionValue)}
-          description={`Median (Avg: ${formatCurrency(metrics.avgTransactionValue)})`}
+          description={`Median value`}
           icon={<CreditCard className="h-4 w-4" />}
           trend={metrics.outlierInfo?.hasLargeTransactions ? 'neutral' : undefined}
           trendValue={metrics.outlierInfo?.hasLargeTransactions ? `Max: ${formatCurrency(metrics.outlierInfo.largestTransaction)}` : undefined}
         />
         
         <MetricCard
-          title="Conversion Rate"
+          title="Conversion"
           value={`${((metrics.settledInvoices / metrics.totalInvoices) * 100).toFixed(1)}%`}
-          description="Settled / Total"
+          description="Settled rate"
           icon={<TrendingUp className="h-4 w-4" />}
+        />
+        
+        <MetricCard
+          title="Profit/Loss"
+          value={formatCurrency(includeVat ? metrics.expenses.profitWithVat : metrics.expenses.profitNoVat)}
+          description={includeVat ? 'With VAT' : 'Without VAT'}
+          icon={<DollarSign className="h-4 w-4" />}
+          trend={(includeVat ? metrics.expenses.profitWithVat : metrics.expenses.profitNoVat) > 0 ? 'up' : 'down'}
+          trendValue={(includeVat ? metrics.expenses.profitWithVat : metrics.expenses.profitNoVat) > 0 ? 'Profit' : 'Loss'}
         />
       </div>
 
@@ -281,6 +333,8 @@ export default function DashboardClient({ metrics, selectedStoreId, showPosOnly 
               data={projections}
               onTimeFrameChange={loadProjections}
               displayCurrency={displayCurrency}
+              monthlyExpenses={includeVat ? metrics.expenses.monthlyWithVat : metrics.expenses.monthlyNoVat}
+              includeVat={includeVat}
             />
           )}
         </TabsContent>

@@ -8,17 +8,22 @@ import {
   YAxis, 
   CartesianGrid, 
   Tooltip, 
-  Legend 
+  Legend,
+  ReferenceLine
 } from 'recharts';
+import { formatExpenseBreakdown } from '@/lib/expenses';
 
 interface RevenueChartProps {
   data: Array<{
     month: string;
     revenue: number;
   }>;
+  monthlyExpenses?: number;
+  includeVat?: boolean;
+  displayCurrency?: 'EUR' | 'BTC';
 }
 
-export function RevenueChart({ data }: RevenueChartProps) {
+export function RevenueChart({ data, monthlyExpenses = 0, includeVat = false, displayCurrency = 'EUR' }: RevenueChartProps) {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -68,6 +73,19 @@ export function RevenueChart({ data }: RevenueChartProps) {
             fill="url(#revenueGradient)"
             name="Revenue"
           />
+          {monthlyExpenses > 0 && (
+            <ReferenceLine 
+              y={monthlyExpenses} 
+              stroke="#ef4444"
+              strokeWidth={2}
+              strokeDasharray="5 5"
+              label={{ 
+                value: `Monthly Expenses ${includeVat ? '(incl. VAT)' : '(excl. VAT)'}`, 
+                position: "right",
+                fill: "#ef4444"
+              }}
+            />
+          )}
         </AreaChart>
       </ResponsiveContainer>
     </div>

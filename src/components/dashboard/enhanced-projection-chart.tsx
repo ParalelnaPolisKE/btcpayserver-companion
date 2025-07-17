@@ -16,14 +16,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { TimeFrame } from '@/app/actions/dashboard';
+import { formatExpenseBreakdown } from '@/lib/expenses';
 
 interface EnhancedProjectionChartProps {
   data: any;
   onTimeFrameChange: (timeFrame: TimeFrame) => void;
   displayCurrency: 'EUR' | 'BTC';
+  monthlyExpenses?: number;
+  includeVat?: boolean;
 }
 
-export function EnhancedProjectionChart({ data, onTimeFrameChange, displayCurrency }: EnhancedProjectionChartProps) {
+export function EnhancedProjectionChart({ data, onTimeFrameChange, displayCurrency, monthlyExpenses = 0, includeVat = false }: EnhancedProjectionChartProps) {
   const [timeFrame, setTimeFrame] = useState<TimeFrame>(data?.timeFrame || 'monthly');
   
   if (!data) {
@@ -126,8 +129,11 @@ export function EnhancedProjectionChart({ data, onTimeFrameChange, displayCurren
     onTimeFrameChange(value);
   };
 
+  // Convert monthly expenses if needed
+  const convertedExpenses = convertValue(monthlyExpenses, 'EUR');
+  
   // Calculate max value for better Y axis scaling
-  const allValues = combinedData.map(d => d.revenue || d.projection || 0);
+  const allValues = [...combinedData.map(d => d.revenue || d.projection || 0), convertedExpenses];
   const maxValue = Math.max(...allValues) * 1.1; // Add 10% padding
 
   return (
@@ -198,7 +204,10 @@ export function EnhancedProjectionChart({ data, onTimeFrameChange, displayCurren
                 domain={[0, maxValue]}
               />
               <Tooltip 
-                formatter={(value: number) => value ? formatCurrency(value) : null}
+                formatter={(value: number, name: string) => {
+                  if (!value) return null;
+                  return [formatCurrency(value), name];
+                }}
                 labelFormatter={(label) => formatXAxisTick(label)}
                 contentStyle={{
                   backgroundColor: 'hsl(var(--background))',
@@ -206,6 +215,29 @@ export function EnhancedProjectionChart({ data, onTimeFrameChange, displayCurren
                   borderRadius: '6px',
                 }}
                 labelStyle={{ color: 'hsl(var(--foreground))' }}
+                content={(props) => {
+                  const { active, payload, label } = props;
+                  if (!active || !payload) return null;
+                  
+                  return (
+                    <div className="bg-background p-3 border rounded-md shadow-md">
+                      <p className="font-semibold mb-2">{formatXAxisTick(label)}</p>
+                      {payload.map((entry: any, index: number) => (
+                        <p key={index} className="text-sm" style={{ color: entry.color }}>
+                          {entry.name}: {formatCurrency(entry.value)}
+                        </p>
+                      ))}
+                      <div className="mt-2 pt-2 border-t">
+                        <p className="text-sm text-red-500">
+                          Monthly Expenses: {formatCurrency(convertedExpenses)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {(payload[0]?.value || 0) > convertedExpenses ? '✓ Above expenses' : '✗ Below expenses'}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                }}
               />
               <Legend />
               <Area 
@@ -235,6 +267,17 @@ export function EnhancedProjectionChart({ data, onTimeFrameChange, displayCurren
                   label={{ value: "Current", position: "top" }}
                 />
               )}
+              <ReferenceLine 
+                y={convertedExpenses} 
+                stroke="#ef4444"
+                strokeWidth={2}
+                strokeDasharray="5 5"
+                label={{ 
+                  value: `Monthly Expenses ${includeVat ? '(incl. VAT)' : '(excl. VAT)'}`, 
+                  position: "right",
+                  fill: "#ef4444"
+                }}
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>
