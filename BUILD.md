@@ -1,6 +1,6 @@
-# Building BTCPay Companion
+# Building BTCPayServer Companion
 
-This guide covers building the BTCPay Companion app for different platforms.
+This guide covers building the BTCPayServer Companion app for different platforms.
 
 ## Prerequisites
 

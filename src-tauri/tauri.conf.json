@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "PPKE BTCPay Companion",
+  "productName": "BTCPayServer Companion",
   "version": "0.1.0",
-  "identifier": "sk.ppke.btcpay-companion",
+  "identifier": "com.michaltakac.btcpayserver-companion",
   "build": {
     "frontendDist": "../out",
     "devUrl": "http://localhost:3000",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "PPKE BTCPayServer Companion",
+        "title": "BTCPayServer Companion",
         "width": 1280,
         "height": 800,
         "resizable": true,
@@ -29,9 +29,9 @@
     "active": true,
     "targets": "all",
     "category": "Finance",
-    "copyright": "Copyright © 2024 Paralelná Polis Košice",
-    "shortDescription": "BTCPayServer companion app for financial analytics",
-    "longDescription": "A comprehensive financial dashboard and analytics tool for BTCPayServer, providing insights into revenue, expenses, and profitability for Paralelná Polis Košice.",
+    "copyright": "Copyright © 2025 RandomFour, LLC",
+    "shortDescription": "BTCPayServer companion app",
+    "longDescription": "A comprehensive dashboard and analytics tool for BTCPayServer, providing insights into revenue, expenses, and profitability for your business.",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

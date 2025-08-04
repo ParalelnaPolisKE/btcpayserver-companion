@@ -7,7 +7,6 @@ export const serverEnv = {
 export const clientEnv = {
   btcpayUrl: process.env.NEXT_PUBLIC_BTCPAY_URL || 'https://btcpay.example.com',
   storeId: process.env.NEXT_PUBLIC_STORE_ID || 'store-1',
-  eventId: process.env.NEXT_PUBLIC_EVENT_ID || 'event-1',
   useMock: process.env.NEXT_PUBLIC_USE_MOCK === 'true',
 };
 

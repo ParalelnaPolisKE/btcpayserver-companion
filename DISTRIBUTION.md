@@ -1,6 +1,6 @@
 # Personal Distribution Guide
 
-This guide explains how to build and share the PPKE BTCPay Companion app with friends.
+This guide explains how to build and share the BTCPayServer Companion app with friends.
 
 ## Prerequisites
 
@@ -25,13 +25,13 @@ This will:
 
 After building, the app will be at:
 ```
-src-tauri/target/release/bundle/macos/PPKE BTCPay Companion.app
+src-tauri/target/release/bundle/macos/BTCPayServer Companion.app
 ```
 
 ### To share with friends:
 
 1. **Create a zip file:**
-   - Right-click on "PPKE BTCPay Companion.app"
+   - Right-click on "BTCPayServer Companion.app"
    - Select "Compress"
    - Share the resulting .zip file
 

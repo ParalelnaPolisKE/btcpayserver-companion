@@ -1,0 +1,889 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { InfoIcon, CheckCircle2, AlertCircle, Plus, Pencil, Trash2, GripVertical } from 'lucide-react';
+import { BTCPayClient } from '@/services/btcpay-client';
+import { clientEnv } from '@/lib/env';
+import { useStores } from '@/contexts/stores-context';
+import { useExpenses } from '@/contexts/expenses-context';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { toast } from 'sonner';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+
+interface StoreFormData {
+  label: string;
+  storeId: string;
+  posFilter?: string;
+}
+
+export default function SettingsPage() {
+  const [apiKey, setApiKey] = useState('');
+  const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
+  const [testMessage, setTestMessage] = useState('');
+  const { stores, isLoading, addStore, updateStore, deleteStore } = useStores();
+  const [editingStore, setEditingStore] = useState<{ id: number; data: StoreFormData } | null>(null);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [formData, setFormData] = useState<StoreFormData>({
+    label: '',
+    storeId: '',
+    posFilter: ''
+  });
+  
+  // Expense management state
+  const { 
+    categories, 
+    items, 
+    defaultVatRate,
+    addCategory,
+    updateCategory,
+    deleteCategory,
+    addItem,
+    updateItem,
+    deleteItem,
+    updateDefaultVatRate,
+    getCategorizedExpenses 
+  } = useExpenses();
+  const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
+  const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [categoryForm, setCategoryForm] = useState({ name: '', description: '' });
+  const [expenseForm, setExpenseForm] = useState({
+    name: '',
+    amount: '',
+    applyVat: false,
+    frequency: 'monthly' as 'monthly' | 'quarterly' | 'yearly',
+    notes: ''
+  });
+  
+  useEffect(() => {
+    // Load API key from localStorage on mount
+    const storedKey = localStorage.getItem('btcpay_api_key') || '';
+    setApiKey(storedKey);
+  }, []);
+  
+  const handleSaveApiKey = () => {
+    if (apiKey) {
+      localStorage.setItem('btcpay_api_key', apiKey);
+    } else {
+      localStorage.removeItem('btcpay_api_key');
+    }
+    setTestStatus('idle');
+    setTestMessage('API key saved successfully!');
+    
+    // Clear success message after 3 seconds
+    setTimeout(() => {
+      setTestMessage('');
+    }, 3000);
+  };
+  
+  const handleTest = async () => {
+    if (!apiKey) {
+      setTestStatus('error');
+      setTestMessage('Please enter an API key first');
+      return;
+    }
+    
+    setTestStatus('testing');
+    setTestMessage('Testing connection...');
+    
+    try {
+      const client = new BTCPayClient({
+        serverUrl: clientEnv.btcpayUrl,
+        apiKey: apiKey,
+        storeId: clientEnv.storeId,
+      });
+      
+      // Try to get store info to test the connection
+      const storeInfo = await client.getStoreInfo();
+      
+      if (storeInfo) {
+        setTestStatus('success');
+        setTestMessage(`Successfully connected to store: ${storeInfo.name}`);
+      } else {
+        setTestStatus('error');
+        setTestMessage('Failed to retrieve store information');
+      }
+    } catch (error) {
+      setTestStatus('error');
+      setTestMessage(error instanceof Error ? error.message : 'Connection failed');
+    }
+  };
+  
+  const getStatusIcon = () => {
+    switch (testStatus) {
+      case 'success':
+        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      case 'error':
+        return <AlertCircle className="h-4 w-4 text-destructive" />;
+      default:
+        return <InfoIcon className="h-4 w-4 text-muted-foreground" />;
+    }
+  };
+  
+  const getStatusClass = () => {
+    switch (testStatus) {
+      case 'success':
+        return 'border-green-500 text-green-700 dark:text-green-400';
+      case 'error':
+        return 'border-destructive text-destructive';
+      default:
+        return '';
+    }
+  };
+
+  const handleAddStore = async () => {
+    if (!formData.label || !formData.storeId) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      await addStore({
+        label: formData.label,
+        storeId: formData.storeId,
+        posFilter: formData.posFilter || undefined,
+        isActive: true
+      });
+      toast.success('Store added successfully');
+      setIsAddDialogOpen(false);
+      setFormData({ label: '', storeId: '', posFilter: '' });
+    } catch (error) {
+      toast.error('Failed to add store');
+      console.error(error);
+    }
+  };
+
+  const handleUpdateStore = async () => {
+    if (!editingStore) return;
+
+    try {
+      if (!editingStore) return;
+      await updateStore(editingStore.id, editingStore.data);
+      toast.success('Store updated successfully');
+      setEditingStore(null);
+    } catch (error) {
+      toast.error('Failed to update store');
+      console.error(error);
+    }
+  };
+
+  const handleDeleteStore = async (id: number) => {
+    if (confirm('Are you sure you want to delete this store?')) {
+      try {
+        await deleteStore(id);
+        toast.success('Store deleted successfully');
+      } catch (error) {
+        toast.error('Failed to delete store');
+        console.error(error);
+      }
+    }
+  };
+
+  const handleToggleStoreActive = async (id: number, isActive: boolean) => {
+    try {
+      await updateStore(id, { isActive });
+      toast.success(isActive ? 'Store activated' : 'Store deactivated');
+    } catch (error) {
+      toast.error('Failed to update store status');
+      console.error(error);
+    }
+  };
+  
+  return (
+    <div className="container mx-auto py-8 px-4 max-w-4xl">
+      <h1 className="text-3xl font-bold mb-8">Settings</h1>
+      
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Store Management</CardTitle>
+          <CardDescription>
+            Manage your BTCPay Server stores for analytics
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {isLoading ? (
+            <div className="text-center py-4">Loading stores...</div>
+          ) : stores.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground mb-4">No stores configured yet</p>
+              <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Your First Store
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add Store</DialogTitle>
+                    <DialogDescription>
+                      Add a new BTCPay Server store for analytics
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="label">Store Name *</Label>
+                      <Input
+                        id="label"
+                        value={formData.label}
+                        onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+                        placeholder="e.g., Main Store"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="storeId">Store ID *</Label>
+                      <Input
+                        id="storeId"
+                        value={formData.storeId}
+                        onChange={(e) => setFormData({ ...formData, storeId: e.target.value })}
+                        placeholder="e.g., NhzrpLAMZY4YAUKw..."
+                      />
+                      <p className="text-sm text-muted-foreground">
+                        You can find this in your BTCPay Server store settings
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="posFilter">POS Filter (Optional)</Label>
+                      <Input
+                        id="posFilter"
+                        value={formData.posFilter}
+                        onChange={(e) => setFormData({ ...formData, posFilter: e.target.value })}
+                        placeholder="e.g., /apps/orVgW5E67CRT25Kt7bKAu7iGp3T/pos"
+                      />
+                      <p className="text-sm text-muted-foreground">
+                        Optional filter for Point of Sale revenues
+                      </p>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleAddStore}>Add Store</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-2">
+                {stores.map((store) => (
+                  <div
+                    key={store.id}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <GripVertical className="h-4 w-4 text-muted-foreground cursor-move" />
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{store.label}</span>
+                          {store.posFilter && (
+                            <Badge variant="secondary" className="text-xs">POS Filter</Badge>
+                          )}
+                        </div>
+                        <code className="text-xs text-muted-foreground">{store.storeId}</code>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={store.isActive !== false}
+                        onCheckedChange={(checked) => handleToggleStoreActive(store.id!, checked)}
+                      />
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditingStore({
+                              id: store.id!,
+                              data: {
+                                label: store.label,
+                                storeId: store.storeId,
+                                posFilter: store.posFilter || ''
+                              }
+                            })}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        {editingStore?.id === store.id && (
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Edit Store</DialogTitle>
+                              <DialogDescription>
+                                Update store configuration
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 py-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="edit-label">Store Name *</Label>
+                                <Input
+                                  id="edit-label"
+                                  value={editingStore?.data.label || ''}
+                                  onChange={(e) => setEditingStore(editingStore ? {
+                                    ...editingStore,
+                                    data: { ...editingStore.data, label: e.target.value }
+                                  } : null)}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="edit-storeId">Store ID *</Label>
+                                <Input
+                                  id="edit-storeId"
+                                  value={editingStore?.data.storeId || ''}
+                                  onChange={(e) => setEditingStore(editingStore ? {
+                                    ...editingStore,
+                                    data: { ...editingStore.data, storeId: e.target.value }
+                                  } : null)}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="edit-posFilter">POS Filter (Optional)</Label>
+                                <Input
+                                  id="edit-posFilter"
+                                  value={editingStore?.data.posFilter || ''}
+                                  onChange={(e) => setEditingStore(editingStore ? {
+                                    ...editingStore,
+                                    data: { ...editingStore.data, posFilter: e.target.value }
+                                  } : null)}
+                                />
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <Button variant="outline" onClick={() => setEditingStore(null)}>
+                                Cancel
+                              </Button>
+                              <Button onClick={handleUpdateStore}>Save Changes</Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        )}
+                      </Dialog>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteStore(store.id!)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="w-full">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Store
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add Store</DialogTitle>
+                    <DialogDescription>
+                      Add a new BTCPay Server store for analytics
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="add-label">Store Name *</Label>
+                      <Input
+                        id="add-label"
+                        value={formData.label}
+                        onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+                        placeholder="e.g., Main Store"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="add-storeId">Store ID *</Label>
+                      <Input
+                        id="add-storeId"
+                        value={formData.storeId}
+                        onChange={(e) => setFormData({ ...formData, storeId: e.target.value })}
+                        placeholder="e.g., NhzrpLAMZY4YAUKw..."
+                      />
+                      <p className="text-sm text-muted-foreground">
+                        You can find this in your BTCPay Server store settings
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="add-posFilter">POS Filter (Optional)</Label>
+                      <Input
+                        id="add-posFilter"
+                        value={formData.posFilter}
+                        onChange={(e) => setFormData({ ...formData, posFilter: e.target.value })}
+                        placeholder="e.g., /apps/orVgW5E67CRT25Kt7bKAu7iGp3T/pos"
+                      />
+                      <p className="text-sm text-muted-foreground">
+                        Optional filter for Point of Sale revenues
+                      </p>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => {
+                      setIsAddDialogOpen(false);
+                      setFormData({ label: '', storeId: '', posFilter: '' });
+                    }}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleAddStore}>Add Store</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </>
+          )}
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>BTCPay Server Configuration</CardTitle>
+          <CardDescription>
+            Configure your BTCPay Server connection settings
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="serverUrl">Server URL</Label>
+            <Input
+              id="serverUrl"
+              value={clientEnv.btcpayUrl}
+              disabled
+              className="bg-muted"
+            />
+            <p className="text-sm text-muted-foreground">
+              The server URL is configured via environment variables
+            </p>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="apiKey">API Key</Label>
+            <Input
+              id="apiKey"
+              type="password"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder="Enter your BTCPay Server API key"
+            />
+            <p className="text-sm text-muted-foreground">
+              Your API key is stored locally and never sent to any external servers
+            </p>
+          </div>
+          
+          {testMessage && (
+            <Alert className={getStatusClass()}>
+              <div className="flex items-center gap-2">
+                {getStatusIcon()}
+                <AlertDescription>{testMessage}</AlertDescription>
+              </div>
+            </Alert>
+          )}
+          
+          <div className="flex gap-2">
+            <Button onClick={handleSaveApiKey} className="flex-1">
+              Save API Key
+            </Button>
+            <Button 
+              onClick={handleTest} 
+              variant="secondary"
+              disabled={testStatus === 'testing'}
+            >
+              {testStatus === 'testing' ? 'Testing...' : 'Test Connection'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Expense Management</CardTitle>
+          <CardDescription>
+            Configure monthly operational expenses for profit/loss analysis
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <Label>Default VAT Rate</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  value={defaultVatRate !== undefined ? (defaultVatRate * 100).toFixed(0) : ''}
+                  placeholder="0"
+                  onChange={(e) => {
+                    const rate = parseFloat(e.target.value) / 100;
+                    if (!isNaN(rate) && rate >= 0 && rate <= 1) {
+                      updateDefaultVatRate(rate);
+                    }
+                  }}
+                  className="w-20 text-right"
+                  min="0"
+                  max="100"
+                />
+                <span className="text-sm text-muted-foreground">%</span>
+              </div>
+            </div>
+          </div>
+
+          {categories.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground mb-4">No expense categories configured</p>
+              <Dialog open={isAddCategoryOpen} onOpenChange={setIsAddCategoryOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add First Category
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add Expense Category</DialogTitle>
+                    <DialogDescription>
+                      Create a category to organize your expenses
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="category-name">Category Name *</Label>
+                      <Input
+                        id="category-name"
+                        value={categoryForm.name}
+                        onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
+                        placeholder="e.g., Operational Expenses"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="category-desc">Description</Label>
+                      <Input
+                        id="category-desc"
+                        value={categoryForm.description}
+                        onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
+                        placeholder="e.g., Monthly operational costs"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => {
+                      setIsAddCategoryOpen(false);
+                      setCategoryForm({ name: '', description: '' });
+                    }}>
+                      Cancel
+                    </Button>
+                    <Button onClick={async () => {
+                      if (categoryForm.name) {
+                        try {
+                          await addCategory({
+                            name: categoryForm.name,
+                            description: categoryForm.description,
+                            isActive: true
+                          });
+                          toast.success('Category added successfully');
+                          setIsAddCategoryOpen(false);
+                          setCategoryForm({ name: '', description: '' });
+                        } catch (error) {
+                          toast.error('Failed to add category');
+                        }
+                      }
+                    }}>
+                      Add Category
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+          ) : (
+            <Accordion type="single" collapsible className="w-full">
+              {categories.map((category) => {
+                const categoryItems = items.filter(item => item.categoryId === category.id);
+                const categoryTotal = categoryItems.reduce((sum, item) => {
+                  let amount = item.amount;
+                  if (item.frequency === 'yearly') amount /= 12;
+                  if (item.frequency === 'quarterly') amount /= 3;
+                  return sum + amount;
+                }, 0);
+
+                return (
+                  <AccordionItem key={category.id} value={`category-${category.id}`}>
+                    <AccordionTrigger className="hover:no-underline">
+                      <div className="flex justify-between items-center w-full pr-4">
+                        <div>
+                          <span className="font-medium">{category.name}</span>
+                          {category.description && (
+                            <span className="text-sm text-muted-foreground ml-2">
+                              {category.description}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary">
+                            €{categoryTotal.toFixed(2)}/mo
+                          </Badge>
+                          <Badge variant="outline">
+                            {categoryItems.length} items
+                          </Badge>
+                        </div>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-2 pt-2">
+                        {categoryItems.map((item) => {
+                          let displayAmount = item.amount;
+                          if (item.frequency === 'yearly') displayAmount /= 12;
+                          if (item.frequency === 'quarterly') displayAmount /= 3;
+
+                          return (
+                            <div
+                              key={item.id}
+                              className="flex justify-between items-center p-3 border rounded-lg"
+                            >
+                              <div>
+                                <div className="font-medium">{item.name}</div>
+                                <div className="text-sm text-muted-foreground">
+                                  €{item.amount.toFixed(2)} {item.frequency}
+                                  {item.frequency !== 'monthly' && ` (€${displayAmount.toFixed(2)}/mo)`}
+                                  {item.applyVat && ' • VAT applies'}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => deleteItem(item.id!)}
+                                >
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                        <Dialog open={isAddExpenseOpen && selectedCategoryId === category.id} 
+                                onOpenChange={(open) => {
+                                  setIsAddExpenseOpen(open);
+                                  if (!open) setSelectedCategoryId(null);
+                                }}>
+                          <DialogTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              className="w-full"
+                              onClick={() => setSelectedCategoryId(category.id!)}
+                            >
+                              <Plus className="mr-2 h-4 w-4" />
+                              Add Expense
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Add Expense</DialogTitle>
+                              <DialogDescription>
+                                Add a new expense to {category.name}
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 py-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="expense-name">Expense Name *</Label>
+                                <Input
+                                  id="expense-name"
+                                  value={expenseForm.name}
+                                  onChange={(e) => setExpenseForm({ ...expenseForm, name: e.target.value })}
+                                  placeholder="e.g., Rent"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="expense-amount">Amount (EUR) *</Label>
+                                <Input
+                                  id="expense-amount"
+                                  type="number"
+                                  value={expenseForm.amount}
+                                  onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
+                                  placeholder="0.00"
+                                  step="0.01"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="expense-frequency">Frequency</Label>
+                                <Select 
+                                  value={expenseForm.frequency}
+                                  onValueChange={(value) => setExpenseForm({ 
+                                    ...expenseForm, 
+                                    frequency: value as 'monthly' | 'quarterly' | 'yearly' 
+                                  })}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="monthly">Monthly</SelectItem>
+                                    <SelectItem value="quarterly">Quarterly</SelectItem>
+                                    <SelectItem value="yearly">Yearly</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Switch
+                                  id="expense-vat"
+                                  checked={expenseForm.applyVat}
+                                  onCheckedChange={(checked) => setExpenseForm({ ...expenseForm, applyVat: checked })}
+                                />
+                                <Label htmlFor="expense-vat">Apply VAT {defaultVatRate !== undefined ? `(${(defaultVatRate * 100).toFixed(0)}%)` : ''}</Label>
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <Button variant="outline" onClick={() => {
+                                setIsAddExpenseOpen(false);
+                                setSelectedCategoryId(null);
+                                setExpenseForm({
+                                  name: '',
+                                  amount: '',
+                                  applyVat: false,
+                                  frequency: 'monthly',
+                                  notes: ''
+                                });
+                              }}>
+                                Cancel
+                              </Button>
+                              <Button onClick={async () => {
+                                if (expenseForm.name && expenseForm.amount && category.id) {
+                                  try {
+                                    await addItem({
+                                      categoryId: category.id,
+                                      name: expenseForm.name,
+                                      amount: parseFloat(expenseForm.amount),
+                                      currency: 'EUR',
+                                      isRecurring: true,
+                                      frequency: expenseForm.frequency,
+                                      applyVat: expenseForm.applyVat,
+                                      vatRate: defaultVatRate || 0,
+                                      notes: expenseForm.notes,
+                                      isActive: true
+                                    });
+                                    toast.success('Expense added successfully');
+                                    setIsAddExpenseOpen(false);
+                                    setSelectedCategoryId(null);
+                                    setExpenseForm({
+                                      name: '',
+                                      amount: '',
+                                      applyVat: false,
+                                      frequency: 'monthly',
+                                      notes: ''
+                                    });
+                                  } catch (error) {
+                                    toast.error('Failed to add expense');
+                                  }
+                                }
+                              }}>
+                                Add Expense
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                );
+              })}
+            </Accordion>
+          )}
+
+          {categories.length > 0 && (
+            <Dialog open={isAddCategoryOpen} onOpenChange={setIsAddCategoryOpen}>
+              <DialogTrigger asChild>
+                <Button className="w-full">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Category
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add Expense Category</DialogTitle>
+                  <DialogDescription>
+                    Create a category to organize your expenses
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="add-category-name">Category Name *</Label>
+                    <Input
+                      id="add-category-name"
+                      value={categoryForm.name}
+                      onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
+                      placeholder="e.g., Operational Expenses"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="add-category-desc">Description</Label>
+                    <Input
+                      id="add-category-desc"
+                      value={categoryForm.description}
+                      onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
+                      placeholder="e.g., Monthly operational costs"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => {
+                    setIsAddCategoryOpen(false);
+                    setCategoryForm({ name: '', description: '' });
+                  }}>
+                    Cancel
+                  </Button>
+                  <Button onClick={async () => {
+                    if (categoryForm.name) {
+                      try {
+                        await addCategory({
+                          name: categoryForm.name,
+                          description: categoryForm.description,
+                          isActive: true
+                        });
+                        toast.success('Category added successfully');
+                        setIsAddCategoryOpen(false);
+                        setCategoryForm({ name: '', description: '' });
+                      } catch (error) {
+                        toast.error('Failed to add category');
+                      }
+                    }
+                  }}>
+                    Add Category
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
+        </CardContent>
+      </Card>
+      
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>About</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <p className="text-sm text-muted-foreground">
+            BTCPayServer Companion v0.1.0
+          </p>
+          <p className="text-sm text-muted-foreground">
+            A companion app for BTCPay Server financial analysis
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

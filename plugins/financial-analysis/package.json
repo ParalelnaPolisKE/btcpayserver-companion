@@ -1,0 +1,17 @@
+{
+  "name": "@btcpayserver-companion/financial-analysis",
+  "version": "1.0.0",
+  "description": "Financial Analysis plugin for BTCPayServer Companion",
+  "main": "index.tsx",
+  "author": "Michal Takáč",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "next": "^14.0.0 || ^15.0.0"
+  },
+  "dependencies": {
+    "recharts": "^2.10.3",
+    "date-fns": "^3.0.6"
+  }
+}

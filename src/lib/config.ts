@@ -1,7 +1,7 @@
 // Application configuration
 export const config = {
   app: {
-    name: 'PPKE BTCPay Companion',
+    name: 'BTCPayServer Companion',
     version: '0.1.0',
     useMockData: false, // Set to true to use mock data
   },

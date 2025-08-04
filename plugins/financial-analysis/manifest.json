@@ -1,0 +1,42 @@
+{
+  "id": "financial-analysis",
+  "name": "Financial Analysis",
+  "version": "1.0.0",
+  "description": "Comprehensive financial analytics dashboard with revenue tracking, expense management, and profit/loss analysis",
+  "author": "Michal Takáč",
+  "homepage": "https://btcpayserver.org",
+  "license": "MIT",
+  "main": "index.tsx",
+  "icon": "TrendingUp",
+  "routes": {
+    "main": "/",
+    "settings": "/settings"
+  },
+  "requiredPermissions": [
+    {
+      "permission": "btcpay.store.canviewinvoices",
+      "description": "View invoices to analyze revenue and transactions",
+      "required": true
+    },
+    {
+      "permission": "btcpay.store.canviewstoresettings",
+      "description": "Access store information and settings",
+      "required": true
+    },
+    {
+      "permission": "btcpay.store.canmodifyinvoices",
+      "description": "Update invoice metadata for tracking",
+      "required": false
+    }
+  ],
+  "dependencies": {
+    "recharts": "^2.10.3",
+    "date-fns": "^3.0.6"
+  },
+  "isPaid": false,
+  "price": null,
+  "category": "analytics",
+  "tags": ["finance", "analytics", "dashboard", "revenue", "expenses"],
+  "screenshots": [],
+  "minAppVersion": "1.0.0"
+}

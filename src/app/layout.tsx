@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BTCPay Companion - Financial Dashboard",
-  description: "Financial analytics and event check-in for BTCPayServer",
+  title: "BTCPayServer Companion - Financial Dashboard",
+  description: "Financial analytics dashboard for BTCPayServer",
 };
 
 export default function RootLayout({

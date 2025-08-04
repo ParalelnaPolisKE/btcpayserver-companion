@@ -1,6 +1,6 @@
-# BTCPay Companion
+# BTCPayServer Companion
 
-A comprehensive financial dashboard and event check-in service for BTCPayServer. This companion app provides real-time analytics, financial metrics, and seamless event management integration with the SatoshiTickets plugin.
+A comprehensive financial dashboard for BTCPayServer. This companion app provides real-time analytics and financial metrics for your BTCPay store.
 
 ## Features
 
@@ -13,13 +13,6 @@ A comprehensive financial dashboard and event check-in service for BTCPayServer.
 - **Top products** report showing best-selling items
 - **Average transaction value** calculations
 - **Conversion rate** metrics
-
-### 🎫 Event Check-in
-- **QR code scanning** for quick attendee check-ins
-- **Manual ticket entry** as a fallback option
-- **Real-time validation** against BTCPayServer
-- **Check-in status** tracking to prevent duplicate entries
-- **Offline-capable** with mock data mode
 
 ## Getting Started
 
@@ -51,7 +44,6 @@ Edit `.env` with your BTCPayServer details:
 BTCPAYSERVER_API_KEY=your-btcpay-api-key-here
 NEXT_PUBLIC_BTCPAY_URL=https://your-btcpay-instance.com
 NEXT_PUBLIC_STORE_ID=your-store-id
-NEXT_PUBLIC_EVENT_ID=your-event-id
 
 # Development Settings
 NEXT_PUBLIC_USE_MOCK=false  # Set to true for demo mode
@@ -100,10 +92,9 @@ src/
 ├── app/                    # Next.js app directory
 │   ├── actions/           # Server actions for API calls
 │   ├── dashboard/         # Dashboard pages
-│   └── check-in/          # Check-in pages
+│   └── settings/          # Settings pages
 ├── components/            # Reusable UI components
 │   ├── dashboard/         # Dashboard-specific components
-│   ├── check-in/          # Check-in components
 │   └── ui/                # shadcn/ui components
 ├── services/              # API client services
 │   ├── btcpay-client.ts   # Real BTCPay API integration
@@ -117,7 +108,6 @@ The app integrates with BTCPayServer's Greenfield API v1:
 - **Invoices**: Fetch, filter, and analyze invoice data
 - **Store Info**: Get store configuration and settings
 - **Payment Methods**: Retrieve enabled payment options
-- **SatoshiTickets**: Check-in integration (with invoice fallback)
 
 ## Mock Mode
 
@@ -145,9 +135,6 @@ If your BTCPayServer is behind an authentication proxy:
 ### Tests Failing
 Use `npm test` instead of `bun test` - Bun's test runner doesn't support Jest mocks.
 
-### Double QR Scanner
-Disable React Strict Mode in development if you see duplicate scanners.
-
 ## Contributing
 
 1. Fork the repository
@@ -163,5 +150,4 @@ MIT License - see LICENSE file for details
 ## Acknowledgments
 
 - BTCPayServer team for the excellent API
-- SatoshiTickets plugin developers
 - shadcn/ui for the component library

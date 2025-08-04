@@ -4,8 +4,8 @@ import { BTCPayClient } from '@/services/btcpay-client';
 import { BTCPayMockClient } from '@/services/btcpay-mock';
 import { clientEnv } from '@/lib/env';
 import { startOfMonth, subMonths, endOfMonth, format } from 'date-fns';
-import { calculateTotalMonthlyExpenses } from '@/lib/expenses';
-import { STORES } from '@/lib/stores';
+import { getActiveStores, getStoreById } from '@/lib/stores-helper';
+import { getDB } from '@/lib/indexeddb';
 import type { TimeFrame } from '@/types/dashboard';
 
 // Simple in-memory cache for BTC price
@@ -15,6 +15,52 @@ let btcPriceCache: {
 } | null = null;
 
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+// Calculate total monthly expenses from IndexedDB
+async function calculateMonthlyExpenses(includeVat: boolean = false): Promise<number> {
+  try {
+    const db = getDB();
+    await db.init();
+    await db.initializeDefaultExpenses();
+    
+    const [items, defaultVatRate] = await Promise.all([
+      db.getExpenseItems(),
+      db.getSetting('defaultVatRate')
+    ]);
+    
+    const vatRate = defaultVatRate || 0.23;
+    let total = 0;
+    
+    items.forEach(item => {
+      if (item.isActive !== false) {
+        let itemAmount = item.amount;
+        
+        // Adjust for frequency
+        if (item.frequency === 'yearly') {
+          itemAmount = itemAmount / 12;
+        } else if (item.frequency === 'quarterly') {
+          itemAmount = itemAmount / 3;
+        }
+        
+        // Apply VAT if needed
+        if (includeVat && item.applyVat !== false) {
+          const itemVatRate = item.vatRate !== undefined ? item.vatRate : vatRate;
+          itemAmount = itemAmount * (1 + itemVatRate);
+        }
+        
+        total += itemAmount;
+      }
+    });
+    
+    return total;
+  } catch (error) {
+    console.error('Failed to calculate expenses from IndexedDB:', error);
+    // Fallback to hardcoded values
+    const { calculateTotalMonthlyExpenses } = await import('@/lib/expenses');
+    // When falling back, we don't have VAT rate from DB, so use 0 (no VAT)
+    return calculateTotalMonthlyExpenses(includeVat, 0);
+  }
+}
 
 // Get client instance - for client-side, we'll need the API key from localStorage or env
 const getClient = (storeId?: string) => {
@@ -94,7 +140,7 @@ export async function getBTCExchangeRate(): Promise<{ eur: number; usd: number }
   }
 }
 
-function calculateMetrics(invoices: any[]) {
+async function calculateMetrics(invoices: any[]) {
   const now = new Date();
   const currentMonth = startOfMonth(now);
   const lastMonth = startOfMonth(subMonths(now, 1));
@@ -247,8 +293,8 @@ function calculateMetrics(invoices: any[]) {
   });
   
   // Calculate profit/loss based on monthly expenses
-  const monthlyExpensesNoVat = calculateTotalMonthlyExpenses(false);
-  const monthlyExpensesWithVat = calculateTotalMonthlyExpenses(true);
+  const monthlyExpensesNoVat = await calculateMonthlyExpenses(false);
+  const monthlyExpensesWithVat = await calculateMonthlyExpenses(true);
   const profitNoVat = currentMonthRevenue - monthlyExpensesNoVat;
   const profitWithVat = currentMonthRevenue - monthlyExpensesWithVat;
   
@@ -292,8 +338,9 @@ export async function getDashboardMetrics(storeId?: string, allStores?: boolean,
     
     if (allStores) {
       // Fetch data from all stores in parallel
+      const stores = await getActiveStores();
       const allStoreData = await Promise.all(
-        STORES.map(async (store) => {
+        stores.map(async (store) => {
           const client = getClient(store.storeId);
           const sixMonthsAgo = subMonths(new Date(), 6);
           
@@ -322,7 +369,7 @@ export async function getDashboardMetrics(storeId?: string, allStores?: boolean,
       
       // Combine all invoices
       const allInvoices = allStoreData.flatMap(data => data.invoices);
-      const metrics = calculateMetrics(allInvoices);
+      const metrics = await calculateMetrics(allInvoices);
       
       // Create aggregated store info
       const storeInfo = {
@@ -361,14 +408,14 @@ export async function getDashboardMetrics(storeId?: string, allStores?: boolean,
       ]);
       
       // Check if this store has POS filter capability
-      const storeConfig = STORES.find(s => s.storeId === storeId);
+      const storeConfig = await getStoreById(storeId!);
       
       // Apply POS filter if requested and available for this store
       if (showPosOnly && storeConfig?.posFilter) {
         invoices = filterPosInvoices(invoices, storeConfig.posFilter);
       }
       
-      const metrics = calculateMetrics(invoices);
+      const metrics = await calculateMetrics(invoices);
       
       const apiKey = typeof window !== 'undefined' 
         ? localStorage.getItem('btcpay_api_key') || process.env.NEXT_PUBLIC_BTCPAY_API_KEY || ''
@@ -456,7 +503,8 @@ export async function getRevenueData(timeFrame: TimeFrame = 'monthly', storeId?:
     
     if (allStores) {
       // Fetch from all stores
-      const allInvoicesPromises = STORES.map(async (store) => {
+      const stores = await getActiveStores();
+      const allInvoicesPromises = stores.map(async (store) => {
         const client = getClient(store.storeId);
         try {
           let storeInvoices = await client.getInvoices({
@@ -487,7 +535,7 @@ export async function getRevenueData(timeFrame: TimeFrame = 'monthly', storeId?:
       });
       
       // Apply POS filter if requested and available
-      const storeConfig = STORES.find(s => s.storeId === storeId);
+      const storeConfig = await getStoreById(storeId!);
       if (showPosOnly && storeConfig?.posFilter) {
         invoices = filterPosInvoices(invoices, storeConfig.posFilter);
       }

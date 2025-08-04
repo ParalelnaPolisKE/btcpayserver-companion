@@ -3,7 +3,7 @@
 # Simple build script for personal distribution
 # This creates an app bundle that can be shared directly with friends
 
-echo "🚀 Building PPKE BTCPay Companion for personal distribution..."
+echo "🚀 Building BTCPayServer Companion for personal distribution..."
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -44,7 +44,7 @@ cargo tauri build
 
 # Check the result
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    APP_PATH="target/release/bundle/macos/PPKE BTCPay Companion.app"
+    APP_PATH="target/release/bundle/macos/BTCPayServer Companion.app"
     if [ -d "$APP_PATH" ]; then
         echo -e "${GREEN}✅ macOS app built successfully!${NC}"
         echo -e "${BLUE}App location: src-tauri/$APP_PATH${NC}"

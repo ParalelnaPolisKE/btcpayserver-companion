@@ -14,9 +14,10 @@ import { getRevenueProjection } from '@/services/dashboard-api';
 import type { TimeFrame, DashboardMetrics } from '@/types/dashboard';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { STORES, ALL_STORES_ID } from '@/lib/stores';
+import { ALL_STORES_ID } from '@/lib/stores';
 import { useRouter } from 'next/navigation';
-import { SLOVAK_VAT_RATE, formatExpenseBreakdown } from '@/lib/expenses';
+import { useStores } from '@/contexts/stores-context';
+import { useExpenses } from '@/contexts/expenses-context';
 import {
   Tooltip,
   TooltipContent,
@@ -36,9 +37,29 @@ export default function DashboardClient({ metrics, selectedStoreId, showPosOnly 
   const [displayCurrency, setDisplayCurrency] = useState<'EUR' | 'BTC'>('EUR');
   const [includeVat, setIncludeVat] = useState(false);
   const router = useRouter();
+  const { stores, getStoreSelectOptions } = useStores();
+  const { getExpenseBreakdown, defaultVatRate, calculateTotalMonthlyExpenses } = useExpenses();
   
   const btcRate = metrics.exchangeRate?.eur || 95000;
   const isAllStores = selectedStoreId === ALL_STORES_ID;
+  
+  // Format expense breakdown for tooltip
+  const formatExpenseBreakdown = (includeVat: boolean): string => {
+    const breakdown = getExpenseBreakdown(includeVat);
+    const lines = Object.entries(breakdown).map(
+      ([name, amount]) => `${name}: €${amount.toFixed(2)}`
+    );
+    
+    const total = calculateTotalMonthlyExpenses(includeVat);
+    lines.push('─────────────');
+    lines.push(`Total: €${total.toFixed(2)}`);
+    
+    if (includeVat && defaultVatRate !== undefined) {
+      lines.push(`(incl. ${(defaultVatRate * 100).toFixed(0)}% VAT)`);
+    }
+    
+    return lines.join('\n');
+  };
   
   const loadProjections = useCallback(async (timeFrame: TimeFrame) => {
     setLoadingProjections(true);
@@ -187,10 +208,9 @@ export default function DashboardClient({ metrics, selectedStoreId, showPosOnly 
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ALL_STORES_ID}>All Stores (Combined)</SelectItem>
-                  {STORES.map(store => (
-                    <SelectItem key={store.storeId} value={store.storeId}>
-                      {store.label}
+                  {getStoreSelectOptions().map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -251,8 +271,9 @@ export default function DashboardClient({ metrics, selectedStoreId, showPosOnly 
               size="sm"
               className="rounded-l-none"
               onClick={() => setIncludeVat(true)}
+              disabled={defaultVatRate === undefined}
             >
-              With {(SLOVAK_VAT_RATE * 100).toFixed(0)}% VAT
+              {defaultVatRate !== undefined ? `With ${(defaultVatRate * 100).toFixed(0)}% VAT` : 'With VAT'}
             </Button>
           </div>
           <TooltipProvider>
@@ -269,6 +290,16 @@ export default function DashboardClient({ metrics, selectedStoreId, showPosOnly 
           </TooltipProvider>
         </div>
       </div>
+
+      {/* VAT Configuration Alert */}
+      {defaultVatRate === undefined && (
+        <Alert className="mb-6">
+          <InfoIcon className="h-4 w-4" />
+          <AlertDescription>
+            VAT rate is not configured. To include VAT in expense calculations, please <a href="/settings" className="underline font-medium">configure it in settings</a>.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Key Metrics */}
       <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mb-8">
@@ -406,7 +437,7 @@ export default function DashboardClient({ metrics, selectedStoreId, showPosOnly 
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            const storeData = STORES.find(s => s.label === store.name);
+                            const storeData = stores.find(s => s.label === store.name);
                             if (storeData) {
                               handleStoreChange(storeData.storeId);
                             }

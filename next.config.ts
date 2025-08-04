@@ -10,6 +10,16 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  transpilePackages: ['plugins/*'],
+  webpack: (config, { isServer }) => {
+    // Add alias for plugins directory
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@plugins': './plugins',
+    };
+    
+    return config;
+  },
 };
 
 export default nextConfig;

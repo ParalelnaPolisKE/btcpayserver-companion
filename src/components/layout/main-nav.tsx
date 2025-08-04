@@ -3,21 +3,16 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, QrCode, Settings } from 'lucide-react';
+import { LayoutDashboard, Settings, Package } from 'lucide-react';
 
 export function MainNav() {
   const pathname = usePathname();
 
   const navItems = [
     {
-      href: '/dashboard',
-      label: 'Dashboard',
-      icon: LayoutDashboard,
-    },
-    {
-      href: '/check-in',
-      label: 'Event Check-in',
-      icon: QrCode,
+      href: '/apps',
+      label: 'Apps',
+      icon: Package,
     },
     {
       href: '/settings',
@@ -31,11 +26,11 @@ export function MainNav() {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-6">
-            <Link href="/dashboard" className="flex items-center gap-2">
+            <Link href="/apps" className="flex items-center gap-2">
               <div className="h-8 w-8 rounded bg-primary flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-sm">BTC</span>
               </div>
-              <span className="font-semibold text-lg">BTCPay Companion</span>
+              <span className="font-semibold text-lg">BTCPayServer Companion</span>
             </Link>
             
             <div className="flex items-center gap-1">

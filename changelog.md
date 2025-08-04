@@ -8,10 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2025-01-17
 
 ### Added
-- Initial release of BTCPayServer Companion App for event check-ins
-- QR code scanner functionality using html5-qrcode library
-- Manual ticket number entry as fallback option
-- Dual API approach: SatoshiTickets plugin endpoints with invoice API fallback
+- Initial release of BTCPayServer Companion App
+- Financial dashboard with comprehensive analytics:
+  - Monthly Recurring Revenue (MRR) tracking with growth rates
+  - Revenue trends visualization over 6 months
+  - Revenue projections using linear regression
+  - Invoice status breakdown charts
+  - Payment method analytics
+  - Top products report
+  - Average transaction value calculations
+  - Conversion rate metrics
 - Mock mode that automatically activates when no API key is configured
 - Server actions architecture for secure API key handling
 - React Query integration for efficient data fetching and caching
@@ -22,28 +28,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLAUDE.md documentation for development guidance
 
 ### Fixed
-- Double QR scanner rendering issue in React strict mode
 - Mock mode incorrectly showing despite API key being set
-- Ticket lookup failures by implementing invoice API fallback
+- Server-side environment variable handling for security
 
 ### Technical Details
 - Built with Next.js 15 and App Router
 - TypeScript for type safety
 - TailwindCSS for styling
+- Recharts for data visualization
 - Zod for runtime validation
 - Axios for HTTP requests
 - Server-side environment variable handling for security
 
 ### Known Issues
 - Bun test runner doesn't support Jest mocks - use `npm test` instead
-- SatoshiTickets plugin endpoints may not be exposed in all BTCPayServer configurations
-- Invoice metadata update endpoint may require additional permissions
+- BTCPayServer behind authentication proxy may require additional configuration
 
 ### Future Enhancements
-- Offline mode with sync capabilities
-- Batch check-in functionality
-- Event statistics dashboard
-- Export check-in data
-- Multi-language support
+- Multi-store aggregated analytics
+- Export functionality for financial data
+- Real-time payment notifications
+- Enhanced filtering and date range selection
+- Custom report builder
 - WebSocket real-time updates
 - PWA capabilities for mobile devices

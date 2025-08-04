@@ -1,4 +1,4 @@
-// Monthly operational expenses configuration
+// Default monthly operational expenses configuration (used as fallback only)
 export const MONTHLY_EXPENSES = {
   rent: 700,
   electricity: 232.12,
@@ -6,14 +6,14 @@ export const MONTHLY_EXPENSES = {
   antikInternet: 41.48,
 };
 
-export const SLOVAK_VAT_RATE = 0.23; // 23%
-
-export function calculateTotalMonthlyExpenses(includeVat: boolean = false): number {
+// Note: VAT should be configured in Settings. This is only used as a fallback.
+export function calculateTotalMonthlyExpenses(includeVat: boolean = false, vatRate: number = 0): number {
   const baseTotal = Object.values(MONTHLY_EXPENSES).reduce((sum, expense) => sum + expense, 0);
-  return includeVat ? baseTotal * (1 + SLOVAK_VAT_RATE) : baseTotal;
+  // Only apply VAT if explicitly requested AND a VAT rate is provided
+  return includeVat && vatRate > 0 ? baseTotal * (1 + vatRate) : baseTotal;
 }
 
-export function getExpenseBreakdown(includeVat: boolean = false) {
+export function getExpenseBreakdown(includeVat: boolean = false, vatRate: number = 0) {
   const baseExpenses = {
     'Rent': MONTHLY_EXPENSES.rent,
     'Electricity': MONTHLY_EXPENSES.electricity,
@@ -21,31 +21,31 @@ export function getExpenseBreakdown(includeVat: boolean = false) {
     'ANTIK Internet': MONTHLY_EXPENSES.antikInternet,
   };
   
-  if (!includeVat) {
+  if (!includeVat || vatRate === 0) {
     return baseExpenses;
   }
   
   // Apply VAT to each expense
   const expensesWithVat: Record<string, number> = {};
   Object.entries(baseExpenses).forEach(([key, value]) => {
-    expensesWithVat[key] = value * (1 + SLOVAK_VAT_RATE);
+    expensesWithVat[key] = value * (1 + vatRate);
   });
   
   return expensesWithVat;
 }
 
-export function formatExpenseBreakdown(includeVat: boolean = false): string {
-  const breakdown = getExpenseBreakdown(includeVat);
+export function formatExpenseBreakdown(includeVat: boolean = false, vatRate: number = 0): string {
+  const breakdown = getExpenseBreakdown(includeVat, vatRate);
   const lines = Object.entries(breakdown).map(
     ([name, amount]) => `${name}: €${amount.toFixed(2)}`
   );
   
-  const total = calculateTotalMonthlyExpenses(includeVat);
+  const total = calculateTotalMonthlyExpenses(includeVat, vatRate);
   lines.push('─────────────');
   lines.push(`Total: €${total.toFixed(2)}`);
   
-  if (includeVat) {
-    lines.push(`(incl. ${(SLOVAK_VAT_RATE * 100).toFixed(0)}% VAT)`);
+  if (includeVat && vatRate > 0) {
+    lines.push(`(incl. ${(vatRate * 100).toFixed(0)}% VAT)`);
   }
   
   return lines.join('\n');
