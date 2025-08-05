@@ -224,17 +224,15 @@ export default function FinancialAnalysisSettings() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <div className="flex items-center gap-4 mb-8">
+      <div className="mb-8">
         <Link href="/apps/financial-analysis">
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" className="mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Financial Analysis
           </Button>
         </Link>
-        <div>
-          <h1 className="text-3xl font-bold">Financial Analysis Settings</h1>
-          <p className="text-muted-foreground mt-1">Configure your BTCPay stores and expense tracking</p>
-        </div>
+        <h1 className="text-3xl font-bold">Financial Analysis Settings</h1>
+        <p className="text-muted-foreground mt-1">Configure your BTCPay stores and expense tracking</p>
       </div>
 
       <div className="space-y-6">

@@ -10,10 +10,26 @@ interface PluginSettingsClientProps {
 export default function PluginSettingsClient({ appId }: PluginSettingsClientProps) {
   const PluginSettingsComponent = useMemo(() => {
     return dynamic(
-      () => import(`@/plugins/${appId}/index`).then(mod => {
-        // Try to get the settings component
-        return mod.FinancialAnalysisSettings || mod.SettingsComponent || mod.Settings;
-      }),
+      async () => {
+        try {
+          // First try to import a dedicated settings file
+          const settingsModule = await import(`@/plugins/${appId}/settings`);
+          return settingsModule.default || settingsModule.Settings || settingsModule.SettingsComponent;
+        } catch (error) {
+          // If no dedicated settings file, try the main index file
+          try {
+            const indexModule = await import(`@/plugins/${appId}/index`);
+            return indexModule.FinancialAnalysisSettings || indexModule.SettingsComponent || indexModule.Settings || indexModule.default;
+          } catch (indexError) {
+            // Return a default component if nothing is found
+            return () => (
+              <div className="container mx-auto py-8">
+                <p className="text-muted-foreground">No settings available for {appId}</p>
+              </div>
+            );
+          }
+        }
+      },
       {
         ssr: false,
         loading: () => (

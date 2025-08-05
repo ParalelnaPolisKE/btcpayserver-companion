@@ -1,0 +1,37 @@
+{
+  "id": "event-checkin",
+  "name": "Event Check-In",
+  "version": "1.0.0",
+  "description": "Check-in system for events using BTCPay Server invoices as tickets. Scan QR codes to verify and check-in attendees.",
+  "author": "BTCPay Companion",
+  "homepage": "https://btcpayserver.org",
+  "license": "MIT",
+  "main": "index.tsx",
+  "icon": "QrCode",
+  "routes": {
+    "main": "/",
+    "settings": "/settings"
+  },
+  "requiredPermissions": [
+    {
+      "permission": "btcpay.store.canviewinvoices",
+      "description": "View invoices to verify tickets",
+      "required": true
+    },
+    {
+      "permission": "btcpay.store.canmodifyinvoices",
+      "description": "Update invoice metadata for check-in status",
+      "required": true
+    }
+  ],
+  "dependencies": {
+    "html5-qrcode": "^2.3.8",
+    "date-fns": "^3.0.6"
+  },
+  "isPaid": false,
+  "price": null,
+  "category": "events",
+  "tags": ["events", "tickets", "check-in", "qr-code"],
+  "screenshots": [],
+  "minAppVersion": "1.0.0"
+}

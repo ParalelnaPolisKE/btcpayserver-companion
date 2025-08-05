@@ -1,0 +1,9 @@
+{
+  "name": "event-checkin-plugin",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "html5-qrcode": "^2.3.8",
+    "date-fns": "^3.0.6"
+  }
+}
