@@ -1,6 +1,6 @@
 import React from 'react';
-import FinancialAnalysisApp from './components/FinancialAnalysisApp';
-import FinancialAnalysisSettings from './components/FinancialAnalysisSettings';
+import FinancialAnalysisApp from './FinancialAnalysisApp';
+import FinancialAnalysisSettings from './FinancialAnalysisSettings';
 
 // Plugin metadata export
 export const metadata = {

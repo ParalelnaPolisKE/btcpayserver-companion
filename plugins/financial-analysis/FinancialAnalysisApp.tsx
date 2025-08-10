@@ -1,46 +1,51 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useSearchParams } from 'next/navigation';
+import { usePlugins } from '@bps-companion/contexts/plugins-context';
+import Link from 'next/link';
+import manifest from './manifest.json';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@bps-companion/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@bps-companion/components/ui/tabs';
+import { Alert, AlertDescription } from '@bps-companion/components/ui/alert';
 import { InfoIcon, TrendingUp, TrendingDown, DollarSign, Receipt, CreditCard, Package } from 'lucide-react';
-import { StatusBreakdown } from '@/components/dashboard/status-breakdown';
-import { PaymentMethodChart } from '@/components/dashboard/payment-method-chart';
-import { TopProducts } from '@/components/dashboard/top-products';
-import { MetricCard } from '@/components/dashboard/metric-card';
-import { EnhancedProjectionChart } from '@/components/dashboard/enhanced-projection-chart';
-import { getRevenueProjection } from '@/services/dashboard-api';
-import type { TimeFrame, DashboardMetrics } from '@/types/dashboard';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ALL_STORES_ID } from '@/lib/stores';
+import { StatusBreakdown } from './components/status-breakdown';
+import { PaymentMethodChart } from './components/payment-method-chart';
+import { TopProducts } from './components/top-products';
+import { MetricCard } from './components/metric-card';
+import { EnhancedProjectionChart } from './components/enhanced-projection-chart';
+import { getRevenueProjection, getDashboardMetrics } from './services/dashboard-api';
+import type { TimeFrame, DashboardMetrics } from './types';
+import { Button } from '@bps-companion/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@bps-companion/components/ui/select';
+import { ALL_STORES_ID } from '@bps-companion/lib/stores';
 import { useRouter } from 'next/navigation';
-import { useStores } from '@/contexts/stores-context';
-import { useExpenses } from '@/contexts/expenses-context';
+import { useStores } from '@bps-companion/contexts/stores-context';
+import { useExpenses } from '@bps-companion/contexts/expenses-context';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from '@bps-companion/components/ui/tooltip';
 
-interface DashboardClientProps {
-  metrics: DashboardMetrics;
-  selectedStoreId: string;
-  showPosOnly: boolean;
-}
-
-export default function DashboardClient({ metrics, selectedStoreId, showPosOnly }: DashboardClientProps) {
+export default function FinancialAnalysisClient() {
+  const searchParams = useSearchParams();
+  const { isPluginEnabled } = usePlugins();
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [loading, setLoading] = useState(true);
   const [projections, setProjections] = useState<any>(null);
   const [loadingProjections, setLoadingProjections] = useState(false);
   const [displayCurrency, setDisplayCurrency] = useState<'EUR' | 'BTC'>('EUR');
   const [includeVat, setIncludeVat] = useState(false);
   const router = useRouter();
-  const { stores, getStoreSelectOptions } = useStores();
+  const { stores, getStoreSelectOptions, isLoading: storesLoading } = useStores();
   const { getExpenseBreakdown, defaultVatRate, calculateTotalMonthlyExpenses } = useExpenses();
   
-  const btcRate = metrics.exchangeRate?.eur || 95000;
+  const selectedStoreId = searchParams.get('storeId') || (stores[0]?.storeId || ALL_STORES_ID);
+  const showPosOnly = searchParams.get('posOnly') === 'true';
+  
+  const btcRate = metrics?.exchangeRate?.eur || 95000;
   const isAllStores = selectedStoreId === ALL_STORES_ID;
   
   // Format expense breakdown for tooltip
@@ -60,6 +65,23 @@ export default function DashboardClient({ metrics, selectedStoreId, showPosOnly 
     
     return lines.join('\n');
   };
+  
+  // Load metrics
+  useEffect(() => {
+    async function loadMetrics() {
+      if (storesLoading) return;
+      setLoading(true);
+      try {
+        const data = await getDashboardMetrics(selectedStoreId, false, showPosOnly);
+        setMetrics(data);
+      } catch (error) {
+        console.error('Failed to load metrics:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadMetrics();
+  }, [selectedStoreId, showPosOnly, storesLoading, defaultVatRate]);
   
   const loadProjections = useCallback(async (timeFrame: TimeFrame) => {
     setLoadingProjections(true);
@@ -87,19 +109,19 @@ export default function DashboardClient({ metrics, selectedStoreId, showPosOnly 
     const params = new URLSearchParams();
     params.set('storeId', storeId);
     if (showPosOnly) params.set('posOnly', 'true');
-    router.push(`/dashboard?${params.toString()}`);
+    router.push(`/apps/financial-analysis?${params.toString()}`);
   };
   
   const handlePosFilterToggle = () => {
     const params = new URLSearchParams();
     params.set('storeId', selectedStoreId);
     if (!showPosOnly) params.set('posOnly', 'true');
-    router.push(`/dashboard?${params.toString()}`);
+    router.push(`/apps/financial-analysis?${params.toString()}`);
   };
   
   // Convert values based on display currency
   const convertValue = (value: number, fromCurrency?: string) => {
-    const sourceCurrency = fromCurrency || metrics.primaryCurrency || 'EUR';
+    const sourceCurrency = fromCurrency || metrics?.primaryCurrency || 'EUR';
     
     if (displayCurrency === 'BTC') {
       if (sourceCurrency === 'EUR') {
@@ -108,7 +130,7 @@ export default function DashboardClient({ metrics, selectedStoreId, showPosOnly 
         return value / 100000000; // 1 BTC = 100M SATS
       } else if (sourceCurrency === 'USD') {
         // Convert USD to BTC using USD rate
-        const usdRate = metrics.exchangeRate?.usd || 100000;
+        const usdRate = metrics?.exchangeRate?.usd || 100000;
         return value / usdRate;
       }
     } else if (displayCurrency === 'EUR') {
@@ -116,7 +138,7 @@ export default function DashboardClient({ metrics, selectedStoreId, showPosOnly 
         return (value / 100000000) * btcRate;
       } else if (sourceCurrency === 'USD') {
         // Convert USD to EUR via BTC
-        const usdRate = metrics.exchangeRate?.usd || 100000;
+        const usdRate = metrics?.exchangeRate?.usd || 100000;
         return (value / usdRate) * btcRate;
       }
     }
@@ -125,7 +147,7 @@ export default function DashboardClient({ metrics, selectedStoreId, showPosOnly 
   };
   
   const formatCurrency = (amount: number, currency?: string) => {
-    const cur = currency || metrics.primaryCurrency || 'EUR';
+    const cur = currency || metrics?.primaryCurrency || 'EUR';
     const convertedAmount = convertValue(amount, cur);
     
     if (displayCurrency === 'BTC') {
@@ -159,11 +181,60 @@ export default function DashboardClient({ metrics, selectedStoreId, showPosOnly 
     return `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
   };
 
+  // Check if plugin is enabled
+  if (!isPluginEnabled('financial-analysis')) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <h1 className="text-3xl font-bold mb-8">Financial Analysis</h1>
+        <Card>
+          <CardContent className="py-8">
+            <p className="text-center text-muted-foreground mb-4">
+              The Financial Analysis app is currently disabled.
+            </p>
+            <div className="text-center">
+              <Link href="/apps">
+                <Button>Go to Apps</Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+  
+  // Handle loading states
+  if (loading || storesLoading || !metrics) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <h1 className="text-3xl font-bold mb-8">Financial Analysis</h1>
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Loading financial data...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Handle no stores configured
+  if (!storesLoading && stores.length === 0) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <h1 className="text-3xl font-bold mb-8">Financial Analysis</h1>
+        <Card>
+          <CardContent className="py-8">
+            <p className="text-center text-muted-foreground">
+              No BTCPay stores configured. Please configure at least one store in Settings.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h1 className="text-3xl font-bold">Financial Dashboard</h1>
+          <h1 className="text-3xl font-bold">Financial Analysis</h1>
           <p className="text-muted-foreground mt-1">
             {metrics.storeInfo?.name || 'BTCPay Store'} Analytics
           </p>
@@ -296,7 +367,10 @@ export default function DashboardClient({ metrics, selectedStoreId, showPosOnly 
         <Alert className="mb-6">
           <InfoIcon className="h-4 w-4" />
           <AlertDescription>
-            VAT rate is not configured. To include VAT in expense calculations, please <a href="/settings" className="underline font-medium">configure it in settings</a>.
+            VAT rate is not configured. To include VAT in expense calculations, please{' '}
+            <Link href={`/apps/${manifest.id}/settings`} className="underline font-medium">
+              configure it in settings
+            </Link>.
           </AlertDescription>
         </Alert>
       )}

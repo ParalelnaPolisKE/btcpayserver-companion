@@ -11,7 +11,8 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  transpilePackages: ['plugins/**'],
+  // transpilePackages is for npm packages, not local directories
+  // Local directories are handled by webpack config below
   webpack: (config, { isServer }) => {
     // Add alias for plugins directory
     config.resolve.alias = {
@@ -20,18 +21,7 @@ const nextConfig: NextConfig = {
     };
     
     // Ensure webpack can handle dynamic imports from plugins directory
-    config.module.rules.push({
-      test: /\.(tsx?|jsx?)$/,
-      include: [path.resolve('./plugins')],
-      use: [
-        {
-          loader: 'babel-loader',
-          options: {
-            presets: ['next/babel'],
-          },
-        },
-      ],
-    });
+    // Next.js already handles TypeScript/JSX transpilation
     
     return config;
   },

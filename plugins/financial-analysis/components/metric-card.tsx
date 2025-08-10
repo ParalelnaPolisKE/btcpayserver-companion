@@ -1,4 +1,4 @@
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@bps-companion/components/ui/card';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
 interface MetricCardProps {

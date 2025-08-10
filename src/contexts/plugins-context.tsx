@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getDB, InstalledPlugin } from '@/lib/indexeddb';
+import { getDatabaseInstance, InstalledPlugin } from '@/lib/indexeddb';
 import { PluginManifest, PluginConfig } from '@/types/plugin';
 
 interface PluginsContextType {
@@ -24,7 +24,7 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
 
   const loadPlugins = async () => {
     try {
-      const db = await getDB();
+      const db = await getDatabaseInstance();
       const plugins = await db.getInstalledPlugins();
       setInstalledPlugins(plugins);
       
@@ -77,7 +77,7 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
 
   const installPlugin = async (manifest: PluginManifest) => {
     try {
-      const db = await getDB();
+      const db = await getDatabaseInstance();
       await db.installPlugin(manifest);
       await loadPlugins();
     } catch (error) {
@@ -88,7 +88,7 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
 
   const uninstallPlugin = async (pluginId: string) => {
     try {
-      const db = await getDB();
+      const db = await getDatabaseInstance();
       await db.uninstallPlugin(pluginId);
       await loadPlugins();
     } catch (error) {
@@ -99,7 +99,7 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
 
   const togglePlugin = async (pluginId: string, enabled: boolean) => {
     try {
-      const db = await getDB();
+      const db = await getDatabaseInstance();
       const plugin = await db.getPlugin(pluginId);
       if (plugin) {
         await db.updatePluginConfig(pluginId, {
@@ -116,7 +116,7 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
 
   const updatePluginSettings = async (pluginId: string, settings: Record<string, any>) => {
     try {
-      const db = await getDB();
+      const db = await getDatabaseInstance();
       await db.updatePluginSettings(pluginId, settings);
       await loadPlugins();
     } catch (error) {

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getAvailablePlugins, removePluginFolder, type AvailablePlugin } from '@/app/actions/plugins';
+import { type AvailablePlugin } from '@/app/actions/plugins';
+import { getAvailablePluginsClient, removePluginFolderClient } from '@/services/plugin-client';
 import { PluginManifest } from '@/types/plugin';
 import { uploadPluginZip } from '@/services/plugin-upload-client';
 import PluginDropzone from '@/components/apps/plugin-dropzone';
@@ -61,7 +62,7 @@ export default function AppsClient() {
   useEffect(() => {
     const loadPlugins = async () => {
       try {
-        const plugins = await getAvailablePlugins();
+        const plugins = await getAvailablePluginsClient();
         setAvailablePlugins(plugins);
       } catch (error) {
         console.error('Failed to load available plugins:', error);
@@ -80,7 +81,7 @@ export default function AppsClient() {
       if (result.success) {
         toast.success(result.message);
         // Refresh the plugins list
-        const plugins = await getAvailablePlugins();
+        const plugins = await getAvailablePluginsClient();
         setAvailablePlugins(plugins);
         await refreshPlugins();
         setUploadDialogOpen(false);
@@ -148,11 +149,11 @@ export default function AppsClient() {
     if (!pluginToRemove) return;
     
     try {
-      const result = await removePluginFolder(pluginToRemove.id);
+      const result = await removePluginFolderClient(pluginToRemove.id);
       if (result.success) {
         toast.success(`${pluginToRemove.name} removed successfully`);
         // Refresh the plugins list
-        const plugins = await getAvailablePlugins();
+        const plugins = await getAvailablePluginsClient();
         setAvailablePlugins(plugins);
       } else {
         toast.error(result.message);

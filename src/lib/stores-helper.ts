@@ -1,5 +1,5 @@
 import { STORES as DEFAULT_STORES } from './stores';
-import { getDB, Store } from './indexeddb';
+import { getDatabaseInstance, Store } from './indexeddb';
 
 // Server-side or initial load: use default stores
 // Client-side after initialization: use IndexedDB stores
@@ -18,7 +18,7 @@ export async function getActiveStores(): Promise<Store[]> {
 
   try {
     // Client-side: try to get stores from IndexedDB
-    const db = getDB();
+    const db = getDatabaseInstance();
     await db.init();
     await db.initializeDefaultStores();
     const stores = await db.getStores();

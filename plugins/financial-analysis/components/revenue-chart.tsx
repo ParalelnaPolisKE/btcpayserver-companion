@@ -11,7 +11,7 @@ import {
   Legend,
   ReferenceLine
 } from 'recharts';
-import { formatExpenseBreakdown } from '@/lib/expenses';
+import { formatExpenseBreakdown } from '../lib/expenses';
 
 interface RevenueChartProps {
   data: Array<{

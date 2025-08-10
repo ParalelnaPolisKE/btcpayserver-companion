@@ -1,9 +1,8 @@
-'use server';
+// Plugin utilities - used by API routes and server components
 
 import fs from 'fs/promises';
 import path from 'path';
 import { PluginManifest } from '@/types/plugin';
-import { revalidatePath } from 'next/cache';
 
 export interface AvailablePlugin {
   id: string;
@@ -96,8 +95,7 @@ export async function removePluginFolder(pluginId: string): Promise<{ success: b
     // Remove the plugin folder
     await fs.rm(pluginPath, { recursive: true, force: true });
     
-    // Revalidate the apps page to update the list
-    revalidatePath('/apps');
+    // Note: Revalidation should be handled by the calling code
     
     return {
       success: true,
@@ -132,7 +130,7 @@ export async function uploadPluginServerAction(formData: FormData): Promise<{ su
     const result = await extractor.extractPlugin(buffer, file.name);
     
     if (result.success) {
-      revalidatePath('/apps');
+      // Note: Revalidation should be handled by the calling code
       return {
         success: true,
         message: result.message,

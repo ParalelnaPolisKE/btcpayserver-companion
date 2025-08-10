@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 // Map of known plugin IDs to their import paths
 // This is client-side so we can't dynamically scan the filesystem
 // Instead, we use a convention-based approach where all plugins follow the same structure
-const PLUGIN_BASE_PATH = '@/plugins';
+const PLUGIN_BASE_PATH = '@bps-companion/plugins';
 
 // Get a plugin component by ID with dynamic import
 export function getPluginComponent(pluginId: string): React.ComponentType<any> | null {

@@ -785,7 +785,7 @@ class IndexedDBService {
 // Create singleton instance
 let dbInstance: IndexedDBService | null = null;
 
-export const getDB = (): IndexedDBService => {
+export const getDatabaseInstance = (): IndexedDBService => {
   if (!dbInstance) {
     dbInstance = new IndexedDBService();
   }

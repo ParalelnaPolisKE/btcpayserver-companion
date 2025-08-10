@@ -12,11 +12,11 @@ import {
   Legend,
   ReferenceLine
 } from 'recharts';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@bps-companion/components/ui/select';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@bps-companion/components/ui/card';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import type { TimeFrame } from '@/types/dashboard';
-import { formatExpenseBreakdown } from '@/lib/expenses';
+import type { TimeFrame } from '../types';
+import { formatExpenseBreakdown } from '../lib/expenses';
 
 interface EnhancedProjectionChartProps {
   data: any;

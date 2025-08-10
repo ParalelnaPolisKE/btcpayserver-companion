@@ -1,12 +1,12 @@
 'use client';
 
-import { BTCPayClient } from '@/services/btcpay-client';
-import { BTCPayMockClient } from '@/services/btcpay-mock';
-import { clientEnv } from '@/lib/env';
+import { BTCPayClient } from '@bps-companion/services/btcpay-client';
+import { BTCPayMockClient } from '@bps-companion/services/btcpay-mock';
+import { clientEnv } from '@bps-companion/lib/env';
 import { startOfMonth, subMonths, endOfMonth, format } from 'date-fns';
-import { getActiveStores, getStoreById } from '@/lib/stores-helper';
-import { getDB } from '@/lib/indexeddb';
-import type { TimeFrame } from '@/types/dashboard';
+import { getActiveStores, getStoreById } from '@bps-companion/lib/stores-helper';
+import { getDatabaseInstance } from '@bps-companion/lib/indexeddb';
+import type { TimeFrame } from '../types';
 
 // Simple in-memory cache for BTC price
 let btcPriceCache: {
@@ -19,7 +19,7 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
 // Calculate total monthly expenses from IndexedDB
 async function calculateMonthlyExpenses(includeVat: boolean = false): Promise<number> {
   try {
-    const db = getDB();
+    const db = getDatabaseInstance();
     await db.init();
     await db.initializeDefaultExpenses();
     
@@ -28,7 +28,8 @@ async function calculateMonthlyExpenses(includeVat: boolean = false): Promise<nu
       db.getSetting('defaultVatRate')
     ]);
     
-    const vatRate = defaultVatRate || 0.23;
+    // Use the stored VAT rate, or 0 if not set (don't use fallback)
+    const vatRate = defaultVatRate !== null && defaultVatRate !== undefined ? defaultVatRate : 0;
     let total = 0;
     
     items.forEach(item => {
@@ -42,10 +43,25 @@ async function calculateMonthlyExpenses(includeVat: boolean = false): Promise<nu
           itemAmount = itemAmount / 3;
         }
         
-        // Apply VAT if needed
-        if (includeVat && item.applyVat !== false) {
-          const itemVatRate = item.vatRate !== undefined ? item.vatRate : vatRate;
-          itemAmount = itemAmount * (1 + itemVatRate);
+        // Handle VAT based on whether it's included in the price
+        const itemVatRate = item.vatRate !== undefined ? item.vatRate : vatRate;
+        
+        if (item.applyVat === true) {
+          // applyVat=true means the price already includes VAT (gross price)
+          if (!includeVat) {
+            // Remove VAT from the price for "no VAT" view
+            // Price / (1 + vatRate) = base price without VAT
+            itemAmount = itemAmount / (1 + itemVatRate);
+          }
+          // If includeVat is true, keep the price as-is (VAT already included)
+        } else {
+          // applyVat=false means the price is without VAT (net price)
+          if (includeVat) {
+            // Add VAT to the price for "with VAT" view
+            // Price * (1 + vatRate) = gross price with VAT
+            itemAmount = itemAmount * (1 + itemVatRate);
+          }
+          // If includeVat is false, keep the price as-is (no VAT to add)
         }
         
         total += itemAmount;
@@ -56,7 +72,7 @@ async function calculateMonthlyExpenses(includeVat: boolean = false): Promise<nu
   } catch (error) {
     console.error('Failed to calculate expenses from IndexedDB:', error);
     // Fallback to hardcoded values
-    const { calculateTotalMonthlyExpenses } = await import('@/lib/expenses');
+    const { calculateTotalMonthlyExpenses } = await import('../lib/expenses');
     // When falling back, we don't have VAT rate from DB, so use 0 (no VAT)
     return calculateTotalMonthlyExpenses(includeVat, 0);
   }

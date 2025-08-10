@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { getDB, Store } from '@/lib/indexeddb';
+import { getDatabaseInstance, Store } from '@/lib/indexeddb';
 import { ALL_STORES_ID } from '@/lib/stores';
 
 interface StoresContextType {
@@ -27,7 +27,7 @@ export function StoresProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true);
       setError(null);
-      const db = getDB();
+      const db = getDatabaseInstance();
       await db.init();
       await db.initializeDefaultStores();
       const loadedStores = await db.getStores();
@@ -48,7 +48,7 @@ export function StoresProvider({ children }: { children: React.ReactNode }) {
 
   const addStore = async (store: Omit<Store, 'id'>) => {
     try {
-      const db = getDB();
+      const db = getDatabaseInstance();
       await db.addStore(store);
       await loadStores();
     } catch (err) {
@@ -59,7 +59,7 @@ export function StoresProvider({ children }: { children: React.ReactNode }) {
 
   const updateStore = async (id: number, updates: Partial<Store>) => {
     try {
-      const db = getDB();
+      const db = getDatabaseInstance();
       await db.updateStore(id, updates);
       await loadStores();
     } catch (err) {
@@ -70,7 +70,7 @@ export function StoresProvider({ children }: { children: React.ReactNode }) {
 
   const deleteStore = async (id: number) => {
     try {
-      const db = getDB();
+      const db = getDatabaseInstance();
       await db.deleteStore(id);
       await loadStores();
     } catch (err) {
@@ -81,7 +81,7 @@ export function StoresProvider({ children }: { children: React.ReactNode }) {
 
   const reorderStores = async (storeIds: number[]) => {
     try {
-      const db = getDB();
+      const db = getDatabaseInstance();
       await db.reorderStores(storeIds);
       await loadStores();
     } catch (err) {

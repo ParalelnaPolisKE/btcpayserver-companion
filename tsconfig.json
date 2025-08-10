@@ -20,7 +20,8 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@/plugins/*": ["./plugins/*"]
+      "@bps-companion/*": ["./src/*"],
+      "@bps-companion/plugins/*": ["./plugins/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "plugins/**/*.ts", "plugins/**/*.tsx"],

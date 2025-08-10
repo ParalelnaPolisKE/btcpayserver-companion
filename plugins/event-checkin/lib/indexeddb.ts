@@ -118,7 +118,7 @@ class CheckInDatabase {
       const transaction = this.db!.transaction(['checkedInTickets'], 'readwrite');
       const store = transaction.objectStore('checkedInTickets');
       
-      const request = store.delete(checkIn.id);
+      const request = store.delete(checkIn.id!);
       
       request.onsuccess = () => {
         resolve();

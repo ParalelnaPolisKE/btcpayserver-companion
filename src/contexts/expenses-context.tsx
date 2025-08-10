@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { getDB, ExpenseCategory, ExpenseItem } from '@/lib/indexeddb';
+import { getDatabaseInstance, ExpenseCategory, ExpenseItem } from '@/lib/indexeddb';
 
 interface ExpensesContextType {
   categories: ExpenseCategory[];
@@ -43,7 +43,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true);
       setError(null);
-      const db = getDB();
+      const db = getDatabaseInstance();
       await db.init();
       await db.initializeDefaultExpenses();
       
@@ -70,7 +70,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
 
   const addCategory = async (category: Omit<ExpenseCategory, 'id'>) => {
     try {
-      const db = getDB();
+      const db = getDatabaseInstance();
       await db.addExpenseCategory(category);
       await loadExpenses();
     } catch (err) {
@@ -81,7 +81,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
 
   const updateCategory = async (id: number, updates: Partial<ExpenseCategory>) => {
     try {
-      const db = getDB();
+      const db = getDatabaseInstance();
       await db.updateExpenseCategory(id, updates);
       await loadExpenses();
     } catch (err) {
@@ -92,7 +92,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
 
   const deleteCategory = async (id: number) => {
     try {
-      const db = getDB();
+      const db = getDatabaseInstance();
       await db.deleteExpenseCategory(id);
       await loadExpenses();
     } catch (err) {
@@ -103,7 +103,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = async (item: Omit<ExpenseItem, 'id'>) => {
     try {
-      const db = getDB();
+      const db = getDatabaseInstance();
       await db.addExpenseItem(item);
       await loadExpenses();
     } catch (err) {
@@ -114,7 +114,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
 
   const updateItem = async (id: number, updates: Partial<ExpenseItem>) => {
     try {
-      const db = getDB();
+      const db = getDatabaseInstance();
       await db.updateExpenseItem(id, updates);
       await loadExpenses();
     } catch (err) {
@@ -125,7 +125,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
 
   const deleteItem = async (id: number) => {
     try {
-      const db = getDB();
+      const db = getDatabaseInstance();
       await db.deleteExpenseItem(id);
       await loadExpenses();
     } catch (err) {
@@ -148,12 +148,25 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
           itemAmount = itemAmount / 3;
         }
         
-        // Apply VAT if needed
-        if (includeVat && item.applyVat !== false) {
-          const vatRate = item.vatRate !== undefined ? item.vatRate : defaultVatRate;
-          if (vatRate !== undefined && vatRate > 0) {
+        // Handle VAT based on whether it's included in the price
+        const vatRate = item.vatRate !== undefined ? item.vatRate : defaultVatRate;
+        
+        if (item.applyVat === true) {
+          // applyVat=true means the price already includes VAT (gross price)
+          if (!includeVat && vatRate !== undefined && vatRate > 0) {
+            // Remove VAT from the price for "no VAT" view
+            // Price / (1 + vatRate) = base price without VAT
+            itemAmount = itemAmount / (1 + vatRate);
+          }
+          // If includeVat is true, keep the price as-is (VAT already included)
+        } else {
+          // applyVat=false means the price is without VAT (net price)
+          if (includeVat && vatRate !== undefined && vatRate > 0) {
+            // Add VAT to the price for "with VAT" view
+            // Price * (1 + vatRate) = gross price with VAT
             itemAmount = itemAmount * (1 + vatRate);
           }
+          // If includeVat is false, keep the price as-is (no VAT to add)
         }
         
         total += itemAmount;
@@ -177,12 +190,25 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
           itemAmount = itemAmount / 3;
         }
         
-        // Apply VAT if needed
-        if (includeVat && item.applyVat !== false) {
-          const vatRate = item.vatRate !== undefined ? item.vatRate : defaultVatRate;
-          if (vatRate !== undefined && vatRate > 0) {
+        // Handle VAT based on whether it's included in the price
+        const vatRate = item.vatRate !== undefined ? item.vatRate : defaultVatRate;
+        
+        if (item.applyVat === true) {
+          // applyVat=true means the price already includes VAT (gross price)
+          if (!includeVat && vatRate !== undefined && vatRate > 0) {
+            // Remove VAT from the price for "no VAT" view
+            // Price / (1 + vatRate) = base price without VAT
+            itemAmount = itemAmount / (1 + vatRate);
+          }
+          // If includeVat is true, keep the price as-is (VAT already included)
+        } else {
+          // applyVat=false means the price is without VAT (net price)
+          if (includeVat && vatRate !== undefined && vatRate > 0) {
+            // Add VAT to the price for "with VAT" view
+            // Price * (1 + vatRate) = gross price with VAT
             itemAmount = itemAmount * (1 + vatRate);
           }
+          // If includeVat is false, keep the price as-is (no VAT to add)
         }
         
         breakdown[item.name] = itemAmount;
@@ -212,7 +238,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
 
   const updateDefaultVatRate = async (rate: number) => {
     try {
-      const db = getDB();
+      const db = getDatabaseInstance();
       await db.setSetting('defaultVatRate', rate);
       setDefaultVatRate(rate);
     } catch (err) {
