@@ -52,6 +52,34 @@ export class BTCPayClient {
   }
 
   /**
+   * Get all stores accessible with the current API key
+   */
+  async getAvailableStores(): Promise<Array<{ id: string; name: string; website?: string; archived: boolean }>> {
+    try {
+      const response = await this.client.get('/api/v1/stores');
+      return response.data || [];
+    } catch (error) {
+      console.error('Failed to fetch available stores:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get Point of Sale apps for a specific store
+   */
+  async getStorePOSApps(storeId: string): Promise<Array<{ id: string; appName: string; title: string; items?: any[] }>> {
+    try {
+      const response = await this.client.get(`/api/v1/stores/${storeId}/apps`);
+      // Filter for POS apps only
+      const posApps = response.data?.filter((app: any) => app.appType === 'PointOfSale') || [];
+      return posApps;
+    } catch (error) {
+      console.error('Failed to fetch POS apps:', error);
+      return [];
+    }
+  }
+
+  /**
    * Get invoices for analytics with pagination
    */
   async getInvoices(params?: {

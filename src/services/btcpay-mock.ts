@@ -15,6 +15,44 @@ export class BTCPayMockClient extends BTCPayClient {
     return true;
   }
 
+  async getAvailableStores(): Promise<Array<{ id: string; name: string; website?: string; archived: boolean }>> {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    // Return mock stores
+    return [
+      { id: 'store-main', name: 'Main Store', website: 'https://example.com', archived: false },
+      { id: 'store-pos', name: 'Point of Sale', website: 'https://pos.example.com', archived: false },
+      { id: 'store-membership', name: 'Membership Store', website: 'https://members.example.com', archived: false },
+      { id: 'store-test', name: 'Test Store (Archived)', website: 'https://test.example.com', archived: true },
+    ];
+  }
+
+  async getStorePOSApps(storeId: string): Promise<Array<{ id: string; appName: string; title: string; items?: any[] }>> {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    // Return mock POS apps based on store
+    const mockPOSApps: Record<string, Array<{ id: string; appName: string; title: string }>> = {
+      'store-main': [
+        { id: 'pos-1', appName: 'main-pos', title: 'Main Store POS' },
+        { id: 'pos-2', appName: 'coffee-shop', title: 'Coffee Shop' }
+      ],
+      'store-pos': [
+        { id: 'pos-3', appName: 'retail', title: 'Retail POS' },
+        { id: 'pos-4', appName: 'restaurant', title: 'Restaurant POS' }
+      ],
+      'store-membership': [
+        { id: 'pos-5', appName: 'membership', title: 'Membership Sales' },
+        { id: 'pos-6', appName: 'events', title: 'Event Tickets' },
+        { id: 'pos-7', appName: 'donations', title: 'Donations' }
+      ],
+      'store-test': []
+    };
+    
+    return mockPOSApps[storeId] || [];
+  }
+
   async getInvoices(params?: {
     skip?: number;
     take?: number;

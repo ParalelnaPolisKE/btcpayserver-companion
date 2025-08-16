@@ -16,8 +16,7 @@ export function getPluginComponent(pluginId: string): React.ComponentType<any> |
     const Component = dynamic(
       () => import(`${PLUGIN_BASE_PATH}/${pluginId}/index`).then(mod => mod.default || mod.FinancialAnalysisApp),
       {
-        ssr: false,
-        loading: () => <div>Loading {pluginId}...</div>
+        ssr: false
       }
     );
     return Component;
@@ -33,8 +32,7 @@ export function getPluginSettingsComponent(pluginId: string): React.ComponentTyp
     const Component = dynamic(
       () => import(`${PLUGIN_BASE_PATH}/${pluginId}/index`).then(mod => mod.FinancialAnalysisSettings),
       {
-        ssr: false,
-        loading: () => <div>Loading {pluginId} settings...</div>
+        ssr: false
       }
     );
     return Component;

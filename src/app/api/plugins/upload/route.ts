@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PluginExtractor } from '@/services/plugin-extractor';
+import { PluginManifestValidator } from '@/services/plugin-manifest-validator';
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,15 +35,23 @@ export async function POST(request: NextRequest) {
     // Convert file to buffer
     const buffer = Buffer.from(await file.arrayBuffer());
     
-    // Extract and install the plugin
+    // Extract and install the plugin with security scanning
     const extractor = new PluginExtractor();
     const result = await extractor.extractPlugin(buffer, file.name);
     
     if (!result.success) {
-      return NextResponse.json(
-        { success: false, message: result.message },
-        { status: 400 }
-      );
+      // Include security report if available
+      const response: any = {
+        success: false,
+        message: result.message
+      };
+      
+      if (result.securityReport) {
+        response.securityReport = result.securityReport;
+        response.securityScore = result.securityScore;
+      }
+      
+      return NextResponse.json(response, { status: 400 });
     }
     
     return NextResponse.json({
@@ -54,6 +63,8 @@ export async function POST(request: NextRequest) {
         version: result.manifest?.version,
         description: result.manifest?.description,
       },
+      securityScore: result.securityScore,
+      securityReport: result.securityReport
     });
     
   } catch (error) {

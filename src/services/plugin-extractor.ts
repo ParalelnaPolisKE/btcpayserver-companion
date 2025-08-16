@@ -2,12 +2,15 @@ import fs from 'fs/promises';
 import path from 'path';
 import AdmZip from 'adm-zip';
 import { PluginManifest } from '@/types/plugin';
+import { PluginSecurityScanner } from './plugin-security-scanner';
 
 export interface ExtractResult {
   success: boolean;
   message: string;
   manifest?: PluginManifest;
   pluginId?: string;
+  securityReport?: string;
+  securityScore?: number;
 }
 
 export class PluginExtractor {
@@ -42,6 +45,21 @@ export class PluginExtractor {
         return validation;
       }
       
+      // Run security scan
+      const scanner = new PluginSecurityScanner();
+      const securityScan = await scanner.scanPlugin(actualPluginPath);
+      const securityReport = await scanner.generateSecurityReport(securityScan);
+      
+      if (!securityScan.passed) {
+        await this.cleanup(tempExtractPath);
+        return {
+          success: false,
+          message: `Plugin failed security scan (score: ${securityScan.score}/100). ${securityScan.recommendations[0] || 'Review security report for details.'}`,
+          securityReport,
+          securityScore: securityScan.score
+        };
+      }
+      
       const manifest = validation.manifest!;
       
       // Check if plugin already exists
@@ -67,9 +85,11 @@ export class PluginExtractor {
       
       return {
         success: true,
-        message: `Successfully installed plugin "${manifest.name}" v${manifest.version}`,
+        message: `Successfully installed plugin "${manifest.name}" v${manifest.version} (Security Score: ${securityScan.score}/100)`,
         manifest,
         pluginId: manifest.id,
+        securityReport,
+        securityScore: securityScan.score
       };
       
     } catch (error) {

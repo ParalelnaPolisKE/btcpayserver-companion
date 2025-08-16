@@ -1,5 +1,5 @@
 import React from 'react';
-import FinancialAnalysisApp from './FinancialAnalysisApp';
+import FinancialAnalysisWrapper from './FinancialAnalysisWrapper';
 import FinancialAnalysisSettings from './FinancialAnalysisSettings';
 
 // Plugin metadata export
@@ -16,9 +16,10 @@ export default function FinancialAnalysisPlugin({ route }: { route: string }) {
     case '/settings':
       return <FinancialAnalysisSettings />;
     default:
-      return <FinancialAnalysisApp />;
+      return <FinancialAnalysisWrapper />;
   }
 }
 
 // Export individual components for direct access
-export { FinancialAnalysisApp, FinancialAnalysisSettings };
+export { default as FinancialAnalysisApp } from './FinancialAnalysisWrapper';
+export { FinancialAnalysisSettings };

@@ -127,7 +127,15 @@ export default function AppsClient() {
       await uninstallPlugin(pluginId);
       toast.success(`${pluginName} uninstalled successfully`);
     } catch (error) {
-      toast.error(`Failed to uninstall ${pluginName}`);
+      console.error('Failed to uninstall plugin:', error);
+      const errorMessage = error instanceof Error ? error.message : `Failed to uninstall ${pluginName}`;
+      
+      // Show specific message for built-in plugins
+      if (errorMessage.includes('built-in')) {
+        toast.error('Built-in apps cannot be uninstalled');
+      } else {
+        toast.error(errorMessage);
+      }
     }
   };
 
@@ -227,6 +235,16 @@ export default function AppsClient() {
                       <div className="flex items-center gap-2">
                         <Icon className="h-5 w-5" />
                         <CardTitle className="text-lg">{plugin.manifest.name}</CardTitle>
+                        {plugin.source === 'uploaded' && (
+                          <Badge variant="outline" className="text-xs ml-2">
+                            Uploaded
+                          </Badge>
+                        )}
+                        {plugin.source === 'marketplace' && (
+                          <Badge variant="outline" className="text-xs ml-2">
+                            Marketplace
+                          </Badge>
+                        )}
                       </div>
                       <Switch
                         checked={plugin.config.enabled}
@@ -255,13 +273,22 @@ export default function AppsClient() {
                         </Button>
                       </Link>
                     )}
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleUninstall(plugin.pluginId, plugin.manifest.name)}
-                    >
-                      Uninstall
-                    </Button>
+                    {/* Only show uninstall for non-builtin plugins */}
+                    {plugin.source !== 'builtin' && (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleUninstall(plugin.pluginId, plugin.manifest.name)}
+                      >
+                        Uninstall
+                      </Button>
+                    )}
+                    {/* Show badge for built-in plugins */}
+                    {plugin.source === 'builtin' && (
+                      <Badge variant="secondary" className="text-xs">
+                        Built-in
+                      </Badge>
+                    )}
                   </CardFooter>
                 </Card>
               );

@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { getDatabaseInstance, InstalledPlugin } from '@/lib/indexeddb';
 import { PluginManifest, PluginConfig } from '@/types/plugin';
+import { removePluginCompletely } from '@/app/actions/plugin-management';
 
 interface PluginsContextType {
   installedPlugins: InstalledPlugin[];
@@ -28,10 +29,9 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
       const plugins = await db.getInstalledPlugins();
       setInstalledPlugins(plugins);
       
-      // Auto-install Financial Analysis plugin if not installed
-      const financialAnalysisInstalled = plugins.some(p => p.pluginId === 'financial-analysis');
-      if (!financialAnalysisInstalled) {
-        const financialAnalysisManifest: PluginManifest = {
+      // Auto-install built-in plugins if not installed
+      const builtinPlugins = [
+        {
           id: 'financial-analysis',
           name: 'Financial Analysis',
           version: '1.0.0',
@@ -59,8 +59,42 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
               required: false
             }
           ]
-        };
-        await db.installPlugin(financialAnalysisManifest, 'builtin');
+        },
+        {
+          id: 'event-checkin',
+          name: 'Event Check-in',
+          version: '1.0.0',
+          description: 'QR code-based event check-in system',
+          author: 'BTCPay Companion',
+          routes: {
+            main: '/apps/event-checkin',
+          },
+          isPaid: false,
+          requiredPermissions: [
+            {
+              permission: 'btcpay.store.canviewinvoices',
+              description: 'View invoices to verify event tickets',
+              required: true
+            },
+            {
+              permission: 'btcpay.store.canmodifyinvoices',
+              description: 'Update invoice metadata for check-in status',
+              required: true
+            }
+          ]
+        }
+      ];
+      
+      let pluginsUpdated = false;
+      for (const builtinPlugin of builtinPlugins) {
+        const isInstalled = plugins.some(p => p.pluginId === builtinPlugin.id);
+        if (!isInstalled) {
+          await db.installPlugin(builtinPlugin as PluginManifest, 'builtin');
+          pluginsUpdated = true;
+        }
+      }
+      
+      if (pluginsUpdated) {
         const updatedPlugins = await db.getInstalledPlugins();
         setInstalledPlugins(updatedPlugins);
       }
@@ -89,6 +123,21 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
   const uninstallPlugin = async (pluginId: string) => {
     try {
       const db = await getDatabaseInstance();
+      const plugin = await db.getPlugin(pluginId);
+      
+      if (!plugin) {
+        throw new Error('Plugin not found');
+      }
+      
+      // For uploaded plugins, remove files from filesystem
+      if (plugin.source === 'uploaded') {
+        const result = await removePluginCompletely(pluginId);
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to remove plugin files');
+        }
+      }
+      
+      // Remove from database (will throw error for built-in plugins)
       await db.uninstallPlugin(pluginId);
       await loadPlugins();
     } catch (error) {

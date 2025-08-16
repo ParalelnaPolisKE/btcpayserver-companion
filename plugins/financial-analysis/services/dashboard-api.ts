@@ -4,7 +4,6 @@ import { BTCPayClient } from '@bps-companion/services/btcpay-client';
 import { BTCPayMockClient } from '@bps-companion/services/btcpay-mock';
 import { clientEnv } from '@bps-companion/lib/env';
 import { startOfMonth, subMonths, endOfMonth, format } from 'date-fns';
-import { getActiveStores, getStoreById } from '@bps-companion/lib/stores-helper';
 import { getDatabaseInstance } from '@bps-companion/lib/indexeddb';
 import type { TimeFrame } from '../types';
 
@@ -348,105 +347,44 @@ async function calculateMetrics(invoices: any[]) {
   };
 }
 
-export async function getDashboardMetrics(storeId?: string, allStores?: boolean, showPosOnly?: boolean) {
+export async function getDashboardMetrics(storeId?: string, allStores?: boolean, posFilter?: string) {
   try {
     const exchangeRate = await getBTCExchangeRate();
     
-    if (allStores) {
-      // Fetch data from all stores in parallel
-      const stores = await getActiveStores();
-      const allStoreData = await Promise.all(
-        stores.map(async (store) => {
-          const client = getClient(store.storeId);
-          const sixMonthsAgo = subMonths(new Date(), 6);
-          
-          try {
-            const [invoices, storeInfo] = await Promise.all([
-              client.getInvoices({
-                startDate: sixMonthsAgo.toISOString(),
-                take: 1000,
-              }),
-              client.getStoreInfo()
-            ]);
-            
-            // Apply POS filter if needed for specific stores
-            let filteredInvoices = invoices;
-            if (showPosOnly && store.posFilter) {
-              filteredInvoices = filterPosInvoices(invoices, store.posFilter);
-            }
-            
-            return { invoices: filteredInvoices, storeInfo, storeName: store.label };
-          } catch (error) {
-            console.error(`Failed to get data for store ${store.label}:`, error);
-            return { invoices: [], storeInfo: null, storeName: store.label };
-          }
-        })
-      );
-      
-      // Combine all invoices
-      const allInvoices = allStoreData.flatMap(data => data.invoices);
-      const metrics = await calculateMetrics(allInvoices);
-      
-      // Create aggregated store info
-      const storeInfo = {
-        name: 'All Stores',
-        website: '',
-        invoiceExpiration: 900,
-        monitoringExpiration: 3600,
-        speedPolicy: 'MediumSpeed',
-        stores: allStoreData.map(d => ({ name: d.storeName, info: d.storeInfo }))
-      };
-      
-      const apiKey = typeof window !== 'undefined' 
-        ? localStorage.getItem('btcpay_api_key') || process.env.NEXT_PUBLIC_BTCPAY_API_KEY || ''
-        : process.env.NEXT_PUBLIC_BTCPAY_API_KEY || '';
-      
-      return {
-        ...metrics,
-        storeInfo,
-        exchangeRate,
-        isUsingMockData: !apiKey || clientEnv.useMock,
-        isAllStores: true,
-        isPosFiltered: showPosOnly || false,
-        hasPosFilter: false,
-      };
-    } else {
-      // Single store
-      const client = getClient(storeId);
-      const sixMonthsAgo = subMonths(new Date(), 6);
-      
-      let [invoices, storeInfo] = await Promise.all([
-        client.getInvoices({
-          startDate: sixMonthsAgo.toISOString(),
-          take: 1000,
-        }),
-        client.getStoreInfo()
-      ]);
-      
-      // Check if this store has POS filter capability
-      const storeConfig = await getStoreById(storeId!);
-      
-      // Apply POS filter if requested and available for this store
-      if (showPosOnly && storeConfig?.posFilter) {
-        invoices = filterPosInvoices(invoices, storeConfig.posFilter);
-      }
-      
-      const metrics = await calculateMetrics(invoices);
-      
-      const apiKey = typeof window !== 'undefined' 
-        ? localStorage.getItem('btcpay_api_key') || process.env.NEXT_PUBLIC_BTCPAY_API_KEY || ''
-        : process.env.NEXT_PUBLIC_BTCPAY_API_KEY || '';
-      
-      return {
-        ...metrics,
-        storeInfo,
-        exchangeRate,
-        isUsingMockData: !apiKey || clientEnv.useMock,
-        isAllStores: false,
-        isPosFiltered: (showPosOnly && !!storeConfig?.posFilter) || false,
-        hasPosFilter: !!storeConfig?.posFilter,
-      };
+    // Simplified logic - always fetch from single store or default
+    const client = getClient(storeId);
+    const sixMonthsAgo = subMonths(new Date(), 6);
+    
+    const [invoices, storeInfo] = await Promise.all([
+      client.getInvoices({
+        startDate: sixMonthsAgo.toISOString(),
+        take: 1000,
+      }),
+      client.getStoreInfo()
+    ]);
+    
+    // Apply POS filter if provided
+    let filteredInvoices = invoices;
+    if (posFilter) {
+      filteredInvoices = filterPosInvoices(invoices, posFilter);
     }
+    
+    const metrics = await calculateMetrics(filteredInvoices);
+    
+    
+    const apiKey = typeof window !== 'undefined' 
+      ? localStorage.getItem('btcpay_api_key') || process.env.NEXT_PUBLIC_BTCPAY_API_KEY || ''
+      : process.env.NEXT_PUBLIC_BTCPAY_API_KEY || '';
+    
+    return {
+      ...metrics,
+      storeInfo,
+      exchangeRate,
+      isUsingMockData: !apiKey || clientEnv.useMock,
+      isAllStores: allStores || false,
+      isPosFiltered: !!posFilter,
+      hasPosFilter: !!posFilter,
+    };
   } catch (error) {
     console.error('Failed to get dashboard metrics:', error);
     throw error;
@@ -510,51 +448,23 @@ function groupInvoicesByTimeFrame(invoices: any[], timeFrame: TimeFrame) {
   return { data, primaryCurrency, timeFrame };
 }
 
-export async function getRevenueData(timeFrame: TimeFrame = 'monthly', storeId?: string, allStores?: boolean, showPosOnly?: boolean) {
+export async function getRevenueData(timeFrame: TimeFrame = 'monthly', storeId?: string, allStores?: boolean, posFilter?: string) {
   try {
     const now = new Date();
     const startDate = new Date('2022-01-01');
     
     let invoices: any[] = [];
     
-    if (allStores) {
-      // Fetch from all stores
-      const stores = await getActiveStores();
-      const allInvoicesPromises = stores.map(async (store) => {
-        const client = getClient(store.storeId);
-        try {
-          let storeInvoices = await client.getInvoices({
-            startDate: startDate.toISOString(),
-            take: 5000,
-          });
-          
-          // Apply POS filter if needed
-          if (showPosOnly && store.posFilter) {
-            storeInvoices = filterPosInvoices(storeInvoices, store.posFilter);
-          }
-          
-          return storeInvoices;
-        } catch (error) {
-          console.error(`Failed to get invoices for store ${store.label}:`, error);
-          return [];
-        }
-      });
-      
-      const allInvoicesArrays = await Promise.all(allInvoicesPromises);
-      invoices = allInvoicesArrays.flat();
-    } else {
-      // Single store
-      const client = getClient(storeId);
-      invoices = await client.getInvoices({
-        startDate: startDate.toISOString(),
-        take: 5000,
-      });
-      
-      // Apply POS filter if requested and available
-      const storeConfig = await getStoreById(storeId!);
-      if (showPosOnly && storeConfig?.posFilter) {
-        invoices = filterPosInvoices(invoices, storeConfig.posFilter);
-      }
+    // Simplified logic - always fetch from single store or default
+    const client = getClient(storeId);
+    invoices = await client.getInvoices({
+      startDate: startDate.toISOString(),
+      take: 5000,
+    });
+    
+    // Apply POS filter if provided
+    if (posFilter) {
+      invoices = filterPosInvoices(invoices, posFilter);
     }
     
     const groupedData = groupInvoicesByTimeFrame(invoices, timeFrame);
@@ -616,9 +526,9 @@ function formatProjectionDate(date: Date, timeFrame: TimeFrame): string {
   return getTimeKey(date, timeFrame);
 }
 
-export async function getRevenueProjection(timeFrame: TimeFrame = 'monthly', storeId?: string, allStores?: boolean, showPosOnly?: boolean) {
+export async function getRevenueProjection(timeFrame: TimeFrame = 'monthly', storeId?: string, allStores?: boolean, posFilter?: string) {
   const [revenueData, exchangeRate] = await Promise.all([
-    getRevenueData(timeFrame, storeId, allStores, showPosOnly),
+    getRevenueData(timeFrame, storeId, allStores, posFilter),
     getBTCExchangeRate()
   ]);
   

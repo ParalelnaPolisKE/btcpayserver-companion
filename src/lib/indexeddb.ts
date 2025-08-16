@@ -1,4 +1,3 @@
-import { STORES as DEFAULT_STORES } from './stores';
 import { PluginConfig, PluginManifest } from '@/types/plugin';
 
 export interface Store {
@@ -557,18 +556,8 @@ class IndexedDBService {
 
   // Initialize with default stores if empty
   async initializeDefaultStores(): Promise<void> {
-    const stores = await this.getStores();
-    if (stores.length === 0) {
-      // Add default stores
-      for (let i = 0; i < DEFAULT_STORES.length; i++) {
-        const store = DEFAULT_STORES[i];
-        await this.addStore({
-          ...store,
-          isActive: true,
-          order: i
-        });
-      }
-    }
+    // Stores are now managed by plugins that need them
+    // No default stores are initialized globally
   }
 
   // Plugin methods
@@ -720,9 +709,15 @@ class IndexedDBService {
       const getRequest = index.get(pluginId);
       
       getRequest.onsuccess = () => {
-        const plugin = getRequest.result;
+        const plugin = getRequest.result as InstalledPlugin;
         if (!plugin) {
           reject(new Error('Plugin not found'));
+          return;
+        }
+        
+        // Prevent uninstalling built-in plugins
+        if (plugin.source === 'builtin') {
+          reject(new Error('Cannot uninstall built-in plugins'));
           return;
         }
         

@@ -26,7 +26,7 @@ function PluginPageContent({ appId, manifest }: PluginPageClientProps) {
 export default function PluginPageClient({ appId, manifest }: PluginPageClientProps) {
   return (
     <Suspense fallback={
-      <div className="container mx-auto py-8 px-4">
+      <div className="p-4 md:p-6">
         <div className="text-center py-12">
           <p className="text-muted-foreground">Loading...</p>
         </div>

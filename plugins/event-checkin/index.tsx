@@ -9,6 +9,7 @@ import TicketDisplay from './components/ticket-display';
 import StatsDisplay from './components/stats-display';
 import { checkInService, CheckInResult } from './services/check-in';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { EventCheckInLoadingSkeleton } from './components/LoadingSkeleton';
 
 export default function EventCheckInApp() {
   const [isScanning, setIsScanning] = useState(false);
@@ -16,31 +17,41 @@ export default function EventCheckInApp() {
   const [lastResult, setLastResult] = useState<CheckInResult | null>(null);
   const [stats, setStats] = useState({ total: 0, today: 0 });
   const [settings, setSettings] = useState<any>({});
+  const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
-    // Load settings
-    const savedSettings = localStorage.getItem('event-checkin-settings');
-    if (savedSettings) {
-      const parsed = JSON.parse(savedSettings);
-      setSettings(parsed);
-      
-      // Initialize check-in service
-      if (parsed.btcpayUrl && parsed.storeId) {
-        checkInService.init(parsed.btcpayUrl, parsed.storeId, parsed.apiKey);
+    const initializeApp = async () => {
+      try {
+        // Load settings
+        const savedSettings = localStorage.getItem('event-checkin-settings');
+        if (savedSettings) {
+          const parsed = JSON.parse(savedSettings);
+          setSettings(parsed);
+          
+          // Initialize check-in service
+          if (parsed.btcpayUrl && parsed.storeId) {
+            checkInService.init(parsed.btcpayUrl, parsed.storeId, parsed.apiKey);
+          }
+        } else {
+          // Try to get BTCPay settings from parent app
+          const btcpayUrl = localStorage.getItem('btcpayUrl');
+          const storeId = localStorage.getItem('storeId');
+          
+          if (btcpayUrl && storeId) {
+            checkInService.init(btcpayUrl, storeId);
+            setSettings({ btcpayUrl, storeId });
+          }
+        }
+        
+        // Load stats
+        await loadStats();
+      } finally {
+        // Add a small delay to make the loading more visible
+        setTimeout(() => setIsInitializing(false), 500);
       }
-    } else {
-      // Try to get BTCPay settings from parent app
-      const btcpayUrl = localStorage.getItem('btcpayUrl');
-      const storeId = localStorage.getItem('storeId');
-      
-      if (btcpayUrl && storeId) {
-        checkInService.init(btcpayUrl, storeId);
-        setSettings({ btcpayUrl, storeId });
-      }
-    }
+    };
     
-    // Load stats
-    loadStats();
+    initializeApp();
   }, []);
 
   const loadStats = async () => {
@@ -139,6 +150,11 @@ export default function EventCheckInApp() {
   const clearResult = () => {
     setLastResult(null);
   };
+
+  // Show loading skeleton during initialization
+  if (isInitializing) {
+    return <EventCheckInLoadingSkeleton />;
+  }
 
   return (
     <div className="container mx-auto py-8 max-w-4xl">

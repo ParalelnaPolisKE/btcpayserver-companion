@@ -8,7 +8,7 @@ import manifest from './manifest.json';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@bps-companion/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@bps-companion/components/ui/tabs';
 import { Alert, AlertDescription } from '@bps-companion/components/ui/alert';
-import { InfoIcon, TrendingUp, TrendingDown, DollarSign, Receipt, CreditCard, Package } from 'lucide-react';
+import { InfoIcon, TrendingUp, TrendingDown, DollarSign, Receipt, CreditCard, Package, Filter, Settings } from 'lucide-react';
 import { StatusBreakdown } from './components/status-breakdown';
 import { PaymentMethodChart } from './components/payment-method-chart';
 import { TopProducts } from './components/top-products';
@@ -17,17 +17,19 @@ import { EnhancedProjectionChart } from './components/enhanced-projection-chart'
 import { getRevenueProjection, getDashboardMetrics } from './services/dashboard-api';
 import type { TimeFrame, DashboardMetrics } from './types';
 import { Button } from '@bps-companion/components/ui/button';
+import { Badge } from '@bps-companion/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@bps-companion/components/ui/select';
-import { ALL_STORES_ID } from '@bps-companion/lib/stores';
 import { useRouter } from 'next/navigation';
-import { useStores } from '@bps-companion/contexts/stores-context';
 import { useExpenses } from '@bps-companion/contexts/expenses-context';
+import { StoresProvider, useStores } from './contexts/stores-context';
+import { ALL_STORES_ID } from './lib/stores';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@bps-companion/components/ui/tooltip';
+import { FinancialAnalysisLoadingSkeleton } from './components/LoadingSkeleton';
 
 export default function FinancialAnalysisClient() {
   const searchParams = useSearchParams();
@@ -38,15 +40,20 @@ export default function FinancialAnalysisClient() {
   const [loadingProjections, setLoadingProjections] = useState(false);
   const [displayCurrency, setDisplayCurrency] = useState<'EUR' | 'BTC'>('EUR');
   const [includeVat, setIncludeVat] = useState(false);
+  const NO_FILTER = 'no-filter';
+  const [selectedFilterId, setSelectedFilterId] = useState<string>(NO_FILTER);
   const router = useRouter();
-  const { stores, getStoreSelectOptions, isLoading: storesLoading } = useStores();
   const { getExpenseBreakdown, defaultVatRate, calculateTotalMonthlyExpenses } = useExpenses();
+  const { stores, selectedStoreId, setSelectedStoreId, getStoreSelectOptions, isLoading: storesLoading } = useStores();
   
-  const selectedStoreId = searchParams.get('storeId') || (stores[0]?.storeId || ALL_STORES_ID);
-  const showPosOnly = searchParams.get('posOnly') === 'true';
+  const currentStoreId = selectedStoreId || ALL_STORES_ID;
+  const isAllStores = currentStoreId === ALL_STORES_ID;
+  const currentStore = stores.find(s => s.storeId === currentStoreId);
+  const currentFilter = selectedFilterId !== NO_FILTER 
+    ? currentStore?.posFilters?.find(f => f.id === selectedFilterId)
+    : null;
   
   const btcRate = metrics?.exchangeRate?.eur || 95000;
-  const isAllStores = selectedStoreId === ALL_STORES_ID;
   
   // Format expense breakdown for tooltip
   const formatExpenseBreakdown = (includeVat: boolean): string => {
@@ -72,7 +79,11 @@ export default function FinancialAnalysisClient() {
       if (storesLoading) return;
       setLoading(true);
       try {
-        const data = await getDashboardMetrics(selectedStoreId, false, showPosOnly);
+        const data = await getDashboardMetrics(
+          isAllStores ? undefined : currentStoreId,
+          false,
+          currentFilter?.filter
+        );
         setMetrics(data);
       } catch (error) {
         console.error('Failed to load metrics:', error);
@@ -81,16 +92,16 @@ export default function FinancialAnalysisClient() {
       }
     }
     loadMetrics();
-  }, [selectedStoreId, showPosOnly, storesLoading, defaultVatRate]);
+  }, [currentStoreId, isAllStores, currentFilter?.filter, storesLoading, defaultVatRate]);
   
   const loadProjections = useCallback(async (timeFrame: TimeFrame) => {
     setLoadingProjections(true);
     try {
       const data = await getRevenueProjection(
         timeFrame,
-        isAllStores ? undefined : selectedStoreId,
+        isAllStores ? undefined : currentStoreId,
         isAllStores,
-        showPosOnly
+        currentFilter?.filter
       );
       setProjections(data);
     } catch (error) {
@@ -98,7 +109,7 @@ export default function FinancialAnalysisClient() {
     } finally {
       setLoadingProjections(false);
     }
-  }, [selectedStoreId, isAllStores, showPosOnly]);
+  }, [currentStoreId, isAllStores, currentFilter?.filter]);
   
   // Load initial projections
   useEffect(() => {
@@ -106,17 +117,7 @@ export default function FinancialAnalysisClient() {
   }, [loadProjections]);
   
   const handleStoreChange = (storeId: string) => {
-    const params = new URLSearchParams();
-    params.set('storeId', storeId);
-    if (showPosOnly) params.set('posOnly', 'true');
-    router.push(`/apps/financial-analysis?${params.toString()}`);
-  };
-  
-  const handlePosFilterToggle = () => {
-    const params = new URLSearchParams();
-    params.set('storeId', selectedStoreId);
-    if (!showPosOnly) params.set('posOnly', 'true');
-    router.push(`/apps/financial-analysis?${params.toString()}`);
+    setSelectedStoreId(storeId);
   };
   
   // Convert values based on display currency
@@ -204,14 +205,7 @@ export default function FinancialAnalysisClient() {
   
   // Handle loading states
   if (loading || storesLoading || !metrics) {
-    return (
-      <div className="container mx-auto py-8 px-4">
-        <h1 className="text-3xl font-bold mb-8">Financial Analysis</h1>
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">Loading financial data...</p>
-        </div>
-      </div>
-    );
+    return <FinancialAnalysisLoadingSkeleton />;
   }
   
   // Handle no stores configured
@@ -220,10 +214,18 @@ export default function FinancialAnalysisClient() {
       <div className="container mx-auto py-8 px-4">
         <h1 className="text-3xl font-bold mb-8">Financial Analysis</h1>
         <Card>
-          <CardContent className="py-8">
-            <p className="text-center text-muted-foreground">
-              No BTCPay stores configured. Please configure at least one store in Settings.
+          <CardContent className="py-12 text-center">
+            <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+            <h2 className="text-xl font-semibold mb-2">No Stores Configured</h2>
+            <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+              Configure your BTCPay stores to start tracking financial data and analyzing revenue.
             </p>
+            <Link href="/apps/financial-analysis/settings">
+              <Button>
+                <Settings className="mr-2 h-4 w-4" />
+                Configure Stores
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
@@ -274,7 +276,7 @@ export default function FinancialAnalysisClient() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Store:</span>
-              <Select value={selectedStoreId} onValueChange={handleStoreChange}>
+              <Select value={currentStoreId} onValueChange={handleStoreChange}>
                 <SelectTrigger className="w-[250px]">
                   <SelectValue />
                 </SelectTrigger>
@@ -287,15 +289,37 @@ export default function FinancialAnalysisClient() {
                 </SelectContent>
               </Select>
             </div>
-            {metrics.hasPosFilter && (
+            {currentStore?.posFilters && currentStore.posFilters.length > 0 && (
               <div className="flex items-center gap-2">
-                <Button
-                  variant={showPosOnly ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={handlePosFilterToggle}
+                <span className="text-sm text-muted-foreground">Filter:</span>
+                <Select 
+                  value={selectedFilterId} 
+                  onValueChange={setSelectedFilterId}
                 >
-                  {showPosOnly ? 'POS Memberships Only' : 'All Revenues'}
-                </Button>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Select filter" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NO_FILTER}>
+                      <span className="flex items-center gap-2">
+                        All Transactions
+                      </span>
+                    </SelectItem>
+                    {currentStore.posFilters.map((filter) => (
+                      <SelectItem key={filter.id} value={filter.id}>
+                        <span className="flex items-center gap-2">
+                          <Filter className="h-3 w-3" />
+                          {filter.name}
+                          {filter.description && (
+                            <span className="text-xs text-muted-foreground">
+                              ({filter.filter})
+                            </span>
+                          )}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             )}
             <div className="flex items-center gap-2">
