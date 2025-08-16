@@ -1,0 +1,17 @@
+{
+  "id": "payment-analytics-template",
+  "name": "Payment Analytics (Template)",
+  "version": "1.0.0",
+  "description": "A template plugin demonstrating BTCPay Companion plugin development best practices and Greenfield API integration",
+  "author": "BTCPay Companion",
+  "icon": "TrendingUp",
+  "permissions": [
+    "btcpay.store.canviewinvoices",
+    "btcpay.store.canviewstoresettings"
+  ],
+  "main": "index.tsx",
+  "settings": true,
+  "tags": ["template", "example", "analytics", "payments"],
+  "repository": "https://github.com/ParalelnaPolisKE/btcpayserver-companion",
+  "documentation": "plugins/plugin-template/README.md"
+}
