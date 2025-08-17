@@ -1,7 +1,7 @@
 /**
  * Payment Analytics Plugin - Main Entry Point
  * 
- * This file demonstrates how to create a BTCPay Companion plugin
+ * This file demonstrates how to create a BTCPayServer Companion plugin
  * that integrates with the Greenfield API and follows best practices.
  */
 

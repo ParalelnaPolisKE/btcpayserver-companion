@@ -19,6 +19,7 @@
 
 # production
 /build
+.xwin-cache
 
 # misc
 .DS_Store

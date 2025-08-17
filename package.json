@@ -1,6 +1,6 @@
 {
   "name": "bps-companion",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -14,6 +14,8 @@
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
+    "tauri:build:win64": "tauri build --runner cargo-xwin --target x86_64-pc-windows-msvc",
+    "tauri:build:win32": "tauri build --target i686-pc-windows-msvc",
     "tauri:build:universal": "tauri build --target universal-apple-darwin",
     "tauri:build:linux": "./scripts/build-linux-docker.sh",
     "tauri:build:all": "bun run tauri:build:universal && bun run tauri:build:linux"

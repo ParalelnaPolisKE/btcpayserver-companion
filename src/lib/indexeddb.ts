@@ -721,7 +721,7 @@ class IndexedDBService {
           return;
         }
         
-        const deleteRequest = store.delete(plugin.id);
+        const deleteRequest = store.delete(plugin.id!);
         
         deleteRequest.onsuccess = () => {
           resolve();

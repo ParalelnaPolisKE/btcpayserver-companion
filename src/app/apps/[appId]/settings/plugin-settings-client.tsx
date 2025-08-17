@@ -13,12 +13,12 @@ export default function PluginSettingsClient({ appId }: PluginSettingsClientProp
       async () => {
         try {
           // First try to import a dedicated settings file
-          const settingsModule = await import(`@bps-companion/plugins/${appId}/settings`);
+          const settingsModule = await import(`../../../../../plugins/${appId}/settings`);
           return settingsModule.default || settingsModule.Settings || settingsModule.SettingsComponent;
         } catch (error) {
           // If no dedicated settings file, try the main index file
           try {
-            const indexModule = await import(`@bps-companion/plugins/${appId}/index`);
+            const indexModule = await import(`../../../../../plugins/${appId}/index`);
             return indexModule.FinancialAnalysisSettings || indexModule.SettingsComponent || indexModule.Settings || indexModule.default;
           } catch (indexError) {
             // Return a default component if nothing is found

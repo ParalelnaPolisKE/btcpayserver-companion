@@ -122,19 +122,19 @@ export default function PaymentAnalytics() {
           title="Total Revenue"
           value={formatCurrency(metrics?.revenue || 0, settings.displayCurrency)}
           change={metrics?.growth?.revenue}
-          trend={metrics?.growth?.revenue > 0 ? 'up' : 'down'}
+          trend={(metrics?.growth?.revenue ?? 0) > 0 ? 'up' : 'down'}
         />
         <MetricCard
           title="Total Transactions"
           value={formatCompactNumber(metrics?.transactions || 0)}
           change={metrics?.growth?.transactions}
-          trend={metrics?.growth?.transactions > 0 ? 'up' : 'down'}
+          trend={(metrics?.growth?.transactions ?? 0) > 0 ? 'up' : 'down'}
         />
         <MetricCard
           title="Average Transaction"
           value={formatCurrency(metrics?.average || 0, settings.displayCurrency)}
           change={metrics?.growth?.average}
-          trend={metrics?.growth?.average > 0 ? 'up' : 'down'}
+          trend={(metrics?.growth?.average ?? 0) > 0 ? 'up' : 'down'}
         />
         <MetricCard
           title="Success Rate"

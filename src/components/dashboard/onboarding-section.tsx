@@ -60,7 +60,7 @@ export function OnboardingSection() {
 
   const loadOnboardingState = async () => {
     try {
-      const db = await getDatabaseInstance();
+      const db = getDatabaseInstance();
       
       // Check if onboarding is dismissed
       const isDismissed = await db.getSetting('onboarding_dismissed');
@@ -101,7 +101,7 @@ export function OnboardingSection() {
 
   const dismissOnboarding = async () => {
     try {
-      const db = await getDatabaseInstance();
+      const db = getDatabaseInstance();
       await db.setSetting('onboarding_dismissed', true);
       setIsVisible(false);
     } catch (error) {
@@ -111,7 +111,7 @@ export function OnboardingSection() {
 
   const markStepComplete = async (stepId: string) => {
     try {
-      const db = await getDatabaseInstance();
+      const db = getDatabaseInstance();
       const completedSteps = await db.getSetting('onboarding_steps') || {};
       completedSteps[stepId] = true;
       await db.setSetting('onboarding_steps', completedSteps);
@@ -142,7 +142,7 @@ export function OnboardingSection() {
       <CardHeader className="pb-4">
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-primary" />
-          <CardTitle>Welcome to BTCPay Companion!</CardTitle>
+          <CardTitle>Welcome to BTCPayServer Companion!</CardTitle>
         </div>
         <CardDescription>
           Complete these steps to get started with your companion app

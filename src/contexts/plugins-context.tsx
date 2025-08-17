@@ -36,7 +36,7 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
           name: 'Financial Analysis',
           version: '1.0.0',
           description: 'Comprehensive financial analytics dashboard',
-          author: 'BTCPay Companion',
+          author: 'BTCPayServer Companion',
           routes: {
             main: '/apps/financial-analysis',
             settings: '/apps/financial-analysis/settings',
@@ -65,7 +65,7 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
           name: 'Event Check-in',
           version: '1.0.0',
           description: 'QR code-based event check-in system',
-          author: 'BTCPay Companion',
+          author: 'BTCPayServer Companion',
           routes: {
             main: '/apps/event-checkin',
           },

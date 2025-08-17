@@ -535,7 +535,7 @@ export default function FinancialAnalysisClient() {
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            const storeData = stores.find(s => s.label === store.name);
+                            const storeData = stores.find(s => s.storeName === store.name);
                             if (storeData) {
                               handleStoreChange(storeData.storeId);
                             }

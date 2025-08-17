@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   // Remove this in production
   reactStrictMode: false,
   // Enable static export for Tauri
-  output: 'export',
+  // output: 'export', // Temporarily disabled - Server Actions not supported with static export
   // Disable image optimization for static export
   images: {
     unoptimized: true,

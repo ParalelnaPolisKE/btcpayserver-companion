@@ -3,7 +3,7 @@
   "name": "Event Check-In",
   "version": "1.0.0",
   "description": "Check-in system for events using BTCPay Server invoices as tickets. Scan QR codes to verify and check-in attendees.",
-  "author": "BTCPay Companion",
+  "author": "BTCPayServer Companion",
   "homepage": "https://btcpayserver.org",
   "license": "MIT",
   "main": "index.tsx",

@@ -25,7 +25,9 @@ export function PluginSecurityDashboard() {
       setEvents(prev => [...prev.slice(-99), event]);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const getPluginEvents = (pluginId: string) => {

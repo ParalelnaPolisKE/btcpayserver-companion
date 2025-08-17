@@ -82,7 +82,7 @@ export default function PluginRenderer({ pluginId, manifest, route }: PluginRend
             pluginId,
             timestamp: new Date(),
             type: 'violation',
-            category: violation.type,
+            category: violation.type === 'access' ? 'permission' : violation.type as any,
             message: violation.message,
             details: violation.details,
             severity: 'high'

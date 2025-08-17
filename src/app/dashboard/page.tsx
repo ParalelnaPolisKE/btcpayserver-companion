@@ -52,7 +52,7 @@ export default function DashboardPage() {
   const tutorials = [
     {
       icon: CreditCard,
-      title: "Getting Started with BTCPay Companion",
+      title: "Getting Started with BTCPayServer Companion",
       description: "Learn the basics of setting up and using the companion app",
       link: "https://docs.btcpayserver.org/",
       duration: "5 min"
@@ -111,7 +111,7 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">
-          Welcome to BTCPay Companion - Your gateway to enhanced BTCPayServer functionality
+          Welcome to BTCPayServer Companion - Your gateway to enhanced BTCPayServer functionality
         </p>
       </div>
 
@@ -175,7 +175,7 @@ export default function DashboardPage() {
             <Info className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">v0.1.0</div>
+            <div className="text-2xl font-bold">v0.2.0</div>
             <p className="text-xs text-muted-foreground">Latest version</p>
           </CardContent>
         </Card>
@@ -195,7 +195,7 @@ export default function DashboardPage() {
             <CardHeader>
               <CardTitle>Getting Started</CardTitle>
               <CardDescription>
-                Learn how to use BTCPay Companion effectively
+                Learn how to use BTCPayServer Companion effectively
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -271,7 +271,7 @@ export default function DashboardPage() {
             <CardHeader>
               <CardTitle>App Installation & Management</CardTitle>
               <CardDescription>
-                Extend BTCPay Companion with powerful apps
+                Extend BTCPayServer Companion with powerful apps
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -382,7 +382,7 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 <p className="text-sm text-green-700 dark:text-green-300">
-                  BTCPay Companion implements multiple layers of security to protect your cryptocurrency 
+                  BTCPayServer Companion implements multiple layers of security to protect your cryptocurrency 
                   operations and server from malicious plugins.
                 </p>
               </div>
@@ -426,7 +426,7 @@ export default function DashboardPage() {
                   <div className="flex items-start gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
                     <p className="text-sm text-muted-foreground">
-                      Keep your BTCPay Companion updated to the latest version
+                      Keep your BTCPayServer Companion updated to the latest version
                     </p>
                   </div>
                   <div className="flex items-start gap-2">

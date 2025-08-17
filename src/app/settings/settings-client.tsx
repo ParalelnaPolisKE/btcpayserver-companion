@@ -184,7 +184,7 @@ export default function SettingsClient() {
           <CardHeader>
             <CardTitle>About</CardTitle>
             <CardDescription>
-              BTCPay Companion application information
+              BTCPayServer Companion application information
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -200,7 +200,7 @@ export default function SettingsClient() {
               <Alert>
                 <InfoIcon className="h-4 w-4" />
                 <AlertDescription>
-                  BTCPay Companion is an open-source application for managing your BTCPay Server data.
+                  BTCPayServer Companion is an open-source application for managing your BTCPay Server data.
                   Visit the Apps section to explore and install additional features.
                 </AlertDescription>
               </Alert>

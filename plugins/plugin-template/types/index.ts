@@ -72,24 +72,20 @@ export interface ApiResponse<T> {
 /**
  * Error types for better error handling
  */
-export enum ErrorType {
-  API_ERROR = 'API_ERROR',
-  NETWORK_ERROR = 'NETWORK_ERROR',
-  PERMISSION_ERROR = 'PERMISSION_ERROR',
-  VALIDATION_ERROR = 'VALIDATION_ERROR',
-  UNKNOWN_ERROR = 'UNKNOWN_ERROR'
-}
+export const ErrorType = {
+  API_ERROR: 'API_ERROR',
+  NETWORK_ERROR: 'NETWORK_ERROR',
+  PERMISSION_ERROR: 'PERMISSION_ERROR',
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
+  UNKNOWN_ERROR: 'UNKNOWN_ERROR'
+} as const;
+
+export type ErrorType = typeof ErrorType[keyof typeof ErrorType];
 
 /**
- * Custom error class for the plugin
+ * Plugin Error type (as interface to avoid runtime dependencies)
  */
-export class PluginError extends Error {
-  constructor(
-    public type: ErrorType,
-    message: string,
-    public details?: any
-  ) {
-    super(message);
-    this.name = 'PluginError';
-  }
+export interface PluginError extends Error {
+  type: ErrorType;
+  details?: any;
 }

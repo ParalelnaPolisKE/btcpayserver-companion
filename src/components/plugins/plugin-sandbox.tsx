@@ -275,7 +275,9 @@ export function PluginSandbox({
           break;
           
         case 'request':
-          handlePluginRequest(message);
+          if (message.data) {
+            handlePluginRequest(message as PluginMessage & { data: any });
+          }
           break;
           
         case 'error':
@@ -305,7 +307,7 @@ export function PluginSandbox({
     const { action, data } = message;
     const requestId = data?.requestId;
     
-    if (!requestId) return;
+    if (!requestId || !action) return;
     
     try {
       // Check if plugin has permission for this action

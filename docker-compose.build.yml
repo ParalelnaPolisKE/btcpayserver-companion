@@ -1,10 +1,14 @@
-version: '3.8'
+version: '2.4'
 
 services:
   tauri-linux-builder:
     build:
       context: .
       dockerfile: Dockerfile.build-linux
+    # Memory limits for Docker Compose v2.4
+    mem_limit: 8g
+    memswap_limit: 8g
+    cpus: '4'
     volumes:
       # Mount the output directory to get the built artifacts
       - ./src-tauri/target:/app/src-tauri/target

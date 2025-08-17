@@ -46,8 +46,8 @@ RUN bun install
 # Copy the rest of the application
 COPY . .
 
-# Build Next.js app
-RUN bun run build
+# Build Next.js app with increased Node memory limit
+RUN NODE_OPTIONS="--max-old-space-size=6144" bun run build
 
 # Build Tauri app
 CMD ["bun", "run", "tauri", "build"]

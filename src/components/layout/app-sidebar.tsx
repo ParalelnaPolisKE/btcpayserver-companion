@@ -106,7 +106,7 @@ export function AppSidebar() {
                   <CreditCard className="size-4" />
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-semibold">BTCPay Companion</span>
+                  <span className="font-semibold">BTCPayServer Companion</span>
                   <span className="text-xs text-muted-foreground">Store Management</span>
                 </div>
               </Link>

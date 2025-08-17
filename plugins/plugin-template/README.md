@@ -1,6 +1,6 @@
 # Plugin Template - Payment Analytics
 
-This is a template plugin for BTCPay Companion that demonstrates best practices and showcases Greenfield API capabilities.
+This is a template plugin for BTCPayServer Companion that demonstrates best practices and showcases Greenfield API capabilities.
 
 ## Features Demonstrated
 

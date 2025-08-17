@@ -4,7 +4,22 @@
  */
 
 import { API_ENDPOINTS } from '../utils/constants';
-import type { Payment, TimePeriod, AnalyticsData, ApiResponse, ErrorType, PluginError } from '../types';
+import { ErrorType } from '../types';
+import type { Payment, TimePeriod, AnalyticsData, ApiResponse } from '../types';
+
+/**
+ * Custom error class for the plugin
+ */
+class PluginError extends Error {
+  constructor(
+    public type: ErrorType,
+    message: string,
+    public details?: any
+  ) {
+    super(message);
+    this.name = 'PluginError';
+  }
+}
 
 // Get base configuration from parent app
 const getConfig = () => {
@@ -69,7 +84,7 @@ class ApiClient {
       }
       
       throw new PluginError(
-        'NETWORK_ERROR' as ErrorType,
+        ErrorType.NETWORK_ERROR,
         'Network request failed',
         error
       );
@@ -81,7 +96,7 @@ class ApiClient {
    */
   private async handleErrorResponse(response: Response): Promise<PluginError> {
     let errorMessage = `API Error: ${response.status} ${response.statusText}`;
-    let errorType: ErrorType = 'API_ERROR';
+    let errorType: ErrorType = ErrorType.API_ERROR;
     let details: any = {};
 
     try {
@@ -94,9 +109,9 @@ class ApiClient {
 
     // Determine error type based on status code
     if (response.status === 401 || response.status === 403) {
-      errorType = 'PERMISSION_ERROR';
+      errorType = ErrorType.PERMISSION_ERROR;
     } else if (response.status === 400) {
-      errorType = 'VALIDATION_ERROR';
+      errorType = ErrorType.VALIDATION_ERROR;
     }
 
     return new PluginError(errorType, errorMessage, details);

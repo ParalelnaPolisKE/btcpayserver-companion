@@ -1,0 +1,20 @@
+#!/bin/bash
+# Stub for llvm-rc when cross-compiling to Windows
+# This creates an empty resource file to satisfy the build process
+
+# Find the output file argument
+OUTPUT=""
+for i in "$@"; do
+  case $i in
+    *.res)
+      OUTPUT="$i"
+      ;;
+  esac
+done
+
+# Create an empty resource file if output was specified
+if [ -n "$OUTPUT" ]; then
+  touch "$OUTPUT"
+fi
+
+exit 0

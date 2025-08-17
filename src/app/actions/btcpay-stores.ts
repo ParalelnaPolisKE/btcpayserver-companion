@@ -2,7 +2,7 @@
 
 import { BTCPayClient } from '@/services/btcpay-client';
 import { BTCPayMockClient } from '@/services/btcpay-mock';
-import { serverEnv } from '@/lib/env';
+import { serverEnv, clientEnv } from '@/lib/env';
 
 export async function getAvailableStores() {
   try {
@@ -17,7 +17,7 @@ export async function getAvailableStores() {
     };
     
     // Use mock client if no API key or mock mode is forced
-    const ClientClass = (!apiKey || serverEnv.useMock) ? BTCPayMockClient : BTCPayClient;
+    const ClientClass = (!apiKey || clientEnv.useMock) ? BTCPayMockClient : BTCPayClient;
     const client = new ClientClass(config);
     
     const stores = await client.getAvailableStores();
@@ -25,7 +25,7 @@ export async function getAvailableStores() {
     return {
       success: true,
       stores: stores.filter(store => !store.archived), // Filter out archived stores
-      isUsingMockData: !apiKey || serverEnv.useMock,
+      isUsingMockData: !apiKey || clientEnv.useMock,
     };
   } catch (error) {
     console.error('Failed to fetch available stores:', error);
@@ -50,7 +50,7 @@ export async function getStorePOSApps(storeId: string) {
     };
     
     // Use mock client if no API key or mock mode is forced
-    const ClientClass = (!apiKey || serverEnv.useMock) ? BTCPayMockClient : BTCPayClient;
+    const ClientClass = (!apiKey || clientEnv.useMock) ? BTCPayMockClient : BTCPayClient;
     const client = new ClientClass(config);
     
     const posApps = await client.getStorePOSApps(storeId);
@@ -58,7 +58,7 @@ export async function getStorePOSApps(storeId: string) {
     return {
       success: true,
       posApps,
-      isUsingMockData: !apiKey || serverEnv.useMock,
+      isUsingMockData: !apiKey || clientEnv.useMock,
     };
   } catch (error) {
     console.error('Failed to fetch POS apps:', error);
