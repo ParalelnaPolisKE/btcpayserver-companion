@@ -24,6 +24,13 @@
       "@bps-companion/plugins/*": ["./plugins/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "plugins/**/*.ts", "plugins/**/*.tsx"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "plugins/**/*.ts",
+    "plugins/**/*.tsx"
+  ],
   "exclude": ["node_modules"]
 }

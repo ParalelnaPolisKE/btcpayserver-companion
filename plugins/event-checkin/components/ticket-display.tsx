@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { format } from 'date-fns';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle, AlertCircle, Undo2 } from 'lucide-react';
-import { CheckInResult } from '../services/check-in';
+import { format } from "date-fns";
+import { AlertCircle, CheckCircle, Undo2, XCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { CheckInResult } from "../services/check-in";
 
 interface TicketDisplayProps {
   result: CheckInResult | null;
@@ -13,7 +13,11 @@ interface TicketDisplayProps {
   onClear: () => void;
 }
 
-export default function TicketDisplay({ result, onUndo, onClear }: TicketDisplayProps) {
+export default function TicketDisplay({
+  result,
+  onUndo,
+  onClear,
+}: TicketDisplayProps) {
   if (!result) return null;
 
   const getStatusIcon = () => {
@@ -27,9 +31,9 @@ export default function TicketDisplay({ result, onUndo, onClear }: TicketDisplay
   };
 
   const getStatusColor = () => {
-    if (result.success) return 'bg-green-50 border-green-200';
-    if (result.alreadyCheckedIn) return 'bg-yellow-50 border-yellow-200';
-    return 'bg-red-50 border-red-200';
+    if (result.success) return "bg-green-50 border-green-200";
+    if (result.alreadyCheckedIn) return "bg-yellow-50 border-yellow-200";
+    return "bg-red-50 border-red-200";
   };
 
   return (
@@ -39,23 +43,21 @@ export default function TicketDisplay({ result, onUndo, onClear }: TicketDisplay
           <CardTitle className="flex items-center gap-3">
             {getStatusIcon()}
             <span className="text-xl">
-              {result.success ? 'Check-In Successful' : 
-               result.alreadyCheckedIn ? 'Already Checked In' : 
-               'Check-In Failed'}
+              {result.success
+                ? "Check-In Successful"
+                : result.alreadyCheckedIn
+                  ? "Already Checked In"
+                  : "Check-In Failed"}
             </span>
           </CardTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClear}
-          >
+          <Button variant="ghost" size="sm" onClick={onClear}>
             Clear
           </Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="text-lg font-medium">{result.message}</div>
-        
+
         {result.invoice && (
           <div className="space-y-2">
             <div className="grid grid-cols-2 gap-4 text-sm">
@@ -66,14 +68,22 @@ export default function TicketDisplay({ result, onUndo, onClear }: TicketDisplay
               {result.invoice.orderId && (
                 <div>
                   <span className="text-muted-foreground">Order ID:</span>
-                  <p className="font-mono font-medium">{result.invoice.orderId}</p>
+                  <p className="font-mono font-medium">
+                    {result.invoice.orderId}
+                  </p>
                 </div>
               )}
               {result.invoice.status && (
                 <div>
                   <span className="text-muted-foreground">Status:</span>
                   <div className="mt-1">
-                    <Badge variant={result.invoice.status === 'Settled' ? 'default' : 'secondary'}>
+                    <Badge
+                      variant={
+                        result.invoice.status === "Settled"
+                          ? "default"
+                          : "secondary"
+                      }
+                    >
                       {result.invoice.status}
                     </Badge>
                   </div>
@@ -95,16 +105,16 @@ export default function TicketDisplay({ result, onUndo, onClear }: TicketDisplay
           <div className="pt-2 border-t">
             <span className="text-muted-foreground">Checked in at:</span>
             <p className="font-medium">
-              {format(new Date(result.checkedInAt), 'PPpp')}
+              {format(new Date(result.checkedInAt), "PPpp")}
             </p>
           </div>
         )}
 
-        {result.success && result.invoice && onUndo && (
+        {result.success && result.invoice?.id && onUndo && (
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onUndo(result.invoice!.id)}
+            onClick={() => result.invoice?.id && onUndo(result.invoice.id)}
             className="w-full"
           >
             <Undo2 className="h-4 w-4 mr-2" />

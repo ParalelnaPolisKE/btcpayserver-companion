@@ -1,6 +1,5 @@
-import React from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function FinancialAnalysisLoadingSkeleton() {
   return (
@@ -47,17 +46,19 @@ export function FinancialAnalysisLoadingSkeleton() {
             <div className="space-y-3">
               {/* Chart bars skeleton */}
               <div className="flex items-end gap-2 h-48">
-                {[40, 60, 45, 70, 55, 80, 65, 75, 50, 85, 70, 60].map((height, i) => (
-                  <Skeleton
-                    key={i}
-                    className="flex-1"
-                    style={{ height: `${height}%` }}
-                  />
-                ))}
+                {[40, 60, 45, 70, 55, 80, 65, 75, 50, 85, 70, 60].map(
+                  (height, i) => (
+                    <Skeleton
+                      key={i}
+                      className="flex-1"
+                      style={{ height: `${height}%` }}
+                    />
+                  ),
+                )}
               </div>
               {/* X-axis labels */}
               <div className="flex justify-between">
-                {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map((month, i) => (
+                {["Jan", "Feb", "Mar", "Apr", "May", "Jun"].map((_month, i) => (
                   <Skeleton key={i} className="h-3 w-8" />
                 ))}
               </div>
@@ -129,7 +130,6 @@ export function FinancialAnalysisLoadingSkeleton() {
           </div>
         </CardContent>
       </Card>
-
     </div>
   );
 }

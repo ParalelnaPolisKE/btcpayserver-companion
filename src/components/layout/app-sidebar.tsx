@@ -1,29 +1,38 @@
-'use client';
+"use client";
 
-import * as React from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
-  Home,
-  Settings,
-  Package,
+  BookOpen,
   ChevronUp,
+  Code,
   CreditCard,
-  LayoutDashboard,
-  MessageSquare,
-  Github,
-  LogOut,
-  BarChart3,
-  CalendarCheck,
-  CheckSquare,
   DollarSign,
+  Github,
+  LayoutDashboard,
+  LogOut,
+  MessageSquare,
+  Package,
+  PieChart,
+  QrCode,
+  Settings,
+  Shield,
   TrendingUp,
   Users,
   Zap,
-  PieChart,
-  QrCode
 } from "lucide-react";
-
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import * as React from "react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Sidebar,
   SidebarContent,
@@ -35,37 +44,21 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarRail,
   SidebarSeparator,
-  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { Badge } from "@/components/ui/badge";
 import { usePlugins } from "@/contexts/plugins-context";
 import { cn } from "@/lib/utils";
 
 // Icon mapping for plugins
 const iconMap: Record<string, React.ComponentType<any>> = {
-  'financial-analysis': PieChart,
-  'event-checkin': QrCode,
-  'invoice-management': DollarSign,
-  'analytics': TrendingUp,
-  'customers': Users,
-  'automation': Zap,
+  "financial-analysis": PieChart,
+  "event-checkin": QrCode,
+  "invoice-management": DollarSign,
+  analytics: TrendingUp,
+  customers: Users,
+  automation: Zap,
 };
 
 function getPluginIcon(pluginId: string): React.ComponentType<any> {
@@ -77,9 +70,10 @@ export function AppSidebar() {
   const { installedPlugins, isLoading } = usePlugins();
   const { state } = useSidebar();
   const [appsOpen, setAppsOpen] = React.useState(true);
+  const [guidesOpen, setGuidesOpen] = React.useState(false);
 
   // Filter enabled plugins
-  const enabledPlugins = installedPlugins.filter(p => p.config.enabled);
+  const enabledPlugins = installedPlugins.filter((p) => p.config.enabled);
 
   // Main navigation items
   const mainNavItems = [
@@ -95,6 +89,35 @@ export function AppSidebar() {
     },
   ];
 
+  // Guide items for the submenu
+  const guideItems = [
+    {
+      title: "Overview",
+      href: "/guides",
+      icon: BookOpen,
+    },
+    {
+      title: "Getting Started",
+      href: "/guides#getting-started/overview",
+      icon: CreditCard,
+    },
+    {
+      title: "Managing Apps",
+      href: "/guides#managing-apps/overview",
+      icon: Package,
+    },
+    {
+      title: "Plugin Security",
+      href: "/guides#plugin-security/overview",
+      icon: Shield,
+    },
+    {
+      title: "Developing Plugins",
+      href: "/guides#developing-plugins/overview",
+      icon: Code,
+    },
+  ];
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -107,7 +130,9 @@ export function AppSidebar() {
                 </div>
                 <div className="flex flex-col gap-0.5">
                   <span className="font-semibold">BTCPayServer Companion</span>
-                  <span className="text-xs text-muted-foreground">Store Management</span>
+                  <span className="text-xs text-muted-foreground">
+                    Store Management
+                  </span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -124,7 +149,7 @@ export function AppSidebar() {
               {mainNavItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
-                
+
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton asChild isActive={isActive}>
@@ -142,6 +167,48 @@ export function AppSidebar() {
 
         <SidebarSeparator />
 
+        {/* Guides Section */}
+        <SidebarGroup>
+          <Collapsible open={guidesOpen} onOpenChange={setGuidesOpen}>
+            <SidebarGroupLabel asChild>
+              <CollapsibleTrigger className="flex w-full items-center justify-between">
+                <span>Guides</span>
+                <ChevronUp
+                  className={cn(
+                    "size-4 transition-transform text-muted-foreground",
+                    !guidesOpen && "-rotate-180",
+                  )}
+                />
+              </CollapsibleTrigger>
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {guideItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = pathname === "/guides" && item.href === "/guides"
+                      ? true
+                      : pathname === "/guides" && window.location.hash === item.href.replace("/guides", "");
+
+                    return (
+                      <SidebarMenuItem key={item.href}>
+                        <SidebarMenuButton asChild isActive={isActive}>
+                          <Link href={item.href}>
+                            <Icon className="size-4" />
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </Collapsible>
+        </SidebarGroup>
+
+        <SidebarSeparator />
+
         {/* Apps Section */}
         <SidebarGroup>
           <Collapsible open={appsOpen} onOpenChange={setAppsOpen}>
@@ -154,10 +221,10 @@ export function AppSidebar() {
                       {enabledPlugins.length}
                     </span>
                   )}
-                  <ChevronUp 
+                  <ChevronUp
                     className={cn(
                       "size-4 transition-transform text-muted-foreground",
-                      !appsOpen && "-rotate-180"
+                      !appsOpen && "-rotate-180",
                     )}
                   />
                 </div>
@@ -168,46 +235,40 @@ export function AppSidebar() {
                 <SidebarMenu>
                   {/* All Apps Link */}
                   <SidebarMenuItem>
-                    <SidebarMenuButton 
-                      asChild 
-                      isActive={pathname === '/apps'}
-                    >
+                    <SidebarMenuButton asChild isActive={pathname === "/apps"}>
                       <Link href="/apps" className="flex items-center gap-2">
                         <Package className="size-4" />
                         <span>All Apps</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                  
+
                   {/* Dynamic Plugin Links */}
-                  {!isLoading && enabledPlugins.length > 0 && (
-                    <>
-                      {enabledPlugins.map((plugin) => {
-                        const Icon = getPluginIcon(plugin.pluginId);
-                        const pluginPath = `/apps/${plugin.pluginId}`;
-                        const isActive = pathname.startsWith(pluginPath);
-                        
-                        return (
-                          <SidebarMenuItem key={plugin.pluginId}>
-                            <SidebarMenuButton 
-                              asChild 
-                              isActive={isActive}
+                  {!isLoading &&
+                    enabledPlugins.length > 0 &&
+                    enabledPlugins.map((plugin) => {
+                      const Icon = getPluginIcon(plugin.pluginId);
+                      const pluginPath = `/apps/${plugin.pluginId}`;
+                      const isActive = pathname.startsWith(pluginPath);
+
+                      return (
+                        <SidebarMenuItem key={plugin.pluginId}>
+                          <SidebarMenuButton asChild isActive={isActive}>
+                            <Link
+                              href={pluginPath}
+                              className="flex items-center gap-2"
+                              title={plugin.manifest.name}
                             >
-                              <Link 
-                                href={pluginPath} 
-                                className="flex items-center gap-2"
-                                title={plugin.manifest.name}
-                              >
-                                <Icon className="size-4" />
-                                <span className="truncate">{plugin.manifest.name}</span>
-                              </Link>
-                            </SidebarMenuButton>
-                          </SidebarMenuItem>
-                        );
-                      })}
-                    </>
-                  )}
-                  
+                              <Icon className="size-4" />
+                              <span className="truncate">
+                                {plugin.manifest.name}
+                              </span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
+
                   {/* Show placeholder when no apps enabled */}
                   {!isLoading && enabledPlugins.length === 0 && (
                     <SidebarMenuItem>
@@ -227,7 +288,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <a 
+              <a
                 href="https://github.com/ParalelnaPolisKE/btcpayserver-companion/issues"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -240,7 +301,7 @@ export function AppSidebar() {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <a 
+              <a
                 href="https://github.com/ParalelnaPolisKE/btcpayserver-companion"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -252,9 +313,9 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        
+
         <SidebarSeparator />
-        
+
         {/* User Menu */}
         <SidebarMenu>
           <SidebarMenuItem>
@@ -266,14 +327,16 @@ export function AppSidebar() {
                   </div>
                   <div className="flex flex-col gap-0.5 text-left">
                     <span className="text-sm font-medium">Store Admin</span>
-                    <span className="text-xs text-muted-foreground">admin@store.com</span>
+                    <span className="text-xs text-muted-foreground">
+                      admin@store.com
+                    </span>
                   </div>
                   <ChevronUp className="ml-auto size-4" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent 
-                side="top" 
-                align="start" 
+              <DropdownMenuContent
+                side="top"
+                align="start"
                 className="w-[--radix-dropdown-menu-trigger-width]"
               >
                 <DropdownMenuItem asChild>
@@ -291,7 +354,7 @@ export function AppSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
-      
+
       <SidebarRail />
     </Sidebar>
   );

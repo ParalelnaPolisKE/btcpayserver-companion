@@ -1,6 +1,14 @@
-'use client';
+"use client";
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 interface PaymentMethodChartProps {
   data: Record<string, number>;
@@ -17,11 +25,11 @@ export function PaymentMethodChart({ data }: PaymentMethodChartProps) {
 
   function formatPaymentMethod(method: string): string {
     const methodMap: Record<string, string> = {
-      'BTC-OnChain': 'Bitcoin',
-      'BTC-LightningNetwork': 'Lightning',
-      'LTC-OnChain': 'Litecoin',
-      'ETH-OnChain': 'Ethereum',
-      'XMR-OnChain': 'Monero',
+      "BTC-OnChain": "Bitcoin",
+      "BTC-LightningNetwork": "Lightning",
+      "LTC-OnChain": "Litecoin",
+      "ETH-OnChain": "Ethereum",
+      "XMR-OnChain": "Monero",
     };
     return methodMap[method] || method;
   }
@@ -31,29 +39,29 @@ export function PaymentMethodChart({ data }: PaymentMethodChartProps) {
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData} layout="horizontal">
           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-          <XAxis 
+          <XAxis
             type="number"
             className="text-xs"
-            tick={{ fill: 'currentColor' }}
+            tick={{ fill: "currentColor" }}
           />
-          <YAxis 
-            dataKey="method" 
+          <YAxis
+            dataKey="method"
             type="category"
             className="text-xs"
-            tick={{ fill: 'currentColor' }}
+            tick={{ fill: "currentColor" }}
             width={80}
           />
-          <Tooltip 
+          <Tooltip
             contentStyle={{
-              backgroundColor: 'hsl(var(--background))',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: '6px',
+              backgroundColor: "hsl(var(--background))",
+              border: "1px solid hsl(var(--border))",
+              borderRadius: "6px",
             }}
-            labelStyle={{ color: 'hsl(var(--foreground))' }}
+            labelStyle={{ color: "hsl(var(--foreground))" }}
           />
-          <Bar 
-            dataKey="count" 
-            fill="hsl(var(--primary))" 
+          <Bar
+            dataKey="count"
+            fill="hsl(var(--primary))"
             radius={[0, 4, 4, 0]}
           />
         </BarChart>

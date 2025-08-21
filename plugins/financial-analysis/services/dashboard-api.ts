@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { BTCPayClient } from '@bps-companion/services/btcpay-client';
-import { BTCPayMockClient } from '@bps-companion/services/btcpay-mock';
-import { clientEnv } from '@bps-companion/lib/env';
-import { startOfMonth, subMonths, endOfMonth, format } from 'date-fns';
-import { getDatabaseInstance } from '@bps-companion/lib/indexeddb';
-import type { TimeFrame } from '../types';
+import { clientEnv } from "@bps-companion/lib/env";
+import { getDatabaseInstance } from "@bps-companion/lib/indexeddb";
+import { BTCPayClient } from "@bps-companion/services/btcpay-client";
+import { BTCPayMockClient } from "@bps-companion/services/btcpay-mock";
+import { endOfMonth, format, startOfMonth, subMonths } from "date-fns";
+import type { TimeFrame } from "../types";
 
 // Simple in-memory cache for BTC price
 let btcPriceCache: {
@@ -16,35 +16,38 @@ let btcPriceCache: {
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 // Calculate total monthly expenses from IndexedDB
-async function calculateMonthlyExpenses(includeVat: boolean = false): Promise<number> {
+async function calculateMonthlyExpenses(includeVat = false): Promise<number> {
   try {
     const db = getDatabaseInstance();
     await db.init();
     await db.initializeDefaultExpenses();
-    
+
     const [items, defaultVatRate] = await Promise.all([
       db.getExpenseItems(),
-      db.getSetting('defaultVatRate')
+      db.getSetting("defaultVatRate"),
     ]);
-    
+
     // Use the stored VAT rate, or 0 if not set (don't use fallback)
-    const vatRate = defaultVatRate !== null && defaultVatRate !== undefined ? defaultVatRate : 0;
+    const vatRate =
+      defaultVatRate !== null && defaultVatRate !== undefined
+        ? defaultVatRate
+        : 0;
     let total = 0;
-    
-    items.forEach(item => {
+
+    items.forEach((item) => {
       if (item.isActive !== false) {
         let itemAmount = item.amount;
-        
+
         // Adjust for frequency
-        if (item.frequency === 'yearly') {
+        if (item.frequency === "yearly") {
           itemAmount = itemAmount / 12;
-        } else if (item.frequency === 'quarterly') {
+        } else if (item.frequency === "quarterly") {
           itemAmount = itemAmount / 3;
         }
-        
+
         // Handle VAT based on whether it's included in the price
         const itemVatRate = item.vatRate !== undefined ? item.vatRate : vatRate;
-        
+
         if (item.applyVat === true) {
           // applyVat=true means the price already includes VAT (gross price)
           if (!includeVat) {
@@ -62,16 +65,16 @@ async function calculateMonthlyExpenses(includeVat: boolean = false): Promise<nu
           }
           // If includeVat is false, keep the price as-is (no VAT to add)
         }
-        
+
         total += itemAmount;
       }
     });
-    
+
     return total;
   } catch (error) {
-    console.error('Failed to calculate expenses from IndexedDB:', error);
+    console.error("Failed to calculate expenses from IndexedDB:", error);
     // Fallback to hardcoded values
-    const { calculateTotalMonthlyExpenses } = await import('../lib/expenses');
+    const { calculateTotalMonthlyExpenses } = await import("../lib/expenses");
     // When falling back, we don't have VAT rate from DB, so use 0 (no VAT)
     return calculateTotalMonthlyExpenses(includeVat, 0);
   }
@@ -81,17 +84,20 @@ async function calculateMonthlyExpenses(includeVat: boolean = false): Promise<nu
 const getClient = (storeId?: string) => {
   // In a Tauri app, you might want to store the API key securely
   // For now, we'll use the public env variable or localStorage
-  const apiKey = typeof window !== 'undefined' 
-    ? localStorage.getItem('btcpay_api_key') || process.env.NEXT_PUBLIC_BTCPAY_API_KEY || ''
-    : process.env.NEXT_PUBLIC_BTCPAY_API_KEY || '';
-    
+  const apiKey =
+    typeof window !== "undefined"
+      ? localStorage.getItem("btcpay_api_key") ||
+        process.env.NEXT_PUBLIC_BTCPAY_API_KEY ||
+        ""
+      : process.env.NEXT_PUBLIC_BTCPAY_API_KEY || "";
+
   const isUsingMock = !apiKey || clientEnv.useMock;
   const finalStoreId = storeId || clientEnv.storeId;
-  
+
   if (isUsingMock) {
     return new BTCPayMockClient({
       serverUrl: clientEnv.btcpayUrl,
-      apiKey: 'mock-api-key',
+      apiKey: "mock-api-key",
       storeId: finalStoreId,
     });
   }
@@ -105,48 +111,53 @@ const getClient = (storeId?: string) => {
 
 // Helper function to filter invoices from Point of Sale memberships
 function filterPosInvoices(invoices: any[], posFilterString: string) {
-  return invoices.filter(invoice => {
-    const orderUrl = invoice.metadata?.orderUrl || '';
+  return invoices.filter((invoice) => {
+    const orderUrl = invoice.metadata?.orderUrl || "";
     return orderUrl.includes(posFilterString);
   });
 }
 
-export async function getBTCExchangeRate(): Promise<{ eur: number; usd: number } | null> {
+export async function getBTCExchangeRate(): Promise<{
+  eur: number;
+  usd: number;
+} | null> {
   // Check if we have cached data that's still valid
   if (btcPriceCache && Date.now() - btcPriceCache.timestamp < CACHE_DURATION) {
-    console.log('Using cached BTC price');
+    console.log("Using cached BTC price");
     return btcPriceCache.data;
   }
 
-  console.log('Fetching fresh BTC price');
+  console.log("Fetching fresh BTC price");
   try {
-    const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=eur,usd');
+    const response = await fetch(
+      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=eur,usd",
+    );
     if (!response.ok) {
-      throw new Error('Failed to fetch BTC price');
+      throw new Error("Failed to fetch BTC price");
     }
     const data = await response.json();
-    
+
     const exchangeRate = {
       eur: data.bitcoin.eur,
       usd: data.bitcoin.usd,
     };
-    
+
     // Update cache
     btcPriceCache = {
       data: exchangeRate,
       timestamp: Date.now(),
     };
-    
+
     return exchangeRate;
   } catch (error) {
-    console.error('Failed to fetch BTC exchange rate:', error);
-    
+    console.error("Failed to fetch BTC exchange rate:", error);
+
     // If we have stale cached data, use it as fallback
     if (btcPriceCache?.data) {
-      console.log('Using stale cached BTC price as fallback');
+      console.log("Using stale cached BTC price as fallback");
       return btcPriceCache.data;
     }
-    
+
     // Ultimate fallback to approximate rates
     return {
       eur: 95000,
@@ -159,160 +170,223 @@ async function calculateMetrics(invoices: any[]) {
   const now = new Date();
   const currentMonth = startOfMonth(now);
   const lastMonth = startOfMonth(subMonths(now, 1));
-  
+
   // Filter settled invoices that have actually been paid
-  const settledInvoices = invoices.filter(inv => {
-    if (inv.status !== 'Settled') return false;
-    const paidAmount = typeof inv.paidAmount === 'string' ? parseFloat(inv.paidAmount) : inv.paidAmount;
+  const settledInvoices = invoices.filter((inv) => {
+    if (inv.status !== "Settled") return false;
+    const paidAmount =
+      typeof inv.paidAmount === "string"
+        ? Number.parseFloat(inv.paidAmount)
+        : inv.paidAmount;
     return paidAmount > 0;
   });
-  
+
   // First, calculate currency breakdown to determine primary currency
-  const currencyBreakdown = settledInvoices.reduce((acc, inv) => {
-    const currency = inv.currency || 'EUR';
-    acc[currency] = (acc[currency] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-  
-  const primaryCurrency = Object.entries(currencyBreakdown)
-    .sort(([,a], [,b]) => (b as number) - (a as number))[0]?.[0] || 'EUR';
-  
+  const currencyBreakdown = settledInvoices.reduce(
+    (acc, inv) => {
+      const currency = inv.currency || "EUR";
+      acc[currency] = (acc[currency] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
+  const primaryCurrency =
+    Object.entries(currencyBreakdown).sort(
+      ([, a], [, b]) => (b as number) - (a as number),
+    )[0]?.[0] || "EUR";
+
   // Calculate current month revenue
-  const currentMonthInvoices = settledInvoices.filter(inv => {
+  const currentMonthInvoices = settledInvoices.filter((inv) => {
     const created = new Date(inv.createdTime * 1000);
     return created >= currentMonth;
   });
-  
+
   // Group revenue by currency
-  const currentMonthRevenueByCurrency = currentMonthInvoices.reduce((acc, inv) => {
-    const amount = typeof inv.paidAmount === 'string' ? parseFloat(inv.paidAmount) : inv.paidAmount;
-    const currency = inv.currency || 'EUR';
-    acc[currency] = (acc[currency] || 0) + amount;
-    return acc;
-  }, {} as Record<string, number>);
-  
+  const currentMonthRevenueByCurrency = currentMonthInvoices.reduce(
+    (acc, inv) => {
+      const amount =
+        typeof inv.paidAmount === "string"
+          ? Number.parseFloat(inv.paidAmount)
+          : inv.paidAmount;
+      const currency = inv.currency || "EUR";
+      acc[currency] = (acc[currency] || 0) + amount;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
   // Calculate last month revenue
-  const lastMonthInvoices = settledInvoices.filter(inv => {
+  const lastMonthInvoices = settledInvoices.filter((inv) => {
     const created = new Date(inv.createdTime * 1000);
     return created >= lastMonth && created < currentMonth;
   });
-  
-  const lastMonthRevenueByCurrency = lastMonthInvoices.reduce((acc, inv) => {
-    const amount = typeof inv.paidAmount === 'string' ? parseFloat(inv.paidAmount) : inv.paidAmount;
-    const currency = inv.currency || 'EUR';
-    acc[currency] = (acc[currency] || 0) + amount;
-    return acc;
-  }, {} as Record<string, number>);
-  
-  const currentMonthRevenue = currentMonthRevenueByCurrency[primaryCurrency] || 0;
+
+  const lastMonthRevenueByCurrency = lastMonthInvoices.reduce(
+    (acc, inv) => {
+      const amount =
+        typeof inv.paidAmount === "string"
+          ? Number.parseFloat(inv.paidAmount)
+          : inv.paidAmount;
+      const currency = inv.currency || "EUR";
+      acc[currency] = (acc[currency] || 0) + amount;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
+  const currentMonthRevenue =
+    currentMonthRevenueByCurrency[primaryCurrency] || 0;
   const lastMonthRevenue = lastMonthRevenueByCurrency[primaryCurrency] || 0;
-  
+
   // Calculate MRR (simplified - assuming all revenue is recurring)
   const mrr = currentMonthRevenue;
-  
+
   // Calculate growth rate
-  const growthRate = lastMonthRevenue > 0 
-    ? ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 
-    : 0;
-  
+  const growthRate =
+    lastMonthRevenue > 0
+      ? ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100
+      : 0;
+
   // Calculate revenue by month for the last 6 months
   const revenueByMonth: { month: string; revenue: number }[] = [];
   for (let i = 5; i >= 0; i--) {
     const monthStart = startOfMonth(subMonths(now, i));
     const monthEnd = endOfMonth(subMonths(now, i));
-    
-    const monthInvoices = settledInvoices.filter(inv => {
+
+    const monthInvoices = settledInvoices.filter((inv) => {
       const created = new Date(inv.createdTime * 1000);
       return created >= monthStart && created <= monthEnd;
     });
-    
-    const monthRevenueByCurrency = monthInvoices.reduce((acc, inv) => {
-      const amount = typeof inv.paidAmount === 'string' ? parseFloat(inv.paidAmount) : inv.paidAmount;
-      const currency = inv.currency || 'USD';
-      acc[currency] = (acc[currency] || 0) + amount;
-      return acc;
-    }, {} as Record<string, number>);
-    
+
+    const monthRevenueByCurrency = monthInvoices.reduce(
+      (acc, inv) => {
+        const amount =
+          typeof inv.paidAmount === "string"
+            ? Number.parseFloat(inv.paidAmount)
+            : inv.paidAmount;
+        const currency = inv.currency || "USD";
+        acc[currency] = (acc[currency] || 0) + amount;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+
     const monthRevenue = monthRevenueByCurrency[primaryCurrency] || 0;
-    
+
     revenueByMonth.push({
-      month: format(monthStart, 'MMM yyyy'),
+      month: format(monthStart, "MMM yyyy"),
       revenue: monthRevenue,
     });
   }
-  
+
   // Calculate status breakdown
-  const statusBreakdown = invoices.reduce((acc, inv) => {
-    acc[inv.status] = (acc[inv.status] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-  
+  const statusBreakdown = invoices.reduce(
+    (acc, inv) => {
+      acc[inv.status] = (acc[inv.status] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
   // Calculate payment method breakdown
-  const paymentMethodBreakdown = settledInvoices.reduce((acc, inv) => {
-    const method = inv.checkout?.defaultPaymentMethod || 
-                   inv.checkout?.paymentMethods?.[0] || 
-                   'Unknown';
-    acc[method] = (acc[method] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-  
+  const paymentMethodBreakdown = settledInvoices.reduce(
+    (acc, inv) => {
+      const method =
+        inv.checkout?.defaultPaymentMethod ||
+        inv.checkout?.paymentMethods?.[0] ||
+        "Unknown";
+      acc[method] = (acc[method] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
   // Calculate top products
-  const productCounts = settledInvoices.reduce((acc, inv) => {
-    const product = inv.metadata?.itemDesc || 
-                   inv.metadata?.orderId || 
-                   'Unknown Product';
-    acc[product] = (acc[product] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-  
+  const productCounts = settledInvoices.reduce(
+    (acc, inv) => {
+      const product =
+        inv.metadata?.itemDesc || inv.metadata?.orderId || "Unknown Product";
+      acc[product] = (acc[product] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
   const topProducts = Object.entries(productCounts)
     .sort(([, a], [, b]) => (b as number) - (a as number))
     .slice(0, 5)
     .map(([product, count]) => ({ product, count: count as number }));
-  
+
   // Calculate average transaction value
-  const paidInvoicesByCurrency = settledInvoices.reduce((acc: Record<string, any[]>, inv: any) => {
-    const currency = inv.currency || 'USD';
-    if (!acc[currency]) acc[currency] = [];
-    acc[currency].push(inv);
-    return acc;
-  }, {} as Record<string, any[]>);
-  
+  const paidInvoicesByCurrency = settledInvoices.reduce(
+    (acc: Record<string, any[]>, inv: any) => {
+      const currency = inv.currency || "USD";
+      if (!acc[currency]) acc[currency] = [];
+      acc[currency].push(inv);
+      return acc;
+    },
+    {} as Record<string, any[]>,
+  );
+
   const primaryCurrencyInvoices = paidInvoicesByCurrency[primaryCurrency] || [];
-  const totalRevenue = primaryCurrencyInvoices.reduce((sum: number, inv: any) => {
-    const amount = typeof inv.paidAmount === 'string' ? parseFloat(inv.paidAmount) : inv.paidAmount;
-    return sum + amount;
-  }, 0);
-  
-  const avgTransactionValue = primaryCurrencyInvoices.length > 0
-    ? totalRevenue / primaryCurrencyInvoices.length
-    : 0;
-    
-  const amounts = primaryCurrencyInvoices.map((inv: any) => {
-    const paidAmount = typeof inv.paidAmount === 'string' ? parseFloat(inv.paidAmount) : inv.paidAmount;
-    return paidAmount;
-  }).filter((a: number) => a > 0);
-  
-  const sortedAmounts = [...amounts].sort((a, b) => a - b);
-  const median = sortedAmounts.length > 0 
-    ? sortedAmounts[Math.floor(sortedAmounts.length / 2)]
-    : 0;
-  
-  const currencyStats = Object.entries(paidInvoicesByCurrency).map(([currency, invoices]) => {
-    const total = (invoices as any[]).reduce((sum: number, inv: any) => {
-      const amount = typeof inv.paidAmount === 'string' ? parseFloat(inv.paidAmount) : inv.paidAmount;
+  const totalRevenue = primaryCurrencyInvoices.reduce(
+    (sum: number, inv: any) => {
+      const amount =
+        typeof inv.paidAmount === "string"
+          ? Number.parseFloat(inv.paidAmount)
+          : inv.paidAmount;
       return sum + amount;
-    }, 0);
-    const avg = total / (invoices as any[]).length;
-    return { currency, count: (invoices as any[]).length, total, average: avg };
-  });
-  
+    },
+    0,
+  );
+
+  const avgTransactionValue =
+    primaryCurrencyInvoices.length > 0
+      ? totalRevenue / primaryCurrencyInvoices.length
+      : 0;
+
+  const amounts = primaryCurrencyInvoices
+    .map((inv: any) => {
+      const paidAmount =
+        typeof inv.paidAmount === "string"
+          ? Number.parseFloat(inv.paidAmount)
+          : inv.paidAmount;
+      return paidAmount;
+    })
+    .filter((a: number) => a > 0);
+
+  const sortedAmounts = [...amounts].sort((a, b) => a - b);
+  const median =
+    sortedAmounts.length > 0
+      ? sortedAmounts[Math.floor(sortedAmounts.length / 2)]
+      : 0;
+
+  const currencyStats = Object.entries(paidInvoicesByCurrency).map(
+    ([currency, invoices]) => {
+      const total = (invoices as any[]).reduce((sum: number, inv: any) => {
+        const amount =
+          typeof inv.paidAmount === "string"
+            ? Number.parseFloat(inv.paidAmount)
+            : inv.paidAmount;
+        return sum + amount;
+      }, 0);
+      const avg = total / (invoices as any[]).length;
+      return {
+        currency,
+        count: (invoices as any[]).length,
+        total,
+        average: avg,
+      };
+    },
+  );
+
   // Calculate profit/loss based on monthly expenses
   const monthlyExpensesNoVat = await calculateMonthlyExpenses(false);
   const monthlyExpensesWithVat = await calculateMonthlyExpenses(true);
   const profitNoVat = currentMonthRevenue - monthlyExpensesNoVat;
   const profitWithVat = currentMonthRevenue - monthlyExpensesWithVat;
-  
+
   return {
     currentMonthRevenue,
     lastMonthRevenue,
@@ -347,35 +421,41 @@ async function calculateMetrics(invoices: any[]) {
   };
 }
 
-export async function getDashboardMetrics(storeId?: string, allStores?: boolean, posFilter?: string) {
+export async function getDashboardMetrics(
+  storeId?: string,
+  allStores?: boolean,
+  posFilter?: string,
+) {
   try {
     const exchangeRate = await getBTCExchangeRate();
-    
+
     // Simplified logic - always fetch from single store or default
     const client = getClient(storeId);
     const sixMonthsAgo = subMonths(new Date(), 6);
-    
+
     const [invoices, storeInfo] = await Promise.all([
       client.getInvoices({
         startDate: sixMonthsAgo.toISOString(),
         take: 1000,
       }),
-      client.getStoreInfo()
+      client.getStoreInfo(),
     ]);
-    
+
     // Apply POS filter if provided
     let filteredInvoices = invoices;
     if (posFilter) {
       filteredInvoices = filterPosInvoices(invoices, posFilter);
     }
-    
+
     const metrics = await calculateMetrics(filteredInvoices);
-    
-    
-    const apiKey = typeof window !== 'undefined' 
-      ? localStorage.getItem('btcpay_api_key') || process.env.NEXT_PUBLIC_BTCPAY_API_KEY || ''
-      : process.env.NEXT_PUBLIC_BTCPAY_API_KEY || '';
-    
+
+    const apiKey =
+      typeof window !== "undefined"
+        ? localStorage.getItem("btcpay_api_key") ||
+          process.env.NEXT_PUBLIC_BTCPAY_API_KEY ||
+          ""
+        : process.env.NEXT_PUBLIC_BTCPAY_API_KEY || "";
+
     return {
       ...metrics,
       storeInfo,
@@ -386,136 +466,160 @@ export async function getDashboardMetrics(storeId?: string, allStores?: boolean,
       hasPosFilter: !!posFilter,
     };
   } catch (error) {
-    console.error('Failed to get dashboard metrics:', error);
+    console.error("Failed to get dashboard metrics:", error);
     throw error;
   }
 }
 
 function getTimeKey(date: Date, timeFrame: TimeFrame): string {
   switch (timeFrame) {
-    case 'daily':
-      return format(date, 'yyyy-MM-dd');
-    case 'weekly':
+    case "daily":
+      return format(date, "yyyy-MM-dd");
+    case "weekly": {
       const weekStart = new Date(date);
       weekStart.setDate(date.getDate() - date.getDay());
-      return format(weekStart, 'yyyy-MM-dd');
-    case 'monthly':
-      return format(date, 'yyyy-MM');
-    case 'quarterly':
+      return format(weekStart, "yyyy-MM-dd");
+    }
+    case "monthly":
+      return format(date, "yyyy-MM");
+    case "quarterly": {
       const quarter = Math.floor(date.getMonth() / 3) + 1;
       return `${date.getFullYear()}-Q${quarter}`;
-    case 'yearly':
+    }
+    case "yearly":
       return date.getFullYear().toString();
   }
 }
 
 function groupInvoicesByTimeFrame(invoices: any[], timeFrame: TimeFrame) {
-  const settledInvoices = invoices.filter(inv => {
-    if (inv.status !== 'Settled') return false;
-    const paidAmount = typeof inv.paidAmount === 'string' ? parseFloat(inv.paidAmount) : inv.paidAmount;
+  const settledInvoices = invoices.filter((inv) => {
+    if (inv.status !== "Settled") return false;
+    const paidAmount =
+      typeof inv.paidAmount === "string"
+        ? Number.parseFloat(inv.paidAmount)
+        : inv.paidAmount;
     return paidAmount > 0;
   });
-  
+
   // Get currency breakdown
-  const currencyBreakdown = settledInvoices.reduce((acc, inv) => {
-    const currency = inv.currency || 'EUR';
-    acc[currency] = (acc[currency] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-  
-  const primaryCurrency = Object.entries(currencyBreakdown)
-    .sort(([,a], [,b]) => (b as number) - (a as number))[0]?.[0] || 'EUR';
-  
+  const currencyBreakdown = settledInvoices.reduce(
+    (acc, inv) => {
+      const currency = inv.currency || "EUR";
+      acc[currency] = (acc[currency] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
+  const primaryCurrency =
+    Object.entries(currencyBreakdown).sort(
+      ([, a], [, b]) => (b as number) - (a as number),
+    )[0]?.[0] || "EUR";
+
   // Group by time period
   const grouped = new Map<string, number>();
-  
-  settledInvoices.forEach(inv => {
+
+  settledInvoices.forEach((inv) => {
     const date = new Date(inv.createdTime * 1000);
     const key = getTimeKey(date, timeFrame);
-    const amount = typeof inv.paidAmount === 'string' ? parseFloat(inv.paidAmount) : inv.paidAmount;
-    
+    const amount =
+      typeof inv.paidAmount === "string"
+        ? Number.parseFloat(inv.paidAmount)
+        : inv.paidAmount;
+
     // Only count primary currency for consistency
     if (inv.currency === primaryCurrency) {
       grouped.set(key, (grouped.get(key) || 0) + amount);
     }
   });
-  
+
   // Convert to array and sort
   const data = Array.from(grouped.entries())
     .map(([period, revenue]) => ({ period, revenue }))
     .sort((a, b) => a.period.localeCompare(b.period));
-  
+
   return { data, primaryCurrency, timeFrame };
 }
 
-export async function getRevenueData(timeFrame: TimeFrame = 'monthly', storeId?: string, allStores?: boolean, posFilter?: string) {
+export async function getRevenueData(
+  timeFrame: TimeFrame = "monthly",
+  storeId?: string,
+  _allStores?: boolean,
+  posFilter?: string,
+) {
   try {
-    const now = new Date();
-    const startDate = new Date('2022-01-01');
-    
+    const _now = new Date();
+    const startDate = new Date("2022-01-01");
+
     let invoices: any[] = [];
-    
+
     // Simplified logic - always fetch from single store or default
     const client = getClient(storeId);
     invoices = await client.getInvoices({
       startDate: startDate.toISOString(),
       take: 5000,
     });
-    
+
     // Apply POS filter if provided
     if (posFilter) {
       invoices = filterPosInvoices(invoices, posFilter);
     }
-    
+
     const groupedData = groupInvoicesByTimeFrame(invoices, timeFrame);
     return groupedData;
   } catch (error) {
-    console.error('Failed to get revenue data:', error);
+    console.error("Failed to get revenue data:", error);
     throw error;
   }
 }
 
 function getProjectionCount(timeFrame: TimeFrame): number {
   switch (timeFrame) {
-    case 'daily': return 30;
-    case 'weekly': return 12;
-    case 'monthly': return 6;
-    case 'quarterly': return 4;
-    case 'yearly': return 2;
+    case "daily":
+      return 30;
+    case "weekly":
+      return 12;
+    case "monthly":
+      return 6;
+    case "quarterly":
+      return 4;
+    case "yearly":
+      return 2;
   }
 }
 
 function parseTimeKey(key: string, timeFrame: TimeFrame): Date {
   switch (timeFrame) {
-    case 'daily':
-    case 'weekly':
-    case 'monthly':
+    case "daily":
+    case "weekly":
+    case "monthly":
       return new Date(key);
-    case 'quarterly':
-      const [year, quarter] = key.split('-Q');
-      const month = (parseInt(quarter) - 1) * 3;
-      return new Date(parseInt(year), month, 1);
-    case 'yearly':
-      return new Date(parseInt(key), 0, 1);
+    case "quarterly": {
+      const [year, quarter] = key.split("-Q");
+      const month = (Number.parseInt(quarter, 10) - 1) * 3;
+      return new Date(Number.parseInt(year, 10), month, 1);
+    }
+    case "yearly":
+      return new Date(Number.parseInt(key, 10), 0, 1);
   }
 }
 
 function addPeriod(date: Date, count: number, timeFrame: TimeFrame): Date {
   const result = new Date(date);
   switch (timeFrame) {
-    case 'daily':
+    case "daily":
       result.setDate(result.getDate() + count);
       break;
-    case 'weekly':
+    case "weekly":
       result.setDate(result.getDate() + count * 7);
       break;
-    case 'monthly':
+    case "monthly":
       result.setMonth(result.getMonth() + count);
       break;
-    case 'quarterly':
+    case "quarterly":
       result.setMonth(result.getMonth() + count * 3);
       break;
-    case 'yearly':
+    case "yearly":
       result.setFullYear(result.getFullYear() + count);
       break;
   }
@@ -526,55 +630,60 @@ function formatProjectionDate(date: Date, timeFrame: TimeFrame): string {
   return getTimeKey(date, timeFrame);
 }
 
-export async function getRevenueProjection(timeFrame: TimeFrame = 'monthly', storeId?: string, allStores?: boolean, posFilter?: string) {
+export async function getRevenueProjection(
+  timeFrame: TimeFrame = "monthly",
+  storeId?: string,
+  allStores?: boolean,
+  posFilter?: string,
+) {
   const [revenueData, exchangeRate] = await Promise.all([
     getRevenueData(timeFrame, storeId, allStores, posFilter),
-    getBTCExchangeRate()
+    getBTCExchangeRate(),
   ]);
-  
+
   if (!revenueData) return null;
-  
+
   const { data, primaryCurrency } = revenueData;
-  
+
   // Simple linear regression for projection
   const regressionData = data.map((item, index) => ({
     x: index,
     y: item.revenue,
   }));
-  
+
   const n = regressionData.length;
   if (n < 2) return null;
-  
+
   const sumX = regressionData.reduce((sum, item) => sum + item.x, 0);
   const sumY = regressionData.reduce((sum, item) => sum + item.y, 0);
   const sumXY = regressionData.reduce((sum, item) => sum + item.x * item.y, 0);
   const sumX2 = regressionData.reduce((sum, item) => sum + item.x * item.x, 0);
-  
+
   const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
   const intercept = (sumY - slope * sumX) / n;
-  
+
   // Calculate projections
   const projectionCount = getProjectionCount(timeFrame);
   const projections = [];
-  
+
   const lastDate = parseTimeKey(data[data.length - 1].period, timeFrame);
-  
+
   for (let i = 1; i <= projectionCount; i++) {
     const x = n - 1 + i;
     const projectedRevenue = slope * x + intercept;
     const projectionDate = addPeriod(lastDate, i, timeFrame);
-    
+
     projections.push({
       period: formatProjectionDate(projectionDate, timeFrame),
       revenue: Math.max(0, projectedRevenue),
       isProjection: true,
     });
   }
-  
+
   return {
-    historical: data.map(d => ({ period: d.period, revenue: d.revenue })),
+    historical: data.map((d) => ({ period: d.period, revenue: d.revenue })),
     projections,
-    trend: slope > 0 ? 'up' : slope < 0 ? 'down' : 'stable',
+    trend: slope > 0 ? "up" : slope < 0 ? "down" : "stable",
     primaryCurrency,
     timeFrame,
     exchangeRate,
@@ -593,7 +702,7 @@ export async function getInvoices(params?: {
   try {
     return await client.getInvoices(params);
   } catch (error) {
-    console.error('Failed to get invoices:', error);
+    console.error("Failed to get invoices:", error);
     throw error;
   }
 }
@@ -603,7 +712,7 @@ export async function getStoreInfo() {
   try {
     return await client.getStoreInfo();
   } catch (error) {
-    console.error('Failed to get store info:', error);
+    console.error("Failed to get store info:", error);
     throw error;
   }
 }
@@ -613,7 +722,7 @@ export async function getPaymentMethods() {
   try {
     return await client.getPaymentMethods();
   } catch (error) {
-    console.error('Failed to get payment methods:', error);
+    console.error("Failed to get payment methods:", error);
     throw error;
   }
 }

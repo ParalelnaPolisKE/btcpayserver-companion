@@ -1,108 +1,124 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Shield, 
-  BookOpen, 
-  Zap, 
+import {
+  AlertTriangle,
+  BookOpen,
+  CheckCircle,
+  ChevronRight,
+  Code,
+  CreditCard,
+  ExternalLink,
+  FileText,
+  Globe,
+  Info,
+  Key,
   Lock,
   Package,
-  ExternalLink,
-  ChevronRight,
-  Info,
-  CheckCircle,
-  AlertTriangle,
-  FileText,
   PlayCircle,
-  Users,
-  Code,
   Server,
-  CreditCard,
+  Shield,
   ShieldCheck,
-  Key,
-  Globe
+  Users,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { OnboardingSection } from "@/components/dashboard/onboarding-section";
-import { usePlugins } from '@/contexts/plugins-context';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { usePlugins } from "@/contexts/plugins-context";
 
 export default function DashboardPage() {
   const { installedPlugins } = usePlugins();
-  const [serverStatus, setServerStatus] = useState<'connected' | 'disconnected' | 'checking'>('checking');
-  
-  useEffect(() => {
-    // Check server connection status
-    checkServerConnection();
-  }, []);
+  const [serverStatus, setServerStatus] = useState<
+    "connected" | "disconnected" | "checking"
+  >("checking");
 
   const checkServerConnection = async () => {
     try {
       // Check if we have API configuration
-      const hasApiKey = localStorage.getItem('btcpay_api_key');
-      setServerStatus(hasApiKey ? 'connected' : 'disconnected');
-    } catch (error) {
-      setServerStatus('disconnected');
+      const hasApiKey = localStorage.getItem("btcpay_api_key");
+      setServerStatus(hasApiKey ? "connected" : "disconnected");
+    } catch (_error) {
+      setServerStatus("disconnected");
     }
   };
+
+  useEffect(() => {
+    // Check server connection status
+    checkServerConnection();
+  }, [
+    // Check server connection status
+    checkServerConnection,
+  ]);
 
   const tutorials = [
     {
       icon: CreditCard,
       title: "Getting Started with BTCPayServer Companion",
       description: "Learn the basics of setting up and using the companion app",
-      link: "https://docs.btcpayserver.org/",
-      duration: "5 min"
+      link: "/guides#getting-started",
+      internal: true,
+      duration: "5 min",
     },
     {
       icon: Package,
       title: "Installing and Managing Apps",
       description: "Discover how to extend functionality with apps",
-      link: "/apps",
+      link: "/guides#managing-apps",
       internal: true,
-      duration: "3 min"
+      duration: "3 min",
     },
     {
       icon: Shield,
       title: "Understanding Plugin Security",
       description: "Learn how we protect your server from malicious plugins",
-      link: "#security-section",
+      link: "/guides#plugin-security",
       internal: true,
-      duration: "10 min"
+      duration: "10 min",
     },
     {
       icon: Code,
       title: "Developing Your Own Plugin",
       description: "Create custom plugins for your specific needs",
-      link: "https://github.com/ParalelnaPolisKE/btcpayserver-companion/docs",
-      duration: "15 min"
-    }
+      link: "/guides#developing-plugins",
+      internal: true,
+      duration: "15 min",
+    },
   ];
 
   const securityFeatures = [
     {
       icon: ShieldCheck,
       title: "Plugin Sandboxing",
-      description: "All plugins run in isolated environments preventing access to sensitive data"
+      description:
+        "All plugins run in isolated environments preventing access to sensitive data",
     },
     {
       icon: Key,
       title: "Permission System",
-      description: "Granular permissions control what each plugin can access"
+      description: "Granular permissions control what each plugin can access",
     },
     {
       icon: Lock,
       title: "Code Scanning",
-      description: "Automatic scanning for malicious code patterns before installation"
+      description:
+        "Automatic scanning for malicious code patterns before installation",
     },
     {
       icon: AlertTriangle,
       title: "Runtime Monitoring",
-      description: "Real-time detection and blocking of suspicious plugin behavior"
-    }
+      description:
+        "Real-time detection and blocking of suspicious plugin behavior",
+    },
   ];
 
   return (
@@ -111,7 +127,8 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">
-          Welcome to BTCPayServer Companion - Your gateway to enhanced BTCPayServer functionality
+          Welcome to BTCPayServer Companion - Your gateway to enhanced
+          BTCPayServer functionality
         </p>
       </div>
 
@@ -127,37 +144,49 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <div className={`h-2 w-2 rounded-full ${
-                serverStatus === 'connected' ? 'bg-green-500' : 
-                serverStatus === 'disconnected' ? 'bg-red-500' : 
-                'bg-yellow-500'
-              }`} />
-              <span className="text-2xl font-bold capitalize">{serverStatus}</span>
+              <div
+                className={`h-2 w-2 rounded-full ${
+                  serverStatus === "connected"
+                    ? "bg-green-500"
+                    : serverStatus === "disconnected"
+                      ? "bg-red-500"
+                      : "bg-yellow-500"
+                }`}
+              />
+              <span className="text-2xl font-bold capitalize">
+                {serverStatus}
+              </span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {serverStatus === 'connected' ? 'BTCPayServer connected' : 
-               serverStatus === 'disconnected' ? 'Configure in settings' : 
-               'Checking connection...'}
+              {serverStatus === "connected"
+                ? "BTCPayServer connected"
+                : serverStatus === "disconnected"
+                  ? "Configure in settings"
+                  : "Checking connection..."}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Installed Apps</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Installed Apps
+            </CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{installedPlugins.length}</div>
             <p className="text-xs text-muted-foreground">
-              {installedPlugins.filter(p => p.config.enabled).length} enabled
+              {installedPlugins.filter((p) => p.config.enabled).length} enabled
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Security Status</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Security Status
+            </CardTitle>
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -165,7 +194,9 @@ export default function DashboardPage() {
               <CheckCircle className="h-5 w-5 text-green-500" />
               <span className="text-2xl font-bold">Secure</span>
             </div>
-            <p className="text-xs text-muted-foreground">All systems operational</p>
+            <p className="text-xs text-muted-foreground">
+              All systems operational
+            </p>
           </CardContent>
         </Card>
 
@@ -207,12 +238,17 @@ export default function DashboardPage() {
                       key={index}
                       className="flex items-start gap-3 p-4 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
                       onClick={() => {
-                        if (tutorial.internal && tutorial.link.startsWith('#')) {
-                          document.querySelector(tutorial.link)?.scrollIntoView({ behavior: 'smooth' });
+                        if (
+                          tutorial.internal &&
+                          tutorial.link.startsWith("#")
+                        ) {
+                          document
+                            .querySelector(tutorial.link)
+                            ?.scrollIntoView({ behavior: "smooth" });
                         } else if (tutorial.internal) {
                           window.location.href = tutorial.link;
                         } else {
-                          window.open(tutorial.link, '_blank');
+                          window.open(tutorial.link, "_blank");
                         }
                       }}
                     >
@@ -221,7 +257,9 @@ export default function DashboardPage() {
                       </div>
                       <div className="flex-1 space-y-1">
                         <div className="flex items-center justify-between">
-                          <p className="font-medium text-sm">{tutorial.title}</p>
+                          <p className="font-medium text-sm">
+                            {tutorial.title}
+                          </p>
                           <Badge variant="secondary" className="text-xs">
                             {tutorial.duration}
                           </Badge>
@@ -244,17 +282,26 @@ export default function DashboardPage() {
                   <h4 className="font-medium">Need More Help?</h4>
                 </div>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Visit our comprehensive documentation for detailed guides and API references.
+                  Visit our comprehensive documentation for detailed guides and
+                  API references.
                 </p>
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline" asChild>
-                    <a href="https://docs.btcpayserver.org/" target="_blank" rel="noopener noreferrer">
+                    <a
+                      href="https://docs.btcpayserver.org/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       Documentation
                       <ExternalLink className="ml-2 h-3 w-3" />
                     </a>
                   </Button>
                   <Button size="sm" variant="outline" asChild>
-                    <a href="https://chat.btcpayserver.org/" target="_blank" rel="noopener noreferrer">
+                    <a
+                      href="https://chat.btcpayserver.org/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       Community Chat
                       <Users className="ml-2 h-3 w-3" />
                     </a>
@@ -285,8 +332,9 @@ export default function DashboardPage() {
                   <div className="space-y-2">
                     <h4 className="font-medium">Browse Available Apps</h4>
                     <p className="text-sm text-muted-foreground">
-                      Visit the Apps page to see all available plugins. Built-in apps like Financial Analysis 
-                      and Event Check-in are pre-installed and ready to use.
+                      Visit the Apps page to see all available plugins. Built-in
+                      apps like Financial Analysis and Event Check-in are
+                      pre-installed and ready to use.
                     </p>
                     <Button size="sm" variant="outline" asChild>
                       <Link href="/apps">
@@ -306,8 +354,8 @@ export default function DashboardPage() {
                   <div className="space-y-2">
                     <h4 className="font-medium">Enable Apps</h4>
                     <p className="text-sm text-muted-foreground">
-                      Toggle the switch on any app card to enable it. Enabled apps will appear in the sidebar 
-                      for quick access.
+                      Toggle the switch on any app card to enable it. Enabled
+                      apps will appear in the sidebar for quick access.
                     </p>
                   </div>
                 </div>
@@ -321,8 +369,9 @@ export default function DashboardPage() {
                   <div className="space-y-2">
                     <h4 className="font-medium">Upload Custom Apps</h4>
                     <p className="text-sm text-muted-foreground">
-                      Advanced users can upload custom plugins as ZIP files. All uploaded plugins go through 
-                      our security scanning process before installation.
+                      Advanced users can upload custom plugins as ZIP files. All
+                      uploaded plugins go through our security scanning process
+                      before installation.
                     </p>
                     <Badge variant="outline" className="text-xs">
                       <Lock className="mr-1 h-3 w-3" />
@@ -339,8 +388,12 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-3">
                       <Zap className="h-5 w-5 text-yellow-500" />
                       <div>
-                        <p className="font-medium text-sm">Financial Analysis</p>
-                        <p className="text-xs text-muted-foreground">Revenue analytics and reporting</p>
+                        <p className="font-medium text-sm">
+                          Financial Analysis
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Revenue analytics and reporting
+                        </p>
                       </div>
                     </div>
                     <Badge>Built-in</Badge>
@@ -350,7 +403,9 @@ export default function DashboardPage() {
                       <CheckCircle className="h-5 w-5 text-green-500" />
                       <div>
                         <p className="font-medium text-sm">Event Check-in</p>
-                        <p className="text-xs text-muted-foreground">QR code-based event management</p>
+                        <p className="text-xs text-muted-foreground">
+                          QR code-based event management
+                        </p>
                       </div>
                     </div>
                     <Badge>Built-in</Badge>
@@ -362,7 +417,10 @@ export default function DashboardPage() {
         </TabsContent>
 
         {/* Security Tab */}
-        <TabsContent value="security" className="space-y-4" id="security-section">
+        <TabsContent
+          value="security"
+          className="space-y-4"
+        >
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
@@ -382,8 +440,9 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 <p className="text-sm text-green-700 dark:text-green-300">
-                  BTCPayServer Companion implements multiple layers of security to protect your cryptocurrency 
-                  operations and server from malicious plugins.
+                  BTCPayServer Companion implements multiple layers of security
+                  to protect your cryptocurrency operations and server from
+                  malicious plugins.
                 </p>
               </div>
 
@@ -391,7 +450,10 @@ export default function DashboardPage() {
                 {securityFeatures.map((feature, index) => {
                   const Icon = feature.icon;
                   return (
-                    <div key={index} className="flex gap-3 p-4 rounded-lg border">
+                    <div
+                      key={index}
+                      className="flex gap-3 p-4 rounded-lg border"
+                    >
                       <div className="flex-shrink-0">
                         <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
                           <Icon className="h-5 w-5 text-primary" />
@@ -426,7 +488,8 @@ export default function DashboardPage() {
                   <div className="flex items-start gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
                     <p className="text-sm text-muted-foreground">
-                      Keep your BTCPayServer Companion updated to the latest version
+                      Keep your BTCPayServer Companion updated to the latest
+                      version
                     </p>
                   </div>
                   <div className="flex items-start gap-2">
@@ -440,7 +503,11 @@ export default function DashboardPage() {
 
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" asChild>
-                  <a href="https://docs.btcpayserver.org/Security/" target="_blank" rel="noopener noreferrer">
+                  <a
+                    href="https://docs.btcpayserver.org/Security/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     Security Documentation
                     <ExternalLink className="ml-2 h-3 w-3" />
                   </a>
@@ -465,26 +532,62 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-2 md:grid-cols-4">
-            <Button variant="outline" size="sm" asChild className="justify-start">
-              <a href="https://btcpayserver.org/" target="_blank" rel="noopener noreferrer">
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="justify-start"
+            >
+              <a
+                href="https://btcpayserver.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Globe className="mr-2 h-4 w-4" />
                 BTCPayServer.org
               </a>
             </Button>
-            <Button variant="outline" size="sm" asChild className="justify-start">
-              <a href="https://github.com/btcpayserver/btcpayserver" target="_blank" rel="noopener noreferrer">
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="justify-start"
+            >
+              <a
+                href="https://github.com/btcpayserver/btcpayserver"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Code className="mr-2 h-4 w-4" />
                 GitHub Repository
               </a>
             </Button>
-            <Button variant="outline" size="sm" asChild className="justify-start">
-              <a href="https://docs.btcpayserver.org/API/Greenfield/v1/" target="_blank" rel="noopener noreferrer">
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="justify-start"
+            >
+              <a
+                href="https://docs.btcpayserver.org/API/Greenfield/v1/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <FileText className="mr-2 h-4 w-4" />
                 API Documentation
               </a>
             </Button>
-            <Button variant="outline" size="sm" asChild className="justify-start">
-              <a href="https://www.youtube.com/@BTCPayServer" target="_blank" rel="noopener noreferrer">
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="justify-start"
+            >
+              <a
+                href="https://www.youtube.com/@BTCPayServer"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <PlayCircle className="mr-2 h-4 w-4" />
                 Video Tutorials
               </a>

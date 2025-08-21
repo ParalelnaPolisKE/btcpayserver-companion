@@ -41,6 +41,6 @@ export interface InstalledPlugin {
   pluginId: string;
   manifest: PluginManifest;
   config: PluginConfig;
-  source: 'builtin' | 'uploaded' | 'marketplace';
+  source: "builtin" | "uploaded" | "marketplace";
   installedPath?: string;
 }

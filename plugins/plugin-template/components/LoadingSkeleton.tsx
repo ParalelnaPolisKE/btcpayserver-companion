@@ -3,22 +3,24 @@
  * Provides loading states for better UX
  */
 
-import React from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface LoadingSkeletonProps {
-  variant?: 'default' | 'card' | 'list' | 'chart';
+  variant?: "default" | "card" | "list" | "chart";
   count?: number;
 }
 
-export function LoadingSkeleton({ variant = 'default', count = 1 }: LoadingSkeletonProps) {
+export function LoadingSkeleton({
+  variant = "default",
+  count = 1,
+}: LoadingSkeletonProps) {
   switch (variant) {
-    case 'card':
+    case "card":
       return <CardSkeleton count={count} />;
-    case 'list':
+    case "list":
       return <ListSkeleton count={count} />;
-    case 'chart':
+    case "chart":
       return <ChartSkeleton />;
     default:
       return <DefaultSkeleton />;
@@ -96,7 +98,10 @@ function ListSkeleton({ count }: { count: number }) {
   return (
     <div className="space-y-2">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="flex items-center justify-between p-4 border rounded-lg">
+        <div
+          key={i}
+          className="flex items-center justify-between p-4 border rounded-lg"
+        >
           <div className="flex items-center gap-4">
             <Skeleton className="h-10 w-10 rounded-full" />
             <div className="space-y-1">
@@ -126,16 +131,19 @@ function ChartSkeleton() {
           {/* Chart bars skeleton */}
           <div className="flex items-end justify-between h-64 gap-2">
             {Array.from({ length: 7 }).map((_, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center justify-end gap-2">
-                <Skeleton 
-                  className="w-full" 
+              <div
+                key={i}
+                className="flex-1 flex flex-col items-center justify-end gap-2"
+              >
+                <Skeleton
+                  className="w-full"
                   style={{ height: `${Math.random() * 60 + 40}%` }}
                 />
                 <Skeleton className="h-3 w-8" />
               </div>
             ))}
           </div>
-          
+
           {/* Legend skeleton */}
           <div className="flex justify-center gap-6">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -154,7 +162,7 @@ function ChartSkeleton() {
 /**
  * Inline skeleton for small loading states
  */
-export function InlineSkeleton({ className = '' }: { className?: string }) {
+export function InlineSkeleton({ className = "" }: { className?: string }) {
   return <Skeleton className={`inline-block ${className}`} />;
 }
 
@@ -165,10 +173,10 @@ export function TextSkeleton({ lines = 3 }: { lines?: number }) {
   return (
     <div className="space-y-2">
       {Array.from({ length: lines }).map((_, i) => (
-        <Skeleton 
-          key={i} 
-          className="h-4" 
-          style={{ width: `${100 - (i * 15)}%` }}
+        <Skeleton
+          key={i}
+          className="h-4"
+          style={{ width: `${100 - i * 15}%` }}
         />
       ))}
     </div>

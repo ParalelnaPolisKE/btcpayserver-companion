@@ -13,7 +13,7 @@ export interface Store {
   createdAt: Date;
 }
 
-export const ALL_STORES_ID = 'all-stores';
+export const ALL_STORES_ID = "all-stores";
 
 export interface StoresConfig {
   stores: Store[];
@@ -23,5 +23,5 @@ export interface StoresConfig {
 // Default store configuration
 export const defaultStoresConfig: StoresConfig = {
   stores: [],
-  defaultStoreId: undefined
+  defaultStoreId: undefined,
 };

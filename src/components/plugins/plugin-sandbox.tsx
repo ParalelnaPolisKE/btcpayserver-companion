@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useEffect, useRef, useState } from 'react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Shield, AlertTriangle } from 'lucide-react';
-import { PluginManifest } from '@/types/plugin';
+import { AlertTriangle, Shield } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import type { PluginManifest } from "@/types/plugin";
 
 interface PluginSandboxProps {
   pluginId: string;
@@ -14,35 +14,35 @@ interface PluginSandboxProps {
 }
 
 interface SecurityViolation {
-  type: 'csp' | 'permission' | 'xss' | 'access';
+  type: "csp" | "permission" | "xss" | "access";
   message: string;
   timestamp: Date;
   details?: any;
 }
 
 interface PluginMessage {
-  type: 'ready' | 'request' | 'error' | 'log';
+  type: "ready" | "request" | "error" | "log";
   action?: string;
   data?: any;
   requestId?: string;
 }
 
-export function PluginSandbox({ 
-  pluginId, 
-  manifest, 
-  pluginContent, 
+export function PluginSandbox({
+  pluginId,
+  manifest,
+  pluginContent,
   settings,
-  onSecurityViolation 
+  onSecurityViolation,
 }: PluginSandboxProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const messageHandlers = useRef<Map<string, (data: any) => void>>(new Map());
+  const [error, _setError] = useState<string | null>(null);
+  const _messageHandlers = useRef<Map<string, (data: any) => void>>(new Map());
 
   // Generate a secure sandbox HTML with strict CSP
   const generateSandboxHTML = () => {
     const nonce = crypto.randomUUID();
-    
+
     return `<!DOCTYPE html>
 <html>
 <head>
@@ -254,112 +254,75 @@ export function PluginSandbox({
 </html>`;
   };
 
-  // Handle messages from the sandboxed plugin
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      // Verify message origin
-      if (event.source !== iframeRef.current?.contentWindow) return;
-      
-      const message = event.data as PluginMessage & { 
-        source: string; 
-        pluginId: string;
-        timestamp: number;
-      };
-      
-      // Validate message structure
-      if (message.source !== 'plugin' || message.pluginId !== pluginId) return;
-      
-      switch (message.type) {
-        case 'ready':
-          setIsLoading(false);
-          break;
-          
-        case 'request':
-          if (message.data) {
-            handlePluginRequest(message as PluginMessage & { data: any });
-          }
-          break;
-          
-        case 'error':
-          console.error(`[Plugin ${pluginId}]`, message.data);
-          if (message.action === 'runtime') {
-            onSecurityViolation?.({
-              type: 'xss',
-              message: `Runtime error in plugin: ${message.data.message}`,
-              timestamp: new Date(),
-              details: message.data
-            });
-          }
-          break;
-          
-        case 'log':
-          console.log(`[Plugin ${pluginId}]`, ...message.data.args);
-          break;
-      }
-    };
-    
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [pluginId, onSecurityViolation]);
-
   // Handle plugin requests with permission checking
-  const handlePluginRequest = async (message: PluginMessage & { data: any }) => {
+  const handlePluginRequest = async (
+    message: PluginMessage & { data: any },
+  ) => {
     const { action, data } = message;
     const requestId = data?.requestId;
-    
+
     if (!requestId || !action) return;
-    
+
     try {
       // Check if plugin has permission for this action
       const hasPermission = checkPermission(action);
-      
+
       if (!hasPermission) {
         throw new Error(`Permission denied for action: ${action}`);
       }
-      
+
       // Process allowed actions
       let responseData: any = null;
-      
+
       switch (action) {
-        case 'getInvoices':
+        case "getInvoices":
           // Only if plugin has btcpay.store.canviewinvoices permission
-          if (manifest.requiredPermissions?.some(p => p.permission === 'btcpay.store.canviewinvoices')) {
+          if (
+            manifest.requiredPermissions?.some(
+              (p) => p.permission === "btcpay.store.canviewinvoices",
+            )
+          ) {
             // This would call the actual API through a secure channel
             responseData = { invoices: [] }; // Placeholder
           }
           break;
-          
-        case 'getSettings':
+
+        case "getSettings":
           responseData = settings;
           break;
-          
+
         default:
           throw new Error(`Unknown action: ${action}`);
       }
-      
+
       // Send response back to plugin
-      iframeRef.current?.contentWindow?.postMessage({
-        source: 'parent',
-        type: 'response',
-        requestId,
-        data: responseData
-      }, '*');
-      
+      iframeRef.current?.contentWindow?.postMessage(
+        {
+          source: "parent",
+          type: "response",
+          requestId,
+          data: responseData,
+        },
+        "*",
+      );
     } catch (error) {
       // Send error back to plugin
-      iframeRef.current?.contentWindow?.postMessage({
-        source: 'parent',
-        type: 'response',
-        requestId,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      }, '*');
-      
+      iframeRef.current?.contentWindow?.postMessage(
+        {
+          source: "parent",
+          type: "response",
+          requestId,
+          error: error instanceof Error ? error.message : "Unknown error",
+        },
+        "*",
+      );
+
       // Log security violation
       onSecurityViolation?.({
-        type: 'permission',
+        type: "permission",
         message: `Unauthorized request: ${action}`,
         timestamp: new Date(),
-        details: { action, data }
+        details: { action, data },
       });
     }
   };
@@ -367,17 +330,69 @@ export function PluginSandbox({
   // Check if plugin has permission for an action
   const checkPermission = (action: string): boolean => {
     const permissionMap: Record<string, string> = {
-      getInvoices: 'btcpay.store.canviewinvoices',
-      updateInvoice: 'btcpay.store.canmodifyinvoices',
-      getStore: 'btcpay.store.canviewstoresettings',
+      getInvoices: "btcpay.store.canviewinvoices",
+      updateInvoice: "btcpay.store.canmodifyinvoices",
+      getStore: "btcpay.store.canviewstoresettings",
       // Add more mappings as needed
     };
-    
+
     const requiredPermission = permissionMap[action];
     if (!requiredPermission) return false;
-    
-    return manifest.requiredPermissions?.some(p => p.permission === requiredPermission) || false;
+
+    return (
+      manifest.requiredPermissions?.some(
+        (p) => p.permission === requiredPermission,
+      ) || false
+    );
   };
+
+  // Handle messages from the sandboxed plugin
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Verify message origin
+      if (event.source !== iframeRef.current?.contentWindow) return;
+
+      const message = event.data as PluginMessage & {
+        source: string;
+        pluginId: string;
+        timestamp: number;
+      };
+
+      // Validate message structure
+      if (message.source !== "plugin" || message.pluginId !== pluginId) return;
+
+      switch (message.type) {
+        case "ready":
+          setIsLoading(false);
+          break;
+
+        case "request":
+          if (message.data) {
+            handlePluginRequest(message as PluginMessage & { data: any });
+          }
+          break;
+
+        case "error":
+          console.error(`[Plugin ${pluginId}]`, message.data);
+          if (message.action === "runtime") {
+            onSecurityViolation?.({
+              type: "xss",
+              message: `Runtime error in plugin: ${message.data.message}`,
+              timestamp: new Date(),
+              details: message.data,
+            });
+          }
+          break;
+
+        case "log":
+          console.log(`[Plugin ${pluginId}]`, ...message.data.args);
+          break;
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [pluginId, onSecurityViolation, handlePluginRequest]);
 
   // Initialize iframe with sandboxed content
   useEffect(() => {
@@ -389,7 +404,7 @@ export function PluginSandbox({
         doc.close();
       }
     }
-  }, [pluginContent]);
+  }, [generateSandboxHTML]);
 
   return (
     <div className="plugin-sandbox-container">
@@ -399,23 +414,23 @@ export function PluginSandbox({
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      
+
       <div className="sandbox-header mb-2 flex items-center gap-2 text-sm text-muted-foreground">
         <Shield className="h-4 w-4" />
         <span>Plugin running in secure sandbox</span>
       </div>
-      
+
       <iframe
         ref={iframeRef}
         className="w-full min-h-[600px] border rounded-lg bg-background"
         title={`Plugin: ${manifest.name}`}
         sandbox="allow-scripts"
         style={{
-          border: '1px solid rgba(0,0,0,0.1)',
-          borderRadius: '8px'
+          border: "1px solid rgba(0,0,0,0.1)",
+          borderRadius: "8px",
         }}
       />
-      
+
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-background/80">
           <div className="text-center">

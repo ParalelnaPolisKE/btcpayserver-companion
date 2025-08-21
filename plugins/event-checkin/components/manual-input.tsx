@@ -1,24 +1,27 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Keyboard } from 'lucide-react';
+import { Keyboard } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 interface ManualInputProps {
   onSubmit: (ticketId: string) => void;
   isProcessing: boolean;
 }
 
-export default function ManualInput({ onSubmit, isProcessing }: ManualInputProps) {
-  const [ticketId, setTicketId] = useState('');
+export default function ManualInput({
+  onSubmit,
+  isProcessing,
+}: ManualInputProps) {
+  const [ticketId, setTicketId] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (ticketId.trim()) {
       onSubmit(ticketId.trim());
-      setTicketId('');
+      setTicketId("");
     }
   };
 
@@ -50,7 +53,7 @@ export default function ManualInput({ onSubmit, isProcessing }: ManualInputProps
             disabled={!ticketId.trim() || isProcessing}
             className="w-full"
           >
-            {isProcessing ? 'Processing...' : 'Check In'}
+            {isProcessing ? "Processing..." : "Check In"}
           </Button>
         </form>
       </CardContent>

@@ -3,16 +3,16 @@
  * Displays a metric with value, change, and trend
  */
 
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Minus, TrendingDown, TrendingUp } from "lucide-react";
+import type React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface MetricCardProps {
   title: string;
   value: string | number;
   change?: number;
-  trend?: 'up' | 'down' | 'neutral';
+  trend?: "up" | "down" | "neutral";
   subtitle?: string;
   icon?: React.ReactNode;
   className?: string;
@@ -22,16 +22,16 @@ export function MetricCard({
   title,
   value,
   change,
-  trend = 'neutral',
+  trend = "neutral",
   subtitle,
   icon,
   className,
 }: MetricCardProps) {
   const getTrendIcon = () => {
     switch (trend) {
-      case 'up':
+      case "up":
         return <TrendingUp className="h-4 w-4" />;
-      case 'down':
+      case "down":
         return <TrendingDown className="h-4 w-4" />;
       default:
         return <Minus className="h-4 w-4" />;
@@ -40,17 +40,17 @@ export function MetricCard({
 
   const getTrendColor = () => {
     switch (trend) {
-      case 'up':
-        return 'text-green-600';
-      case 'down':
-        return 'text-red-600';
+      case "up":
+        return "text-green-600";
+      case "down":
+        return "text-red-600";
       default:
-        return 'text-gray-600';
+        return "text-gray-600";
     }
   };
 
   return (
-    <Card className={cn('', className)}>
+    <Card className={cn("", className)}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
         {icon && <div className="text-muted-foreground">{icon}</div>}
@@ -60,9 +60,17 @@ export function MetricCard({
         {(change !== undefined || subtitle) && (
           <div className="flex items-center gap-2 mt-1">
             {change !== undefined && (
-              <div className={cn('flex items-center gap-1 text-xs', getTrendColor())}>
+              <div
+                className={cn(
+                  "flex items-center gap-1 text-xs",
+                  getTrendColor(),
+                )}
+              >
                 {getTrendIcon()}
-                <span>{change > 0 ? '+' : ''}{change.toFixed(1)}%</span>
+                <span>
+                  {change > 0 ? "+" : ""}
+                  {change.toFixed(1)}%
+                </span>
               </div>
             )}
             {subtitle && (
@@ -78,26 +86,34 @@ export function MetricCard({
 /**
  * Compound component pattern for more flexibility
  */
-MetricCard.Title = function MetricCardTitle({ children }: { children: React.ReactNode }) {
+MetricCard.Title = function MetricCardTitle({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return <CardTitle className="text-sm font-medium">{children}</CardTitle>;
 };
 
-MetricCard.Value = function MetricCardValue({ children }: { children: React.ReactNode }) {
+MetricCard.Value = function MetricCardValue({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return <div className="text-2xl font-bold">{children}</div>;
 };
 
-MetricCard.Change = function MetricCardChange({ 
-  value, 
-  trend = 'neutral' 
-}: { 
-  value: number; 
-  trend?: 'up' | 'down' | 'neutral' 
+MetricCard.Change = function MetricCardChange({
+  value,
+  trend = "neutral",
+}: {
+  value: number;
+  trend?: "up" | "down" | "neutral";
 }) {
   const getTrendIcon = () => {
     switch (trend) {
-      case 'up':
+      case "up":
         return <TrendingUp className="h-4 w-4" />;
-      case 'down':
+      case "down":
         return <TrendingDown className="h-4 w-4" />;
       default:
         return <Minus className="h-4 w-4" />;
@@ -106,19 +122,22 @@ MetricCard.Change = function MetricCardChange({
 
   const getTrendColor = () => {
     switch (trend) {
-      case 'up':
-        return 'text-green-600';
-      case 'down':
-        return 'text-red-600';
+      case "up":
+        return "text-green-600";
+      case "down":
+        return "text-red-600";
       default:
-        return 'text-gray-600';
+        return "text-gray-600";
     }
   };
 
   return (
-    <div className={cn('flex items-center gap-1 text-xs', getTrendColor())}>
+    <div className={cn("flex items-center gap-1 text-xs", getTrendColor())}>
       {getTrendIcon()}
-      <span>{value > 0 ? '+' : ''}{value.toFixed(1)}%</span>
+      <span>
+        {value > 0 ? "+" : ""}
+        {value.toFixed(1)}%
+      </span>
     </div>
   );
 };

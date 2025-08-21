@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Providers } from "./providers";
 import { AppSidebar } from "@/components/layout/app-sidebar";
-import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { Providers } from "./providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,12 +41,12 @@ export default function RootLayout({
               <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
                 <SidebarTrigger className="-ml-1" />
                 <div className="flex flex-1 items-center gap-2">
-                  <span className="font-semibold hidden sm:inline-block">BTCPayServer Companion</span>
+                  <span className="font-semibold hidden sm:inline-block">
+                    BTCPayServer Companion
+                  </span>
                 </div>
               </header>
-              <main className="flex-1 overflow-y-auto">
-                {children}
-              </main>
+              <main className="flex-1 overflow-y-auto">{children}</main>
             </SidebarInset>
           </SidebarProvider>
         </Providers>

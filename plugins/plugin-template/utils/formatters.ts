@@ -10,16 +10,16 @@
  * @returns Formatted currency string
  */
 export function formatCurrency(amount: number, currency: string): string {
-  if (currency === 'BTC') {
+  if (currency === "BTC") {
     return `₿ ${amount.toFixed(8)}`;
   }
-  
+
   try {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
       currency: currency,
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     }).format(amount);
   } catch {
     // Fallback for unsupported currencies
@@ -33,17 +33,20 @@ export function formatCurrency(amount: number, currency: string): string {
  * @param options - Intl.DateTimeFormatOptions
  * @returns Formatted date string
  */
-export function formatDate(timestamp: number, options?: Intl.DateTimeFormatOptions): string {
+export function formatDate(
+  timestamp: number,
+  options?: Intl.DateTimeFormatOptions,
+): string {
   const defaultOptions: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   };
-  
-  return new Intl.DateTimeFormat('en-US', options || defaultOptions).format(
-    new Date(timestamp * 1000)
+
+  return new Intl.DateTimeFormat("en-US", options || defaultOptions).format(
+    new Date(timestamp * 1000),
   );
 }
 
@@ -56,27 +59,30 @@ export function formatRelativeTime(timestamp: number): string {
   const now = Date.now();
   const then = timestamp * 1000;
   const diff = now - then;
-  
+
   const seconds = Math.floor(diff / 1000);
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
   const months = Math.floor(days / 30);
   const years = Math.floor(days / 365);
-  
+
   if (years > 0) {
-    return `${years} year${years > 1 ? 's' : ''} ago`;
-  } else if (months > 0) {
-    return `${months} month${months > 1 ? 's' : ''} ago`;
-  } else if (days > 0) {
-    return `${days} day${days > 1 ? 's' : ''} ago`;
-  } else if (hours > 0) {
-    return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-  } else if (minutes > 0) {
-    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-  } else {
-    return 'just now';
+    return `${years} year${years > 1 ? "s" : ""} ago`;
   }
+  if (months > 0) {
+    return `${months} month${months > 1 ? "s" : ""} ago`;
+  }
+  if (days > 0) {
+    return `${days} day${days > 1 ? "s" : ""} ago`;
+  }
+  if (hours > 0) {
+    return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+  }
+  if (minutes > 0) {
+    return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+  }
+  return "just now";
 }
 
 /**
@@ -85,10 +91,10 @@ export function formatRelativeTime(timestamp: number): string {
  * @returns Abbreviated string
  */
 export function formatCompactNumber(num: number): string {
-  const formatter = new Intl.NumberFormat('en-US', {
-    notation: 'compact',
-    compactDisplay: 'short',
-    maximumFractionDigits: 1
+  const formatter = new Intl.NumberFormat("en-US", {
+    notation: "compact",
+    compactDisplay: "short",
+    maximumFractionDigits: 1,
   });
   return formatter.format(num);
 }
@@ -110,14 +116,14 @@ export function formatPercentage(value: number, decimals = 1): string {
  */
 export function formatStatus(status: string): { text: string; color: string } {
   const statusMap: Record<string, { text: string; color: string }> = {
-    'New': { text: 'New', color: 'blue' },
-    'Processing': { text: 'Processing', color: 'yellow' },
-    'Expired': { text: 'Expired', color: 'gray' },
-    'Invalid': { text: 'Invalid', color: 'red' },
-    'Settled': { text: 'Settled', color: 'green' }
+    New: { text: "New", color: "blue" },
+    Processing: { text: "Processing", color: "yellow" },
+    Expired: { text: "Expired", color: "gray" },
+    Invalid: { text: "Invalid", color: "red" },
+    Settled: { text: "Settled", color: "green" },
   };
-  
-  return statusMap[status] || { text: status, color: 'gray' };
+
+  return statusMap[status] || { text: status, color: "gray" };
 }
 
 /**
@@ -137,11 +143,11 @@ export function truncate(str: string, maxLength: number): string {
  * @returns Formatted size string
  */
 export function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 Bytes';
-  
+  if (bytes === 0) return "0 Bytes";
+
   const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const sizes = ["Bytes", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+
+  return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
 }

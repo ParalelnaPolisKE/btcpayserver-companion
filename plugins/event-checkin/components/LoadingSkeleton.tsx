@@ -1,6 +1,5 @@
-import React from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function EventCheckInLoadingSkeleton() {
   return (
@@ -14,9 +13,9 @@ export function EventCheckInLoadingSkeleton() {
       {/* Stats Cards Skeleton */}
       <div className="grid gap-4 md:grid-cols-3 mb-8">
         {[
-          { label: 'Total Attendees', icon: '👥' },
-          { label: 'Checked In', icon: '✅' },
-          { label: 'Pending', icon: '⏳' }
+          { label: "Total Attendees", icon: "👥" },
+          { label: "Checked In", icon: "✅" },
+          { label: "Pending", icon: "⏳" },
         ].map((stat, i) => (
           <Card key={i} className="relative overflow-hidden">
             <CardHeader className="pb-2">
@@ -74,7 +73,7 @@ export function EventCheckInLoadingSkeleton() {
               {/* Scanning line animation */}
               <div className="absolute inset-x-4 top-0 h-0.5 bg-primary/50 animate-scan" />
             </div>
-            
+
             {/* Manual input section */}
             <div className="w-full max-w-md space-y-2">
               <Skeleton className="h-4 w-32 mx-auto" />
@@ -111,10 +110,13 @@ export function EventCheckInLoadingSkeleton() {
               <Skeleton className="h-4 w-16" />
               <Skeleton className="h-4 w-20" />
             </div>
-            
+
             {/* Table rows */}
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="grid grid-cols-5 gap-4 py-3 items-center border-b last:border-0">
+              <div
+                key={i}
+                className="grid grid-cols-5 gap-4 py-3 items-center border-b last:border-0"
+              >
                 <Skeleton className="h-4 w-16" />
                 <Skeleton className="h-4 w-32" />
                 <Skeleton className="h-4 w-36" />
@@ -123,7 +125,7 @@ export function EventCheckInLoadingSkeleton() {
               </div>
             ))}
           </div>
-          
+
           {/* Pagination skeleton */}
           <div className="flex items-center justify-between mt-4 pt-4 border-t">
             <Skeleton className="h-4 w-32" />
@@ -161,7 +163,6 @@ export function EventCheckInLoadingSkeleton() {
           </div>
         </CardContent>
       </Card>
-
     </div>
   );
 }

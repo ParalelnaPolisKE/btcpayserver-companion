@@ -11,7 +11,7 @@ export interface Payment {
   storeId: string;
   amount: string;
   currency: string;
-  status: 'New' | 'Processing' | 'Expired' | 'Invalid' | 'Settled';
+  status: "New" | "Processing" | "Expired" | "Invalid" | "Settled";
   createdTime: number;
   paidAmount?: string;
   paymentMethod?: string;
@@ -25,7 +25,7 @@ export interface Payment {
 /**
  * Time period options for analytics
  */
-export type TimePeriod = '24h' | '7d' | '30d' | '90d' | '1y' | 'all';
+export type TimePeriod = "24h" | "7d" | "30d" | "90d" | "1y" | "all";
 
 /**
  * Analytics data structure
@@ -53,10 +53,10 @@ export interface AnalyticsData {
 export interface PluginSettings {
   defaultTimePeriod: TimePeriod;
   refreshInterval: number; // in seconds
-  displayCurrency: 'BTC' | 'USD' | 'EUR';
+  displayCurrency: "BTC" | "USD" | "EUR";
   showNotifications: boolean;
-  chartType: 'line' | 'bar' | 'area';
-  theme: 'light' | 'dark' | 'auto';
+  chartType: "line" | "bar" | "area";
+  theme: "light" | "dark" | "auto";
 }
 
 /**
@@ -73,14 +73,14 @@ export interface ApiResponse<T> {
  * Error types for better error handling
  */
 export const ErrorType = {
-  API_ERROR: 'API_ERROR',
-  NETWORK_ERROR: 'NETWORK_ERROR',
-  PERMISSION_ERROR: 'PERMISSION_ERROR',
-  VALIDATION_ERROR: 'VALIDATION_ERROR',
-  UNKNOWN_ERROR: 'UNKNOWN_ERROR'
+  API_ERROR: "API_ERROR",
+  NETWORK_ERROR: "NETWORK_ERROR",
+  PERMISSION_ERROR: "PERMISSION_ERROR",
+  VALIDATION_ERROR: "VALIDATION_ERROR",
+  UNKNOWN_ERROR: "UNKNOWN_ERROR",
 } as const;
 
-export type ErrorType = typeof ErrorType[keyof typeof ErrorType];
+export type ErrorType = (typeof ErrorType)[keyof typeof ErrorType];
 
 /**
  * Plugin Error type (as interface to avoid runtime dependencies)

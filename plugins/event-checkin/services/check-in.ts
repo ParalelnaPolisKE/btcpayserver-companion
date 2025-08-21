@@ -1,4 +1,4 @@
-import { checkInDB, CheckedInTicket } from '../lib/indexeddb';
+import { checkInDB } from "../lib/indexeddb";
 
 export interface Invoice {
   id: string;
@@ -24,45 +24,48 @@ export interface CheckInResult {
 }
 
 class CheckInService {
-  private btcpayUrl: string = '';
-  private storeId: string = '';
-  private apiKey: string = '';
+  private btcpayUrl = "";
+  private storeId = "";
+  private apiKey = "";
 
   init(btcpayUrl: string, storeId: string, apiKey?: string) {
     this.btcpayUrl = btcpayUrl;
     this.storeId = storeId;
-    this.apiKey = apiKey || '';
+    this.apiKey = apiKey || "";
   }
 
-  async checkInTicket(ticketId: string, eventId?: string): Promise<CheckInResult> {
+  async checkInTicket(
+    ticketId: string,
+    eventId?: string,
+  ): Promise<CheckInResult> {
     try {
       // Check if already checked in locally
       const existingCheckIn = await checkInDB.getCheckIn(ticketId);
       if (existingCheckIn) {
         return {
           success: false,
-          message: 'Ticket already checked in',
+          message: "Ticket already checked in",
           alreadyCheckedIn: true,
-          checkedInAt: existingCheckIn.checkedInAt
+          checkedInAt: existingCheckIn.checkedInAt,
         };
       }
 
       // Verify ticket with BTCPay API
       const invoice = await this.getInvoice(ticketId);
-      
+
       if (!invoice) {
         return {
           success: false,
-          message: 'Ticket not found'
+          message: "Ticket not found",
         };
       }
 
       // Check if invoice is paid/settled
-      if (invoice.status !== 'Settled' && invoice.status !== 'Complete') {
+      if (invoice.status !== "Settled" && invoice.status !== "Complete") {
         return {
           success: false,
           message: `Invalid ticket status: ${invoice.status}`,
-          invoice
+          invoice,
         };
       }
 
@@ -70,23 +73,23 @@ class CheckInService {
       if (invoice.metadata?.checkedInAt) {
         return {
           success: false,
-          message: 'Ticket already checked in',
+          message: "Ticket already checked in",
           alreadyCheckedIn: true,
           checkedInAt: new Date(invoice.metadata.checkedInAt),
-          invoice
+          invoice,
         };
       }
 
       // Mark as checked in
       const checkedInAt = new Date();
-      
+
       // Store in IndexedDB
       await checkInDB.addCheckIn({
         invoiceId: ticketId,
         orderId: invoice.orderId,
         checkedInAt,
         eventId,
-        metadata: invoice.metadata
+        metadata: invoice.metadata,
       });
 
       // Try to update invoice metadata on server (if we have API key)
@@ -95,24 +98,24 @@ class CheckInService {
           await this.updateInvoiceMetadata(ticketId, {
             ...invoice.metadata,
             checkedInAt: checkedInAt.toISOString(),
-            checkedInBy: 'event-checkin-plugin'
+            checkedInBy: "event-checkin-plugin",
           });
         } catch (error) {
-          console.warn('Failed to update server metadata:', error);
+          console.warn("Failed to update server metadata:", error);
         }
       }
 
       return {
         success: true,
-        message: 'Check-in successful',
+        message: "Check-in successful",
         invoice,
-        checkedInAt
+        checkedInAt,
       };
     } catch (error) {
-      console.error('Check-in error:', error);
+      console.error("Check-in error:", error);
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'Check-in failed'
+        message: error instanceof Error ? error.message : "Check-in failed",
       };
     }
   }
@@ -120,18 +123,18 @@ class CheckInService {
   async getInvoice(invoiceId: string): Promise<Invoice | null> {
     try {
       const url = `${this.btcpayUrl}/api/v1/stores/${this.storeId}/invoices/${invoiceId}`;
-      
+
       const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       };
-      
+
       if (this.apiKey) {
-        headers['Authorization'] = `token ${this.apiKey}`;
+        headers.Authorization = `token ${this.apiKey}`;
       }
 
       const response = await fetch(url, {
-        method: 'GET',
-        headers
+        method: "GET",
+        headers,
       });
 
       if (!response.ok) {
@@ -144,21 +147,24 @@ class CheckInService {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Error fetching invoice:', error);
+      console.error("Error fetching invoice:", error);
       return null;
     }
   }
 
-  async updateInvoiceMetadata(invoiceId: string, metadata: Record<string, any>): Promise<void> {
+  async updateInvoiceMetadata(
+    invoiceId: string,
+    metadata: Record<string, any>,
+  ): Promise<void> {
     const url = `${this.btcpayUrl}/api/v1/stores/${this.storeId}/invoices/${invoiceId}`;
-    
+
     const response = await fetch(url, {
-      method: 'PUT',
+      method: "PUT",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `token ${this.apiKey}`
+        "Content-Type": "application/json",
+        Authorization: `token ${this.apiKey}`,
       },
-      body: JSON.stringify({ metadata })
+      body: JSON.stringify({ metadata }),
     });
 
     if (!response.ok) {
@@ -169,28 +175,34 @@ class CheckInService {
   async undoCheckIn(ticketId: string): Promise<CheckInResult> {
     try {
       await checkInDB.removeCheckIn(ticketId);
-      
+
       // Try to update server metadata if we have API key
       if (this.apiKey) {
         try {
           const invoice = await this.getInvoice(ticketId);
-          if (invoice && invoice.metadata?.checkedInAt) {
-            const { checkedInAt, checkedInBy, ...restMetadata } = invoice.metadata;
+          if (invoice?.metadata?.checkedInAt) {
+            // biome-ignore lint/correctness/noUnusedVariables: Destructuring to exclude these fields
+            const {
+              checkedInAt: _checkedInAt,
+              checkedInBy: _checkedInBy,
+              ...restMetadata
+            } = invoice.metadata;
             await this.updateInvoiceMetadata(ticketId, restMetadata);
           }
         } catch (error) {
-          console.warn('Failed to update server metadata:', error);
+          console.warn("Failed to update server metadata:", error);
         }
       }
 
       return {
         success: true,
-        message: 'Check-in undone successfully'
+        message: "Check-in undone successfully",
       };
     } catch (error) {
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'Failed to undo check-in'
+        message:
+          error instanceof Error ? error.message : "Failed to undo check-in",
       };
     }
   }

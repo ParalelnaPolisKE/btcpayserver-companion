@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { QrCode } from 'lucide-react';
-import { toast } from 'sonner';
-import QRScanner from './components/qr-scanner';
-import ManualInput from './components/manual-input';
-import TicketDisplay from './components/ticket-display';
-import StatsDisplay from './components/stats-display';
-import { checkInService, CheckInResult } from './services/check-in';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { EventCheckInLoadingSkeleton } from './components/LoadingSkeleton';
+import { QrCode } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EventCheckInLoadingSkeleton } from "./components/LoadingSkeleton";
+import ManualInput from "./components/manual-input";
+import QRScanner from "./components/qr-scanner";
+import StatsDisplay from "./components/stats-display";
+import TicketDisplay from "./components/ticket-display";
+import { type CheckInResult, checkInService } from "./services/check-in";
 
 export default function EventCheckInApp() {
   const [isScanning, setIsScanning] = useState(false);
@@ -23,26 +23,30 @@ export default function EventCheckInApp() {
     const initializeApp = async () => {
       try {
         // Load settings
-        const savedSettings = localStorage.getItem('event-checkin-settings');
+        const savedSettings = localStorage.getItem("event-checkin-settings");
         if (savedSettings) {
           const parsed = JSON.parse(savedSettings);
           setSettings(parsed);
-          
+
           // Initialize check-in service
           if (parsed.btcpayUrl && parsed.storeId) {
-            checkInService.init(parsed.btcpayUrl, parsed.storeId, parsed.apiKey);
+            checkInService.init(
+              parsed.btcpayUrl,
+              parsed.storeId,
+              parsed.apiKey,
+            );
           }
         } else {
           // Try to get BTCPay settings from parent app
-          const btcpayUrl = localStorage.getItem('btcpayUrl');
-          const storeId = localStorage.getItem('storeId');
-          
+          const btcpayUrl = localStorage.getItem("btcpayUrl");
+          const storeId = localStorage.getItem("storeId");
+
           if (btcpayUrl && storeId) {
             checkInService.init(btcpayUrl, storeId);
             setSettings({ btcpayUrl, storeId });
           }
         }
-        
+
         // Load stats
         await loadStats();
       } finally {
@@ -50,7 +54,7 @@ export default function EventCheckInApp() {
         setTimeout(() => setIsInitializing(false), 500);
       }
     };
-    
+
     initializeApp();
   }, []);
 
@@ -60,24 +64,26 @@ export default function EventCheckInApp() {
       const stats = await checkInService.getCheckInStats(eventId);
       setStats(stats);
     } catch (error) {
-      console.error('Failed to load stats:', error);
+      console.error("Failed to load stats:", error);
     }
   };
 
   const playSound = () => {
     if (settings.soundEnabled !== false) {
       // Simple beep sound using Web Audio API
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const audioContext = new (
+        window.AudioContext || (window as any).webkitAudioContext
+      )();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
-      
+
       oscillator.connect(gainNode);
       gainNode.connect(audioContext.destination);
-      
+
       oscillator.frequency.value = 800;
-      oscillator.type = 'sine';
+      oscillator.type = "sine";
       gainNode.gain.value = 0.3;
-      
+
       oscillator.start();
       oscillator.stop(audioContext.currentTime + 0.1);
     }
@@ -85,14 +91,17 @@ export default function EventCheckInApp() {
 
   const handleCheckIn = async (ticketId: string) => {
     if (isProcessing) return;
-    
+
     setIsProcessing(true);
     setLastResult(null);
-    
+
     try {
-      const result = await checkInService.checkInTicket(ticketId, settings.eventId);
+      const result = await checkInService.checkInTicket(
+        ticketId,
+        settings.eventId,
+      );
       setLastResult(result);
-      
+
       if (result.success) {
         playSound();
         toast.success(result.message);
@@ -103,11 +112,12 @@ export default function EventCheckInApp() {
         toast.error(result.message);
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Check-in failed';
+      const errorMessage =
+        error instanceof Error ? error.message : "Check-in failed";
       toast.error(errorMessage);
       setLastResult({
         success: false,
-        message: errorMessage
+        message: errorMessage,
       });
     } finally {
       setIsProcessing(false);
@@ -118,14 +128,14 @@ export default function EventCheckInApp() {
     try {
       const result = await checkInService.undoCheckIn(ticketId);
       if (result.success) {
-        toast.success('Check-in undone');
+        toast.success("Check-in undone");
         setLastResult(null);
         await loadStats();
       } else {
         toast.error(result.message);
       }
-    } catch (error) {
-      toast.error('Failed to undo check-in');
+    } catch (_error) {
+      toast.error("Failed to undo check-in");
     }
   };
 
@@ -133,13 +143,13 @@ export default function EventCheckInApp() {
     // Extract ticket ID from QR data
     // Could be a URL or just the ID
     let ticketId = data;
-    
+
     // If it's a URL, try to extract the ID
-    if (data.includes('/')) {
-      const parts = data.split('/');
+    if (data.includes("/")) {
+      const parts = data.split("/");
       ticketId = parts[parts.length - 1];
     }
-    
+
     handleCheckIn(ticketId);
   };
 
@@ -182,11 +192,14 @@ export default function EventCheckInApp() {
         <Tabs defaultValue="scanner" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="scanner">QR Scanner</TabsTrigger>
-            <TabsTrigger value="manual" disabled={settings.allowManualEntry === false}>
+            <TabsTrigger
+              value="manual"
+              disabled={settings.allowManualEntry === false}
+            >
               Manual Entry
             </TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="scanner" className="mt-4">
             <QRScanner
               onScan={handleScan}
@@ -194,12 +207,9 @@ export default function EventCheckInApp() {
               onToggleScanning={toggleScanning}
             />
           </TabsContent>
-          
+
           <TabsContent value="manual" className="mt-4">
-            <ManualInput
-              onSubmit={handleCheckIn}
-              isProcessing={isProcessing}
-            />
+            <ManualInput onSubmit={handleCheckIn} isProcessing={isProcessing} />
           </TabsContent>
         </Tabs>
       </div>

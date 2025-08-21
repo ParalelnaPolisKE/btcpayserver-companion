@@ -3,9 +3,7 @@
     "/api/v1/api-keys/{apikey}": {
       "delete": {
         "operationId": "ApiKeys_DeleteApiKey",
-        "tags": [
-          "API Keys"
-        ],
+        "tags": ["API Keys"],
         "summary": "Revoke an API Key",
         "description": "Revoke the current API key so that it cannot be used anymore",
         "parameters": [
@@ -29,9 +27,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "unrestricted"
-            ],
+            "API_Key": ["unrestricted"],
             "Basic": []
           }
         ]
@@ -40,9 +36,7 @@
     "/api/v1/users/{idOrEmail}/api-keys/{apikey}": {
       "delete": {
         "operationId": "ApiKeys_DeleteUserApiKey",
-        "tags": [
-          "API Keys"
-        ],
+        "tags": ["API Keys"],
         "summary": "Revoke an API Key of target user",
         "description": "Revoke the API key of a target user so that it cannot be used anymore",
         "parameters": [
@@ -69,9 +63,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "unrestricted"
-            ],
+            "API_Key": ["unrestricted"],
             "Basic": []
           }
         ]
@@ -80,9 +72,7 @@
     "/api/v1/api-keys/current": {
       "get": {
         "operationId": "ApiKeys_GetCurrentApiKey",
-        "tags": [
-          "API Keys"
-        ],
+        "tags": ["API Keys"],
         "summary": "Get the current API Key information",
         "description": "View information about the current API key",
         "responses": {
@@ -109,18 +99,14 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canmanageusers"
-            ],
+            "API_Key": ["btcpay.server.canmanageusers"],
             "Basic": []
           }
         ]
       },
       "delete": {
         "operationId": "ApiKeys_DeleteCurrentApiKey",
-        "tags": [
-          "API Keys"
-        ],
+        "tags": ["API Keys"],
         "summary": "Revoke the current API Key",
         "description": "Revoke the current API key so that it cannot be used anymore",
         "responses": {
@@ -155,9 +141,7 @@
     "/api/v1/api-keys": {
       "post": {
         "operationId": "ApiKeys_CreateApiKey",
-        "tags": [
-          "API Keys"
-        ],
+        "tags": ["API Keys"],
         "summary": "Create a new API Key",
         "description": "Create a new API Key",
         "responses": {
@@ -220,9 +204,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "unrestricted"
-            ],
+            "API_Key": ["unrestricted"],
             "Basic": []
           }
         ]
@@ -231,9 +213,7 @@
     "/api/v1/users/{idOrEmail}/api-keys": {
       "post": {
         "operationId": "ApiKeys_CreateUserApiKey",
-        "tags": [
-          "API Keys"
-        ],
+        "tags": ["API Keys"],
         "summary": "Create a new API Key for a user",
         "description": "Create a new API Key for a user",
         "parameters": [
@@ -301,9 +281,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canmanageusers"
-            ],
+            "API_Key": ["btcpay.server.canmanageusers"],
             "Basic": []
           }
         ]
@@ -353,14 +331,10 @@
             }
           }
         },
-        "tags": [
-          "Apps"
-        ],
+        "tags": ["Apps"],
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -410,23 +384,16 @@
             }
           }
         },
-        "tags": [
-          "Apps"
-        ],
+        "tags": ["Apps"],
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
       },
       "get": {
-        "tags": [
-          "Apps",
-          "Point of Sale"
-        ],
+        "tags": ["Apps", "Point of Sale"],
         "operationId": "Apps_GetPointOfSaleApp",
         "summary": "Get Point of Sale app data",
         "description": "Returns POS app data",
@@ -454,10 +421,7 @@
         }
       ],
       "get": {
-        "tags": [
-          "Apps",
-          "Crowdfund"
-        ],
+        "tags": ["Apps", "Crowdfund"],
         "operationId": "Apps_GetCrowdfundApp",
         "summary": "Get crowdfund app data",
         "description": "Returns crowdfund app data",
@@ -521,15 +485,10 @@
             }
           }
         },
-        "tags": [
-          "Apps",
-          "Crowdfund"
-        ],
+        "tags": ["Apps", "Crowdfund"],
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -537,9 +496,7 @@
     },
     "/api/v1/apps/{appId}": {
       "get": {
-        "tags": [
-          "Apps"
-        ],
+        "tags": ["Apps"],
         "operationId": "Apps_GetApp",
         "summary": "Get basic app data",
         "description": "Returns basic app data shared between all types of apps",
@@ -565,17 +522,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
       },
       "delete": {
-        "tags": [
-          "Apps"
-        ],
+        "tags": ["Apps"],
         "operationId": "Apps_DeleteApp",
         "summary": "Delete app",
         "description": "Deletes apps with specified ID",
@@ -594,9 +547,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -604,9 +555,7 @@
     },
     "/api/v1/apps/{appId}/image": {
       "post": {
-        "tags": [
-          "Apps"
-        ],
+        "tags": ["Apps"],
         "summary": "Uploads an image for a app item",
         "description": "Uploads an image for a app item",
         "parameters": [
@@ -649,9 +598,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -659,9 +606,7 @@
     },
     "/api/v1/apps/{appId}/image/{fileId}": {
       "delete": {
-        "tags": [
-          "Apps"
-        ],
+        "tags": ["Apps"],
         "summary": "Deletes the app item image",
         "description": "Deletes the app item image",
         "operationId": "App_DeleteAppItemImage",
@@ -689,9 +634,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -699,9 +642,7 @@
     },
     "/api/v1/apps/{appId}/sales": {
       "get": {
-        "tags": [
-          "Apps"
-        ],
+        "tags": ["Apps"],
         "operationId": "Apps_GetAppSales",
         "summary": "Get app sales statistics",
         "description": "Returns sales statistics for the app",
@@ -738,9 +679,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -748,9 +687,7 @@
     },
     "/api/v1/apps/{appId}/top-items": {
       "get": {
-        "tags": [
-          "Apps"
-        ],
+        "tags": ["Apps"],
         "operationId": "Apps_GetAppTopItems",
         "summary": "Get app top items statistics",
         "description": "Returns top items statistics for the app",
@@ -801,9 +738,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -816,9 +751,7 @@
         }
       ],
       "get": {
-        "tags": [
-          "Apps"
-        ],
+        "tags": ["Apps"],
         "operationId": "Apps_GetAllAppsForStore",
         "summary": "Get basic app data for all apps for a store",
         "description": "Returns basic app data for all apps for a store",
@@ -842,9 +775,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -852,9 +783,7 @@
     },
     "/api/v1/apps": {
       "get": {
-        "tags": [
-          "Apps"
-        ],
+        "tags": ["Apps"],
         "operationId": "Apps_GetAllApps",
         "summary": "Get basic app data for all apps for all stores for a user",
         "description": "Returns basic app data for all apps for all stores",
@@ -878,9 +807,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -889,9 +816,7 @@
     "/api-keys/authorize": {
       "get": {
         "operationId": "ApiKeys_Authorize",
-        "tags": [
-          "Authorization"
-        ],
+        "tags": ["Authorization"],
         "summary": "Authorize User",
         "description": "Redirect the browser to this endpoint to request the user to generate an api-key with specific permissions",
         "parameters": [
@@ -987,9 +912,7 @@
     "/api/v1/files": {
       "get": {
         "operationId": "Files_GetFiles",
-        "tags": [
-          "Files"
-        ],
+        "tags": ["Files"],
         "summary": "Get all files",
         "description": "Load all files that exist.",
         "parameters": [],
@@ -1013,17 +936,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canmodifyserversettings"
-            ],
+            "API_Key": ["btcpay.server.canmodifyserversettings"],
             "Basic": []
           }
         ]
       },
       "post": {
-        "tags": [
-          "Files"
-        ],
+        "tags": ["Files"],
         "summary": "Uploads a file",
         "description": "Uploads a file",
         "requestBody": {
@@ -1061,9 +980,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canmodifyserversettings"
-            ],
+            "API_Key": ["btcpay.server.canmodifyserversettings"],
             "Basic": []
           }
         ]
@@ -1072,9 +989,7 @@
     "/api/v1/files/{fileId}": {
       "get": {
         "operationId": "Files_GetFile",
-        "tags": [
-          "Files"
-        ],
+        "tags": ["Files"],
         "summary": "Get file",
         "description": "View information about the specified file",
         "parameters": [
@@ -1105,17 +1020,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canmodifyserversettings"
-            ],
+            "API_Key": ["btcpay.server.canmodifyserversettings"],
             "Basic": []
           }
         ]
       },
       "delete": {
-        "tags": [
-          "Files"
-        ],
+        "tags": ["Files"],
         "summary": "Delete file",
         "description": "Deletes the file",
         "operationId": "Files_DeleteFile",
@@ -1140,9 +1051,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canmodifyserversettings"
-            ],
+            "API_Key": ["btcpay.server.canmodifyserversettings"],
             "Basic": []
           }
         ]
@@ -1150,9 +1059,7 @@
     },
     "/api/v1/health": {
       "get": {
-        "tags": [
-          "Health"
-        ],
+        "tags": ["Health"],
         "summary": "Get health status",
         "description": "Check the instance health status",
         "operationId": "Health_GetHealth",
@@ -1186,9 +1093,7 @@
     },
     "/api/v1/stores/{storeId}/invoices": {
       "get": {
-        "tags": [
-          "Invoices"
-        ],
+        "tags": ["Invoices"],
         "summary": "Get invoices",
         "parameters": [
           {
@@ -1300,17 +1205,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewinvoices"
-            ],
+            "API_Key": ["btcpay.store.canviewinvoices"],
             "Basic": []
           }
         ]
       },
       "post": {
-        "tags": [
-          "Invoices"
-        ],
+        "tags": ["Invoices"],
         "summary": "Create a new invoice",
         "parameters": [
           {
@@ -1356,9 +1257,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.cancreateinvoice"
-            ],
+            "API_Key": ["btcpay.store.cancreateinvoice"],
             "Basic": []
           }
         ]
@@ -1366,9 +1265,7 @@
     },
     "/api/v1/stores/{storeId}/invoices/{invoiceId}": {
       "get": {
-        "tags": [
-          "Invoices"
-        ],
+        "tags": ["Invoices"],
         "summary": "Get invoice",
         "parameters": [
           {
@@ -1400,17 +1297,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewinvoices"
-            ],
+            "API_Key": ["btcpay.store.canviewinvoices"],
             "Basic": []
           }
         ]
       },
       "delete": {
-        "tags": [
-          "Invoices"
-        ],
+        "tags": ["Invoices"],
         "summary": "Archive invoice",
         "description": "Archives the specified invoice.",
         "operationId": "Invoices_ArchiveInvoice",
@@ -1445,17 +1338,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifyinvoices"
-            ],
+            "API_Key": ["btcpay.store.canmodifyinvoices"],
             "Basic": []
           }
         ]
       },
       "put": {
-        "tags": [
-          "Invoices"
-        ],
+        "tags": ["Invoices"],
         "summary": "Update invoice",
         "description": "Updates the specified invoice.",
         "operationId": "Invoices_UpdateInvoice",
@@ -1507,9 +1396,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifyinvoices"
-            ],
+            "API_Key": ["btcpay.store.canmodifyinvoices"],
             "Basic": []
           }
         ]
@@ -1517,9 +1404,7 @@
     },
     "/api/v1/stores/{storeId}/invoices/{invoiceId}/payment-methods": {
       "get": {
-        "tags": [
-          "Invoices"
-        ],
+        "tags": ["Invoices"],
         "summary": "Get invoice payment methods",
         "parameters": [
           {
@@ -1575,9 +1460,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewinvoices"
-            ],
+            "API_Key": ["btcpay.store.canviewinvoices"],
             "Basic": []
           }
         ]
@@ -1585,9 +1468,7 @@
     },
     "/api/v1/stores/{storeId}/invoices/{invoiceId}/status": {
       "post": {
-        "tags": [
-          "Invoices"
-        ],
+        "tags": ["Invoices"],
         "summary": "Mark invoice status",
         "parameters": [
           {
@@ -1636,9 +1517,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifyinvoices"
-            ],
+            "API_Key": ["btcpay.store.canmodifyinvoices"],
             "Basic": []
           }
         ]
@@ -1646,9 +1525,7 @@
     },
     "/api/v1/stores/{storeId}/invoices/{invoiceId}/unarchive": {
       "post": {
-        "tags": [
-          "Invoices"
-        ],
+        "tags": ["Invoices"],
         "summary": "Unarchive invoice",
         "parameters": [
           {
@@ -1687,9 +1564,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifyinvoices"
-            ],
+            "API_Key": ["btcpay.store.canmodifyinvoices"],
             "Basic": []
           }
         ]
@@ -1697,9 +1572,7 @@
     },
     "/api/v1/stores/{storeId}/invoices/{invoiceId}/payment-methods/{paymentMethodId}/activate": {
       "post": {
-        "tags": [
-          "Invoices"
-        ],
+        "tags": ["Invoices"],
         "summary": "Activate Payment Method",
         "parameters": [
           {
@@ -1734,9 +1607,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewinvoices"
-            ],
+            "API_Key": ["btcpay.store.canviewinvoices"],
             "Basic": []
           }
         ]
@@ -1744,9 +1615,7 @@
     },
     "/api/v1/stores/{storeId}/invoices/{invoiceId}/refund": {
       "post": {
-        "tags": [
-          "Invoices"
-        ],
+        "tags": ["Invoices"],
         "summary": "Refund invoice",
         "parameters": [
           {
@@ -1844,9 +1713,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.cancreatepullpayments"
-            ],
+            "API_Key": ["btcpay.store.cancreatepullpayments"],
             "Basic": []
           }
         ]
@@ -1854,9 +1721,7 @@
     },
     "/api/v1/server/lightning/{cryptoCode}/info": {
       "get": {
-        "tags": [
-          "Lightning (Internal Node)"
-        ],
+        "tags": ["Lightning (Internal Node)"],
         "summary": "Get node information",
         "parameters": [
           {
@@ -1885,9 +1750,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canuseinternallightningnode"
-            ],
+            "API_Key": ["btcpay.server.canuseinternallightningnode"],
             "Basic": []
           }
         ]
@@ -1895,9 +1758,7 @@
     },
     "/api/v1/server/lightning/{cryptoCode}/balance": {
       "get": {
-        "tags": [
-          "Lightning (Internal Node)"
-        ],
+        "tags": ["Lightning (Internal Node)"],
         "summary": "Get node balance",
         "parameters": [
           {
@@ -1926,9 +1787,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canuseinternallightningnode"
-            ],
+            "API_Key": ["btcpay.server.canuseinternallightningnode"],
             "Basic": []
           }
         ]
@@ -1936,9 +1795,7 @@
     },
     "/api/v1/server/lightning/{cryptoCode}/histogram": {
       "get": {
-        "tags": [
-          "Lightning (Internal Node)"
-        ],
+        "tags": ["Lightning (Internal Node)"],
         "summary": "Get node balance histogram",
         "parameters": [
           {
@@ -1967,9 +1824,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canuseinternallightningnode"
-            ],
+            "API_Key": ["btcpay.server.canuseinternallightningnode"],
             "Basic": []
           }
         ]
@@ -1977,9 +1832,7 @@
     },
     "/api/v1/server/lightning/{cryptoCode}/connect": {
       "post": {
-        "tags": [
-          "Lightning (Internal Node)"
-        ],
+        "tags": ["Lightning (Internal Node)"],
         "summary": "Connect to lightning node",
         "parameters": [
           {
@@ -2031,9 +1884,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canuseinternallightningnode"
-            ],
+            "API_Key": ["btcpay.server.canuseinternallightningnode"],
             "Basic": []
           }
         ]
@@ -2041,9 +1892,7 @@
     },
     "/api/v1/server/lightning/{cryptoCode}/channels": {
       "get": {
-        "tags": [
-          "Lightning (Internal Node)"
-        ],
+        "tags": ["Lightning (Internal Node)"],
         "summary": "Get channels",
         "parameters": [
           {
@@ -2072,17 +1921,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canuseinternallightningnode"
-            ],
+            "API_Key": ["btcpay.server.canuseinternallightningnode"],
             "Basic": []
           }
         ]
       },
       "post": {
-        "tags": [
-          "Lightning (Internal Node)"
-        ],
+        "tags": ["Lightning (Internal Node)"],
         "summary": "Open channel",
         "parameters": [
           {
@@ -2131,9 +1976,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canuseinternallightningnode"
-            ],
+            "API_Key": ["btcpay.server.canuseinternallightningnode"],
             "Basic": []
           }
         ]
@@ -2141,9 +1984,7 @@
     },
     "/api/v1/server/lightning/{cryptoCode}/address": {
       "post": {
-        "tags": [
-          "Lightning (Internal Node)"
-        ],
+        "tags": ["Lightning (Internal Node)"],
         "summary": "Get deposit address",
         "parameters": [
           {
@@ -2173,9 +2014,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canuseinternallightningnode"
-            ],
+            "API_Key": ["btcpay.server.canuseinternallightningnode"],
             "Basic": []
           }
         ]
@@ -2183,9 +2022,7 @@
     },
     "/api/v1/server/lightning/{cryptoCode}/payments/{paymentHash}": {
       "get": {
-        "tags": [
-          "Lightning (Internal Node)"
-        ],
+        "tags": ["Lightning (Internal Node)"],
         "summary": "Get payment",
         "parameters": [
           {
@@ -2223,9 +2060,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canuseinternallightningnode"
-            ],
+            "API_Key": ["btcpay.server.canuseinternallightningnode"],
             "Basic": []
           }
         ]
@@ -2233,9 +2068,7 @@
     },
     "/api/v1/server/lightning/{cryptoCode}/invoices/{id}": {
       "get": {
-        "tags": [
-          "Lightning (Internal Node)"
-        ],
+        "tags": ["Lightning (Internal Node)"],
         "summary": "Get invoice",
         "parameters": [
           {
@@ -2273,9 +2106,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canviewlightninginvoiceinternalnode"
-            ],
+            "API_Key": ["btcpay.server.canviewlightninginvoiceinternalnode"],
             "Basic": []
           }
         ]
@@ -2283,9 +2114,7 @@
     },
     "/api/v1/server/lightning/{cryptoCode}/invoices/pay": {
       "post": {
-        "tags": [
-          "Lightning (Internal Node)"
-        ],
+        "tags": ["Lightning (Internal Node)"],
         "summary": "Pay Lightning Invoice",
         "parameters": [
           {
@@ -2354,9 +2183,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canuseinternallightningnode"
-            ],
+            "API_Key": ["btcpay.server.canuseinternallightningnode"],
             "Basic": []
           }
         ]
@@ -2364,9 +2191,7 @@
     },
     "/api/v1/server/lightning/{cryptoCode}/invoices": {
       "get": {
-        "tags": [
-          "Lightning (Internal Node)"
-        ],
+        "tags": ["Lightning (Internal Node)"],
         "summary": "Get invoices",
         "parameters": [
           {
@@ -2437,17 +2262,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canviewlightninginvoiceinternalnode"
-            ],
+            "API_Key": ["btcpay.server.canviewlightninginvoiceinternalnode"],
             "Basic": []
           }
         ]
       },
       "post": {
-        "tags": [
-          "Lightning (Internal Node)"
-        ],
+        "tags": ["Lightning (Internal Node)"],
         "summary": "Create lightning invoice",
         "parameters": [
           {
@@ -2496,9 +2317,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.cancreatelightninginvoiceinternalnode"
-            ],
+            "API_Key": ["btcpay.server.cancreatelightninginvoiceinternalnode"],
             "Basic": []
           }
         ]
@@ -2506,9 +2325,7 @@
     },
     "/api/v1/server/lightning/{cryptoCode}/payments": {
       "get": {
-        "tags": [
-          "Lightning (Internal Node)"
-        ],
+        "tags": ["Lightning (Internal Node)"],
         "summary": "Get payments",
         "parameters": [
           {
@@ -2579,9 +2396,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canuseinternallightningnode"
-            ],
+            "API_Key": ["btcpay.server.canuseinternallightningnode"],
             "Basic": []
           }
         ]
@@ -2589,9 +2404,7 @@
     },
     "/api/v1/stores/{storeId}/lightning/{cryptoCode}/info": {
       "get": {
-        "tags": [
-          "Lightning (Store)"
-        ],
+        "tags": ["Lightning (Store)"],
         "summary": "Get node information",
         "parameters": [
           {
@@ -2623,9 +2436,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canuselightningnode"
-            ],
+            "API_Key": ["btcpay.store.canuselightningnode"],
             "Basic": []
           }
         ]
@@ -2633,9 +2444,7 @@
     },
     "/api/v1/stores/{storeId}/lightning/{cryptoCode}/balance": {
       "get": {
-        "tags": [
-          "Lightning (Store)"
-        ],
+        "tags": ["Lightning (Store)"],
         "summary": "Get node balance",
         "parameters": [
           {
@@ -2667,9 +2476,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canuselightningnode"
-            ],
+            "API_Key": ["btcpay.store.canuselightningnode"],
             "Basic": []
           }
         ]
@@ -2677,9 +2484,7 @@
     },
     "/api/v1/stores/{storeId}/lightning/{cryptoCode}/histogram": {
       "get": {
-        "tags": [
-          "Lightning (Store)"
-        ],
+        "tags": ["Lightning (Store)"],
         "summary": "Get node balance histogram",
         "parameters": [
           {
@@ -2711,9 +2516,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canuselightningnode"
-            ],
+            "API_Key": ["btcpay.store.canuselightningnode"],
             "Basic": []
           }
         ]
@@ -2721,9 +2524,7 @@
     },
     "/api/v1/stores/{storeId}/lightning/{cryptoCode}/connect": {
       "post": {
-        "tags": [
-          "Lightning (Store)"
-        ],
+        "tags": ["Lightning (Store)"],
         "summary": "Connect to lightning node",
         "parameters": [
           {
@@ -2778,9 +2579,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.cancreatelightninginvoice"
-            ],
+            "API_Key": ["btcpay.store.cancreatelightninginvoice"],
             "Basic": []
           }
         ]
@@ -2788,9 +2587,7 @@
     },
     "/api/v1/stores/{storeId}/lightning/{cryptoCode}/channels": {
       "get": {
-        "tags": [
-          "Lightning (Store)"
-        ],
+        "tags": ["Lightning (Store)"],
         "summary": "Get channels",
         "parameters": [
           {
@@ -2822,17 +2619,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.cancreatelightninginvoice"
-            ],
+            "API_Key": ["btcpay.store.cancreatelightninginvoice"],
             "Basic": []
           }
         ]
       },
       "post": {
-        "tags": [
-          "Lightning (Store)"
-        ],
+        "tags": ["Lightning (Store)"],
         "summary": "Open channel",
         "parameters": [
           {
@@ -2887,9 +2680,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.cancreatelightninginvoice"
-            ],
+            "API_Key": ["btcpay.store.cancreatelightninginvoice"],
             "Basic": []
           }
         ]
@@ -2897,9 +2688,7 @@
     },
     "/api/v1/stores/{storeId}/lightning/{cryptoCode}/address": {
       "post": {
-        "tags": [
-          "Lightning (Store)"
-        ],
+        "tags": ["Lightning (Store)"],
         "summary": "Get deposit address",
         "parameters": [
           {
@@ -2939,9 +2728,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.cancreatelightninginvoice"
-            ],
+            "API_Key": ["btcpay.store.cancreatelightninginvoice"],
             "Basic": []
           }
         ]
@@ -2949,9 +2736,7 @@
     },
     "/api/v1/stores/{storeId}/lightning/{cryptoCode}/payments/{paymentHash}": {
       "get": {
-        "tags": [
-          "Lightning (Store)"
-        ],
+        "tags": ["Lightning (Store)"],
         "summary": "Get payment",
         "parameters": [
           {
@@ -2992,9 +2777,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canuselightningnode"
-            ],
+            "API_Key": ["btcpay.store.canuselightningnode"],
             "Basic": []
           }
         ]
@@ -3002,9 +2785,7 @@
     },
     "/api/v1/stores/{storeId}/lightning/{cryptoCode}/invoices/{id}": {
       "get": {
-        "tags": [
-          "Lightning (Store)"
-        ],
+        "tags": ["Lightning (Store)"],
         "summary": "Get invoice",
         "parameters": [
           {
@@ -3045,9 +2826,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewlightninginvoice"
-            ],
+            "API_Key": ["btcpay.store.canviewlightninginvoice"],
             "Basic": []
           }
         ]
@@ -3055,9 +2834,7 @@
     },
     "/api/v1/stores/{storeId}/lightning/{cryptoCode}/invoices/pay": {
       "post": {
-        "tags": [
-          "Lightning (Store)"
-        ],
+        "tags": ["Lightning (Store)"],
         "summary": "Pay Lightning Invoice",
         "parameters": [
           {
@@ -3129,9 +2906,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.cancreatelightninginvoice"
-            ],
+            "API_Key": ["btcpay.store.cancreatelightninginvoice"],
             "Basic": []
           }
         ]
@@ -3139,9 +2914,7 @@
     },
     "/api/v1/stores/{storeId}/lightning/{cryptoCode}/invoices": {
       "get": {
-        "tags": [
-          "Lightning (Store)"
-        ],
+        "tags": ["Lightning (Store)"],
         "summary": "Get invoices",
         "parameters": [
           {
@@ -3215,17 +2988,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewlightninginvoice"
-            ],
+            "API_Key": ["btcpay.store.canviewlightninginvoice"],
             "Basic": []
           }
         ]
       },
       "post": {
-        "tags": [
-          "Lightning (Store)"
-        ],
+        "tags": ["Lightning (Store)"],
         "summary": "Create lightning invoice",
         "parameters": [
           {
@@ -3277,9 +3046,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.cancreatelightninginvoiceinternalnode"
-            ],
+            "API_Key": ["btcpay.server.cancreatelightninginvoiceinternalnode"],
             "Basic": []
           }
         ]
@@ -3287,9 +3054,7 @@
     },
     "/api/v1/stores/{storeId}/lightning/{cryptoCode}/payments": {
       "get": {
-        "tags": [
-          "Lightning (Store)"
-        ],
+        "tags": ["Lightning (Store)"],
         "summary": "Get payments",
         "parameters": [
           {
@@ -3363,9 +3128,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.cancreatelightninginvoice"
-            ],
+            "API_Key": ["btcpay.store.cancreatelightninginvoice"],
             "Basic": []
           }
         ]
@@ -3373,9 +3136,7 @@
     },
     "/misc/rate-sources": {
       "get": {
-        "tags": [
-          "Miscelleneous"
-        ],
+        "tags": ["Miscelleneous"],
         "summary": "Get available rate sources",
         "description": "View available rate providers that you can use in stores",
         "operationId": "GetRateSources",
@@ -3423,9 +3184,7 @@
     },
     "/misc/permissions": {
       "get": {
-        "tags": [
-          "Miscelleneous"
-        ],
+        "tags": ["Miscelleneous"],
         "summary": "Permissions metadata",
         "description": "The metadata of available permissions",
         "operationId": "permissionsMetadata",
@@ -3477,9 +3236,7 @@
     },
     "/misc/lang": {
       "get": {
-        "tags": [
-          "Miscelleneous"
-        ],
+        "tags": ["Miscelleneous"],
         "summary": "Language codes",
         "description": "The supported language codes",
         "operationId": "langCodes",
@@ -3542,9 +3299,7 @@
         }
       ],
       "get": {
-        "tags": [
-          "Miscelleneous"
-        ],
+        "tags": ["Miscelleneous"],
         "operationId": "Invoice_Checkout",
         "summary": "Invoice checkout",
         "description": "View the checkout page of an invoice",
@@ -3566,9 +3321,7 @@
     },
     "/api/v1/users/me/notifications": {
       "get": {
-        "tags": [
-          "Notifications (Current User)"
-        ],
+        "tags": ["Notifications (Current User)"],
         "summary": "Get notifications",
         "parameters": [
           {
@@ -3645,9 +3398,7 @@
     },
     "/api/v1/users/me/notifications/{id}": {
       "get": {
-        "tags": [
-          "Notifications (Current User)"
-        ],
+        "tags": ["Notifications (Current User)"],
         "summary": "Get notification",
         "parameters": [
           {
@@ -3691,9 +3442,7 @@
         ]
       },
       "put": {
-        "tags": [
-          "Notifications (Current User)"
-        ],
+        "tags": ["Notifications (Current User)"],
         "summary": "Update notification",
         "parameters": [
           {
@@ -3728,9 +3477,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.user.canmanagenotificationsforuser"
-            ],
+            "API_Key": ["btcpay.user.canmanagenotificationsforuser"],
             "Basic": []
           }
         ],
@@ -3746,9 +3493,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Notifications (Current User)"
-        ],
+        "tags": ["Notifications (Current User)"],
         "summary": "Remove Notification",
         "description": "Removes the specified notification.",
         "operationId": "Notifications_DeleteNotification",
@@ -3776,9 +3521,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.user.canmanagenotificationsforuser"
-            ],
+            "API_Key": ["btcpay.user.canmanagenotificationsforuser"],
             "Basic": []
           }
         ]
@@ -3786,9 +3529,7 @@
     },
     "/api/v1/users/me/notification-settings": {
       "get": {
-        "tags": [
-          "Notifications (Current User)"
-        ],
+        "tags": ["Notifications (Current User)"],
         "summary": "Get notification settings",
         "description": "View information about your notification settings",
         "operationId": "Notifications_GetNotificationSettings",
@@ -3809,17 +3550,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.user.canmanagenotificationsforuser"
-            ],
+            "API_Key": ["btcpay.user.canmanagenotificationsforuser"],
             "Basic": []
           }
         ]
       },
       "put": {
-        "tags": [
-          "Notifications (Current User)"
-        ],
+        "tags": ["Notifications (Current User)"],
         "summary": "Update notification settings",
         "description": "Updates the current user's notification settings",
         "operationId": "Notifications_UpdateNotificationSettings",
@@ -3840,9 +3577,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.user.canmanagenotificationsforuser"
-            ],
+            "API_Key": ["btcpay.user.canmanagenotificationsforuser"],
             "Basic": []
           }
         ],
@@ -3860,9 +3595,7 @@
     },
     "/api/v1/stores/{storeId}/payment-requests": {
       "get": {
-        "tags": [
-          "Payment Requests"
-        ],
+        "tags": ["Payment Requests"],
         "summary": "Get payment requests",
         "parameters": [
           {
@@ -3895,17 +3628,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewpaymentrequests"
-            ],
+            "API_Key": ["btcpay.store.canviewpaymentrequests"],
             "Basic": []
           }
         ]
       },
       "post": {
-        "tags": [
-          "Payment Requests"
-        ],
+        "tags": ["Payment Requests"],
         "summary": "Create a new payment request",
         "parameters": [
           {
@@ -3951,9 +3680,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifypaymentrequests"
-            ],
+            "API_Key": ["btcpay.store.canmodifypaymentrequests"],
             "Basic": []
           }
         ]
@@ -3961,9 +3688,7 @@
     },
     "/api/v1/stores/{storeId}/payment-requests/{paymentRequestId}": {
       "get": {
-        "tags": [
-          "Payment Requests"
-        ],
+        "tags": ["Payment Requests"],
         "summary": "Get payment request",
         "parameters": [
           {
@@ -4001,17 +3726,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewpaymentrequests"
-            ],
+            "API_Key": ["btcpay.store.canviewpaymentrequests"],
             "Basic": []
           }
         ]
       },
       "delete": {
-        "tags": [
-          "Payment Requests"
-        ],
+        "tags": ["Payment Requests"],
         "summary": "Archive payment request",
         "description": "Archives the specified payment request.",
         "operationId": "PaymentRequests_ArchivePaymentRequest",
@@ -4052,17 +3773,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifypaymentrequests"
-            ],
+            "API_Key": ["btcpay.store.canmodifypaymentrequests"],
             "Basic": []
           }
         ]
       },
       "put": {
-        "tags": [
-          "Payment Requests"
-        ],
+        "tags": ["Payment Requests"],
         "summary": "Update payment request",
         "parameters": [
           {
@@ -4117,9 +3834,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifypaymentrequests"
-            ],
+            "API_Key": ["btcpay.store.canmodifypaymentrequests"],
             "Basic": []
           }
         ]
@@ -4127,9 +3842,7 @@
     },
     "/api/v1/stores/{storeId}/payment-requests/{paymentRequestId}/pay": {
       "post": {
-        "tags": [
-          "Payment Requests"
-        ],
+        "tags": ["Payment Requests"],
         "summary": "Create a new invoice for the payment request",
         "parameters": [
           {
@@ -4209,9 +3922,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewpaymentrequests"
-            ],
+            "API_Key": ["btcpay.store.canviewpaymentrequests"],
             "Basic": []
           }
         ]
@@ -4219,9 +3930,7 @@
     },
     "/api/v1/stores/{storeId}/payout-processors": {
       "get": {
-        "tags": [
-          "Stores (Payout Processors)"
-        ],
+        "tags": ["Stores (Payout Processors)"],
         "summary": "Get store configured payout processors",
         "parameters": [
           {
@@ -4253,9 +3962,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewstoresettings"
-            ],
+            "API_Key": ["btcpay.store.canviewstoresettings"],
             "Basic": []
           }
         ]
@@ -4263,9 +3970,7 @@
     },
     "/api/v1/stores/{storeId}/payout-processors/{processor}/{paymentMethodId}": {
       "delete": {
-        "tags": [
-          "Stores (Payout Processors)"
-        ],
+        "tags": ["Stores (Payout Processors)"],
         "summary": "Remove store configured payout processor",
         "parameters": [
           {
@@ -4299,9 +4004,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -4309,9 +4012,7 @@
     },
     "/api/v1/payout-processors": {
       "get": {
-        "tags": [
-          "Payout Processors"
-        ],
+        "tags": ["Payout Processors"],
         "summary": "Get payout processors",
         "description": "Get payout processors available in this instance",
         "operationId": "PayoutProcessors_GetPayoutProcessors",
@@ -4343,9 +4044,7 @@
     },
     "/api/v1/stores/{storeId}/payout-processors/OnChainAutomatedPayoutSenderFactory/{paymentMethodId}": {
       "get": {
-        "tags": [
-          "Stores (Payout Processors)"
-        ],
+        "tags": ["Stores (Payout Processors)"],
         "summary": "Get configured store onchain automated payout processors",
         "parameters": [
           {
@@ -4380,17 +4079,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewstoresettings"
-            ],
+            "API_Key": ["btcpay.store.canviewstoresettings"],
             "Basic": []
           }
         ]
       },
       "put": {
-        "tags": [
-          "Stores (Payout Processors)"
-        ],
+        "tags": ["Stores (Payout Processors)"],
         "summary": "Update configured store onchain automated payout processors",
         "parameters": [
           {
@@ -4434,9 +4129,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewstoresettings"
-            ],
+            "API_Key": ["btcpay.store.canviewstoresettings"],
             "Basic": []
           }
         ]
@@ -4444,9 +4137,7 @@
     },
     "/api/v1/stores/{storeId}/payout-processors/LightningAutomatedPayoutSenderFactory/{payoutMethodId}": {
       "get": {
-        "tags": [
-          "Stores (Payout Processors)"
-        ],
+        "tags": ["Stores (Payout Processors)"],
         "summary": "Get configured store Lightning automated payout processors",
         "parameters": [
           {
@@ -4481,17 +4172,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewstoresettings"
-            ],
+            "API_Key": ["btcpay.store.canviewstoresettings"],
             "Basic": []
           }
         ]
       },
       "put": {
-        "tags": [
-          "Stores (Payout Processors)"
-        ],
+        "tags": ["Stores (Payout Processors)"],
         "summary": "Update configured store Lightning automated payout processors",
         "parameters": [
           {
@@ -4535,9 +4222,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewstoresettings"
-            ],
+            "API_Key": ["btcpay.store.canviewstoresettings"],
             "Basic": []
           }
         ]
@@ -4545,9 +4230,7 @@
     },
     "/api/v1/stores/{storeId}/payout-processors/OnChainAutomatedTransferSenderFactory": {
       "get": {
-        "tags": [
-          "Stores (Payout Processors)"
-        ],
+        "tags": ["Stores (Payout Processors)"],
         "summary": "Get configured store onchain automated payout processors",
         "parameters": [
           {
@@ -4579,17 +4262,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewstoresettings"
-            ],
+            "API_Key": ["btcpay.store.canviewstoresettings"],
             "Basic": []
           }
         ]
       },
       "put": {
-        "tags": [
-          "Stores (Payout Processors)"
-        ],
+        "tags": ["Stores (Payout Processors)"],
         "summary": "Update configured store onchain automated payout processors",
         "parameters": [
           {
@@ -4630,9 +4309,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewstoresettings"
-            ],
+            "API_Key": ["btcpay.store.canviewstoresettings"],
             "Basic": []
           }
         ]
@@ -4640,9 +4317,7 @@
     },
     "/api/v1/stores/{storeId}/payout-processors/LightningAutomatedPayoutSenderFactory": {
       "get": {
-        "tags": [
-          "Stores (Payout Processors)"
-        ],
+        "tags": ["Stores (Payout Processors)"],
         "summary": "Get configured store Lightning automated payout processors",
         "parameters": [
           {
@@ -4674,9 +4349,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewstoresettings"
-            ],
+            "API_Key": ["btcpay.store.canviewstoresettings"],
             "Basic": []
           }
         ]
@@ -4702,9 +4375,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "required": [
-                  "UID"
-                ],
+                "required": ["UID"],
                 "type": "object",
                 "properties": {
                   "UID": {
@@ -4715,14 +4386,8 @@
                   },
                   "onExisting": {
                     "type": "string",
-                    "x-enumNames": [
-                      "KeepVersion",
-                      "UpdateVersion"
-                    ],
-                    "enum": [
-                      "KeepVersion",
-                      "UpdateVersion"
-                    ],
+                    "x-enumNames": ["KeepVersion", "UpdateVersion"],
+                    "enum": ["KeepVersion", "UpdateVersion"],
                     "default": "UpdateVersion",
                     "description": "What to do if the boltcard is already linked.\n * `KeepVersion` will return the keys (K0-K4) that are already registered.\n * `UpdateVersion` will increment the version of the key, and thus return different keys (K0-K4). (See [Deterministic Boltcard Key Generation](https://github.com/boltcard/boltcard/blob/main/docs/DETERMINISTIC.md))"
                   }
@@ -4789,9 +4454,7 @@
             }
           }
         },
-        "tags": [
-          "Pull payments (Public)"
-        ],
+        "tags": ["Pull payments (Public)"],
         "security": []
       }
     },
@@ -4832,14 +4495,10 @@
             "description": "If you are authenticated but forbidden to get the data"
           }
         },
-        "tags": [
-          "Pull payments (Management)"
-        ],
+        "tags": ["Pull payments (Management)"],
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmanagepullpayments"
-            ],
+            "API_Key": ["btcpay.store.canmanagepullpayments"],
             "Basic": []
           }
         ]
@@ -4939,9 +4598,7 @@
             }
           }
         },
-        "tags": [
-          "Pull payments (Management)"
-        ],
+        "tags": ["Pull payments (Management)"],
         "security": [
           {
             "API_Key": [
@@ -4984,9 +4641,7 @@
             "description": "Pull payment not found"
           }
         },
-        "tags": [
-          "Pull payments (Public)"
-        ],
+        "tags": ["Pull payments (Public)"],
         "security": []
       }
     },
@@ -5017,14 +4672,10 @@
             "description": "The pull payment has not been found, or does not belong to this store"
           }
         },
-        "tags": [
-          "Pull payments (Management)"
-        ],
+        "tags": ["Pull payments (Management)"],
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canarchivepullpayments"
-            ],
+            "API_Key": ["btcpay.store.canarchivepullpayments"],
             "Basic": []
           }
         ]
@@ -5073,9 +4724,7 @@
             "description": "Pull payment not found"
           }
         },
-        "tags": [
-          "Pull payments (Public)"
-        ],
+        "tags": ["Pull payments (Public)"],
         "security": []
       },
       "post": {
@@ -5129,9 +4778,7 @@
             }
           }
         },
-        "tags": [
-          "Pull payments (Public)"
-        ],
+        "tags": ["Pull payments (Public)"],
         "security": []
       }
     },
@@ -5175,10 +4822,7 @@
             "description": "Pull payment payout not found"
           }
         },
-        "tags": [
-          "Pull payments (Public)",
-          "Pull payments payout (Public)"
-        ],
+        "tags": ["Pull payments (Public)", "Pull payments payout (Public)"],
         "security": []
       }
     },
@@ -5216,9 +4860,7 @@
             "description": "Pull payment found but does not support LNURL"
           }
         },
-        "tags": [
-          "Pull payments (Public)"
-        ],
+        "tags": ["Pull payments (Public)"],
         "security": []
       }
     },
@@ -5279,9 +4921,7 @@
             }
           }
         },
-        "tags": [
-          "Stores (Payouts)"
-        ],
+        "tags": ["Stores (Payouts)"],
         "security": [
           {
             "API_Key": [
@@ -5323,9 +4963,7 @@
             "description": "Pull payment not found"
           }
         },
-        "tags": [
-          "Stores (Payouts)"
-        ],
+        "tags": ["Stores (Payouts)"],
         "security": []
       }
     },
@@ -5363,14 +5001,10 @@
             "description": "Payout not found"
           }
         },
-        "tags": [
-          "Stores (Payouts)"
-        ],
+        "tags": ["Stores (Payouts)"],
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmanagepullpayments"
-            ],
+            "API_Key": ["btcpay.store.canmanagepullpayments"],
             "Basic": []
           }
         ]
@@ -5435,14 +5069,10 @@
             "description": "The payout is not found"
           }
         },
-        "tags": [
-          "Stores (Payouts)"
-        ],
+        "tags": ["Stores (Payouts)"],
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmanagepullpayments"
-            ],
+            "API_Key": ["btcpay.store.canmanagepullpayments"],
             "Basic": []
           }
         ]
@@ -5459,14 +5089,10 @@
             "description": "The payout is not found"
           }
         },
-        "tags": [
-          "Stores (Payouts)"
-        ],
+        "tags": ["Stores (Payouts)"],
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmanagepullpayments"
-            ],
+            "API_Key": ["btcpay.store.canmanagepullpayments"],
             "Basic": []
           }
         ]
@@ -5519,14 +5145,10 @@
             "description": "The payout is not found"
           }
         },
-        "tags": [
-          "Stores (Payouts)"
-        ],
+        "tags": ["Stores (Payouts)"],
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmanagepullpayments"
-            ],
+            "API_Key": ["btcpay.store.canmanagepullpayments"],
             "Basic": []
           }
         ]
@@ -5596,14 +5218,10 @@
             "description": "The payout is not found"
           }
         },
-        "tags": [
-          "Stores (Payouts)"
-        ],
+        "tags": ["Stores (Payouts)"],
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmanagepullpayments"
-            ],
+            "API_Key": ["btcpay.store.canmanagepullpayments"],
             "Basic": []
           }
         ]
@@ -5611,9 +5229,7 @@
     },
     "/api/v1/server/email": {
       "get": {
-        "tags": [
-          "ServerEmail"
-        ],
+        "tags": ["ServerEmail"],
         "summary": "Get server email settings",
         "description": "Retrieve the email settings configured for the server. The password field will be masked if present.",
         "operationId": "ServerEmail_GetSettings",
@@ -5634,17 +5250,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canmodifyserversettings"
-            ],
+            "API_Key": ["btcpay.server.canmodifyserversettings"],
             "Basic": []
           }
         ]
       },
       "put": {
-        "tags": [
-          "ServerEmail"
-        ],
+        "tags": ["ServerEmail"],
         "summary": "Update server email settings",
         "description": "Update server's email settings.",
         "operationId": "ServerEmail_UpdateSettings",
@@ -5685,9 +5297,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canmodifyserversettings"
-            ],
+            "API_Key": ["btcpay.server.canmodifyserversettings"],
             "Basic": []
           }
         ]
@@ -5695,9 +5305,7 @@
     },
     "/api/v1/server/info": {
       "get": {
-        "tags": [
-          "ServerInfo"
-        ],
+        "tags": ["ServerInfo"],
         "summary": "Get server info",
         "description": "Information about the server, chains and sync states",
         "operationId": "ServerInfo_GetServerInfo",
@@ -5743,9 +5351,7 @@
     },
     "/api/v1/server/roles": {
       "get": {
-        "tags": [
-          "ServerInfo"
-        ],
+        "tags": ["ServerInfo"],
         "summary": "Get store's roles",
         "description": "View information about the store's roles at the server's scope",
         "operationId": "Server_GetStoreRoles",
@@ -5769,9 +5375,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canmodifyserversettings"
-            ],
+            "API_Key": ["btcpay.server.canmodifyserversettings"],
             "Basic": []
           }
         ]
@@ -5779,9 +5383,7 @@
     },
     "/api/v1/stores/{storeId}/email": {
       "get": {
-        "tags": [
-          "Stores (Email)"
-        ],
+        "tags": ["Stores (Email)"],
         "summary": "Get store email settings",
         "parameters": [
           {
@@ -5810,17 +5412,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
       },
       "put": {
-        "tags": [
-          "Stores (Email)"
-        ],
+        "tags": ["Stores (Email)"],
         "summary": "Update store email settings",
         "parameters": [
           {
@@ -5868,9 +5466,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -5879,9 +5475,7 @@
     "/api/v1/stores/{storeId}/email/send": {
       "post": {
         "operationId": "Stores_SendStoreEmail",
-        "tags": [
-          "Stores (Email)"
-        ],
+        "tags": ["Stores (Email)"],
         "summary": "Send an email for a store",
         "description": "Send an email using the store's SMTP server",
         "parameters": [
@@ -5932,9 +5526,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -5942,9 +5534,7 @@
     },
     "/api/v1/stores/{storeId}/lightning-addresses": {
       "get": {
-        "tags": [
-          "Lightning address"
-        ],
+        "tags": ["Lightning address"],
         "summary": "Get store configured lightning addresses",
         "parameters": [
           {
@@ -5976,9 +5566,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewstoresettings"
-            ],
+            "API_Key": ["btcpay.store.canviewstoresettings"],
             "Basic": []
           }
         ]
@@ -5986,9 +5574,7 @@
     },
     "/api/v1/stores/{storeId}/lightning-addresses/{username}": {
       "get": {
-        "tags": [
-          "Lightning address"
-        ],
+        "tags": ["Lightning address"],
         "summary": "Get store configured lightning address",
         "parameters": [
           {
@@ -6026,17 +5612,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewstoresettings"
-            ],
+            "API_Key": ["btcpay.store.canviewstoresettings"],
             "Basic": []
           }
         ]
       },
       "post": {
-        "tags": [
-          "Lightning address"
-        ],
+        "tags": ["Lightning address"],
         "summary": "Add or update store configured lightning address",
         "parameters": [
           {
@@ -6086,17 +5668,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
       },
       "delete": {
-        "tags": [
-          "Lightning address"
-        ],
+        "tags": ["Lightning address"],
         "summary": "Remove configured lightning address",
         "parameters": [
           {
@@ -6127,9 +5705,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -6137,9 +5713,7 @@
     },
     "/api/v1/stores/{storeId}/payment-methods": {
       "get": {
-        "tags": [
-          "Store (Payment Methods)"
-        ],
+        "tags": ["Store (Payment Methods)"],
         "summary": "Get store payment methods",
         "description": "View information about the stores' configured payment methods",
         "operationId": "StorePaymentMethods_GetStorePaymentMethods",
@@ -6203,9 +5777,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewstoresettings"
-            ],
+            "API_Key": ["btcpay.store.canviewstoresettings"],
             "Basic": []
           }
         ]
@@ -6213,9 +5785,7 @@
     },
     "/api/v1/stores/{storeId}/payment-methods/{paymentMethodId}": {
       "get": {
-        "tags": [
-          "Store (Payment Methods)"
-        ],
+        "tags": ["Store (Payment Methods)"],
         "summary": "Get store payment method",
         "description": "View information about the stores' configured payment method",
         "operationId": "StorePaymentMethods_GetStorePaymentMethod",
@@ -6270,17 +5840,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewstoresettings"
-            ],
+            "API_Key": ["btcpay.store.canviewstoresettings"],
             "Basic": []
           }
         ]
       },
       "put": {
-        "tags": [
-          "Store (Payment Methods)"
-        ],
+        "tags": ["Store (Payment Methods)"],
         "summary": "Update store's payment method",
         "description": "Update information about the stores' configured payment method",
         "operationId": "StorePaymentMethods_UpdateStorePaymentMethod",
@@ -6335,17 +5901,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
       },
       "delete": {
-        "tags": [
-          "Store (Payment Methods)"
-        ],
+        "tags": ["Store (Payment Methods)"],
         "summary": "Delete store's payment method",
         "description": "Delete information about the stores' configured payment method",
         "operationId": "StorePaymentMethods_DeleteStorePaymentMethod",
@@ -6384,9 +5946,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -6394,9 +5954,7 @@
     },
     "/api/v1/stores/{storeId}/rates": {
       "get": {
-        "tags": [
-          "Stores (Rates)"
-        ],
+        "tags": ["Stores (Rates)"],
         "parameters": [
           {
             "$ref": "#/components/parameters/StoreId"
@@ -6404,10 +5962,7 @@
           {
             "name": "currencyPair",
             "description": "The currency pairs to fetch rates for",
-            "example": [
-              "BTC_USD",
-              "BTC_EUR"
-            ],
+            "example": ["BTC_USD", "BTC_EUR"],
             "in": "query",
             "style": "form",
             "explode": true,
@@ -6454,9 +6009,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewstoresettings"
-            ],
+            "API_Key": ["btcpay.store.canviewstoresettings"],
             "Basic": []
           }
         ]
@@ -6464,9 +6017,7 @@
     },
     "/api/v1/stores/{storeId}/rates/configuration/{rateSource}": {
       "get": {
-        "tags": [
-          "Stores (Rates)"
-        ],
+        "tags": ["Stores (Rates)"],
         "summary": "Get store rate settings for the specified rate source",
         "parameters": [
           {
@@ -6498,17 +6049,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewstoresettings"
-            ],
+            "API_Key": ["btcpay.store.canviewstoresettings"],
             "Basic": []
           }
         ]
       },
       "put": {
-        "tags": [
-          "Stores (Rates)"
-        ],
+        "tags": ["Stores (Rates)"],
         "parameters": [
           {
             "$ref": "#/components/parameters/RateSource"
@@ -6559,9 +6106,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -6569,9 +6114,7 @@
     },
     "/api/v1/stores/{storeId}/rates/configuration/preview": {
       "post": {
-        "tags": [
-          "Stores (Rates)"
-        ],
+        "tags": ["Stores (Rates)"],
         "parameters": [
           {
             "$ref": "#/components/parameters/StoreId"
@@ -6637,9 +6180,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -6647,9 +6188,7 @@
     },
     "/api/v1/stores/{storeId}/users": {
       "get": {
-        "tags": [
-          "Stores (Users)"
-        ],
+        "tags": ["Stores (Users)"],
         "summary": "Get store users",
         "parameters": [
           {
@@ -6678,17 +6217,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
       },
       "post": {
-        "tags": [
-          "Stores (Users)"
-        ],
+        "tags": ["Stores (Users)"],
         "summary": "Add a store user",
         "description": "Add a store user",
         "operationId": "Stores_AddStoreUser",
@@ -6742,9 +6277,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -6752,9 +6285,7 @@
     },
     "/api/v1/stores/{storeId}/users/{idOrEmail}": {
       "put": {
-        "tags": [
-          "Stores (Users)"
-        ],
+        "tags": ["Stores (Users)"],
         "summary": "Updates a store user",
         "description": "Updates a store user",
         "operationId": "Stores_UpdateStoreUser",
@@ -6801,17 +6332,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
       },
       "delete": {
-        "tags": [
-          "Stores (Users)"
-        ],
+        "tags": ["Stores (Users)"],
         "summary": "Remove Store User",
         "operationId": "Stores_RemoveStoreUser",
         "description": "Removes the specified store user. If there is no other owner, this endpoint will fail.",
@@ -6856,9 +6383,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -6866,9 +6391,7 @@
     },
     "/api/v1/stores/{storeId}/payment-methods/{paymentMethodId}/wallet": {
       "get": {
-        "tags": [
-          "Store Wallet (On Chain)"
-        ],
+        "tags": ["Store Wallet (On Chain)"],
         "summary": "Get store on-chain wallet overview",
         "parameters": [
           {
@@ -6900,9 +6423,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -6910,9 +6431,7 @@
     },
     "/api/v1/stores/{storeId}/payment-methods/{paymentMethodId}/wallet/histogram": {
       "get": {
-        "tags": [
-          "Store Wallet (On Chain)"
-        ],
+        "tags": ["Store Wallet (On Chain)"],
         "summary": "Get store on-chain wallet balance histogram",
         "parameters": [
           {
@@ -6944,9 +6463,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -6954,9 +6471,7 @@
     },
     "/api/v1/stores/{storeId}/payment-methods/{paymentMethodId}/wallet/feerate": {
       "get": {
-        "tags": [
-          "Store Wallet (On Chain)"
-        ],
+        "tags": ["Store Wallet (On Chain)"],
         "summary": "Get store on-chain wallet fee rate",
         "parameters": [
           {
@@ -6998,9 +6513,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewstoresettings"
-            ],
+            "API_Key": ["btcpay.store.canviewstoresettings"],
             "Basic": []
           }
         ]
@@ -7008,9 +6521,7 @@
     },
     "/api/v1/stores/{storeId}/payment-methods/{paymentMethodId}/wallet/address": {
       "get": {
-        "tags": [
-          "Store Wallet (On Chain)"
-        ],
+        "tags": ["Store Wallet (On Chain)"],
         "summary": "Get store on-chain wallet address",
         "parameters": [
           {
@@ -7052,17 +6563,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
       },
       "delete": {
-        "tags": [
-          "Store Wallet (On Chain)"
-        ],
+        "tags": ["Store Wallet (On Chain)"],
         "summary": "UnReserve last store on-chain wallet address",
         "parameters": [
           {
@@ -7087,9 +6594,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -7097,9 +6602,7 @@
     },
     "/api/v1/stores/{storeId}/payment-methods/{paymentMethodId}/wallet/transactions": {
       "get": {
-        "tags": [
-          "Store Wallet (On Chain)"
-        ],
+        "tags": ["Store Wallet (On Chain)"],
         "summary": "Get store on-chain wallet transactions",
         "parameters": [
           {
@@ -7177,17 +6680,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
       },
       "post": {
-        "tags": [
-          "Store Wallet (On Chain)"
-        ],
+        "tags": ["Store Wallet (On Chain)"],
         "summary": "Create store on-chain wallet transaction",
         "parameters": [
           {
@@ -7237,9 +6736,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -7247,9 +6744,7 @@
     },
     "/api/v1/stores/{storeId}/payment-methods/{paymentMethodId}/wallet/transactions/{transactionId}": {
       "get": {
-        "tags": [
-          "Store Wallet (On Chain)"
-        ],
+        "tags": ["Store Wallet (On Chain)"],
         "summary": "Get store on-chain wallet transaction",
         "parameters": [
           {
@@ -7290,17 +6785,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
       },
       "patch": {
-        "tags": [
-          "Store Wallet (On Chain)"
-        ],
+        "tags": ["Store Wallet (On Chain)"],
         "summary": "Patch store on-chain wallet transaction info",
         "parameters": [
           {
@@ -7360,9 +6851,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -7370,9 +6859,7 @@
     },
     "/api/v1/stores/{storeId}/payment-methods/{paymentMethodId}/wallet/utxos": {
       "get": {
-        "tags": [
-          "Store Wallet (On Chain)"
-        ],
+        "tags": ["Store Wallet (On Chain)"],
         "summary": "Get store on-chain wallet UTXOS",
         "parameters": [
           {
@@ -7407,9 +6894,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -7417,9 +6902,7 @@
     },
     "/api/v1/stores/{storeId}/payment-methods/{paymentMethodId}/wallet/generate": {
       "post": {
-        "tags": [
-          "Store Wallet (On Chain)"
-        ],
+        "tags": ["Store Wallet (On Chain)"],
         "summary": "Generate store on-chain wallet",
         "parameters": [
           {
@@ -7488,9 +6971,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -7498,9 +6979,7 @@
     },
     "/api/v1/stores/{storeId}/payment-methods/{paymentMethodId}/wallet/preview": {
       "get": {
-        "tags": [
-          "Store Wallet (On Chain)"
-        ],
+        "tags": ["Store Wallet (On Chain)"],
         "summary": "Preview store on-chain payment method addresses",
         "parameters": [
           {
@@ -7557,17 +7036,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewstoresettings"
-            ],
+            "API_Key": ["btcpay.store.canviewstoresettings"],
             "Basic": []
           }
         ]
       },
       "post": {
-        "tags": [
-          "Store Wallet (On Chain)"
-        ],
+        "tags": ["Store Wallet (On Chain)"],
         "summary": "Preview proposed store on-chain payment method addresses",
         "parameters": [
           {
@@ -7636,9 +7111,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewstoresettings"
-            ],
+            "API_Key": ["btcpay.store.canviewstoresettings"],
             "Basic": []
           }
         ]
@@ -7646,9 +7119,7 @@
     },
     "/api/v1/stores/{storeId}/payment-methods/{paymentMethodId}/wallet/objects": {
       "get": {
-        "tags": [
-          "Store Wallet (On Chain)"
-        ],
+        "tags": ["Store Wallet (On Chain)"],
         "summary": "Get store on-chain wallet objects",
         "parameters": [
           {
@@ -7716,17 +7187,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
       },
       "post": {
-        "tags": [
-          "Store Wallet (On Chain)"
-        ],
+        "tags": ["Store Wallet (On Chain)"],
         "summary": "Add/Update store on-chain wallet objects",
         "parameters": [
           {
@@ -7768,9 +7235,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -7778,9 +7243,7 @@
     },
     "/api/v1/stores/{storeId}/payment-methods/{paymentMethodId}/wallet/objects/{objectType}/{objectId}": {
       "get": {
-        "tags": [
-          "Store Wallet (On Chain)"
-        ],
+        "tags": ["Store Wallet (On Chain)"],
         "summary": "Get store on-chain wallet object",
         "parameters": [
           {
@@ -7842,17 +7305,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
       },
       "delete": {
-        "tags": [
-          "Store Wallet (On Chain)"
-        ],
+        "tags": ["Store Wallet (On Chain)"],
         "summary": "Remove store on-chain wallet objects",
         "parameters": [
           {
@@ -7897,9 +7356,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -7907,9 +7364,7 @@
     },
     "/api/v1/stores/{storeId}/payment-methods/{paymentMethodId}/wallet/objects/{objectType}/{objectId}/links": {
       "post": {
-        "tags": [
-          "Store Wallet (On Chain)"
-        ],
+        "tags": ["Store Wallet (On Chain)"],
         "summary": "Add/Update store on-chain wallet object link",
         "parameters": [
           {
@@ -7964,9 +7419,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -7974,9 +7427,7 @@
     },
     "/api/v1/stores/{storeId}/payment-methods/{paymentMethodId}/wallet/objects/{objectType}/{objectId}/links/{linkType}/{linkId}": {
       "delete": {
-        "tags": [
-          "Store Wallet (On Chain)"
-        ],
+        "tags": ["Store Wallet (On Chain)"],
         "summary": "Remove store on-chain wallet object links",
         "parameters": [
           {
@@ -8041,9 +7492,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -8051,9 +7500,7 @@
     },
     "/api/v1/stores": {
       "get": {
-        "tags": [
-          "Stores"
-        ],
+        "tags": ["Stores"],
         "summary": "Get stores",
         "description": "View information about the available stores",
         "operationId": "Stores_GetStores",
@@ -8081,18 +7528,14 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewstoresettings"
-            ],
+            "API_Key": ["btcpay.store.canviewstoresettings"],
             "Basic": []
           }
         ]
       },
       "post": {
         "operationId": "Stores_CreateStore",
-        "tags": [
-          "Stores"
-        ],
+        "tags": ["Stores"],
         "summary": "Create a new store",
         "description": "Create a new store (default values can be different if the server settings use a default store template)",
         "requestBody": {
@@ -8134,9 +7577,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -8144,9 +7585,7 @@
     },
     "/api/v1/stores/{storeId}": {
       "get": {
-        "tags": [
-          "Stores"
-        ],
+        "tags": ["Stores"],
         "summary": "Get store",
         "parameters": [
           {
@@ -8175,17 +7614,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canviewstoresettings"
-            ],
+            "API_Key": ["btcpay.store.canviewstoresettings"],
             "Basic": []
           }
         ]
       },
       "put": {
-        "tags": [
-          "Stores"
-        ],
+        "tags": ["Stores"],
         "summary": "Update store",
         "parameters": [
           {
@@ -8236,18 +7671,14 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
       },
       "delete": {
         "operationId": "Stores_DeleteStore",
-        "tags": [
-          "Stores"
-        ],
+        "tags": ["Stores"],
         "summary": "Remove Store",
         "description": "Removes the specified store. If there is another user with access, only your access will be removed.",
         "parameters": [
@@ -8278,9 +7709,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -8288,9 +7717,7 @@
     },
     "/api/v1/stores/{storeId}/logo": {
       "post": {
-        "tags": [
-          "Stores"
-        ],
+        "tags": ["Stores"],
         "summary": "Uploads a logo for the store",
         "description": "Uploads a logo for the store",
         "parameters": [
@@ -8333,17 +7760,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
       },
       "delete": {
-        "tags": [
-          "Stores"
-        ],
+        "tags": ["Stores"],
         "summary": "Deletes the store logo",
         "description": "Delete the store's logo",
         "operationId": "Stores_DeleteStoreLogo",
@@ -8362,9 +7785,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -8372,9 +7793,7 @@
     },
     "/api/v1/stores/{storeId}/roles": {
       "get": {
-        "tags": [
-          "Stores"
-        ],
+        "tags": ["Stores"],
         "summary": "Get store's roles",
         "parameters": [
           {
@@ -8403,9 +7822,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.canmodifystoresettings"
-            ],
+            "API_Key": ["btcpay.store.canmodifystoresettings"],
             "Basic": []
           }
         ]
@@ -8413,9 +7830,7 @@
     },
     "/api/v1/users/me": {
       "get": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Get current user information",
         "description": "View information about the current user",
         "operationId": "Users_GetCurrentUser",
@@ -8436,17 +7851,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.user.canviewprofile"
-            ],
+            "API_Key": ["btcpay.user.canviewprofile"],
             "Basic": []
           }
         ]
       },
       "put": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Update current user information",
         "description": "Update the current user",
         "requestBody": {
@@ -8507,17 +7918,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.user.canmodifyprofile"
-            ],
+            "API_Key": ["btcpay.user.canmodifyprofile"],
             "Basic": []
           }
         ]
       },
       "delete": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Deletes user profile",
         "description": "Deletes user profile and associated user data for user making the request",
         "operationId": "Users_DeleteCurrentUser",
@@ -8531,9 +7938,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.user.candeleteuser"
-            ],
+            "API_Key": ["btcpay.user.candeleteuser"],
             "Basic": []
           }
         ]
@@ -8541,9 +7946,7 @@
     },
     "/api/v1/users/me/picture": {
       "post": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Uploads a profile picture for the current user",
         "description": "Uploads a profile picture for the current user",
         "requestBody": {
@@ -8581,17 +7984,13 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.user.canmodifyprofile"
-            ],
+            "API_Key": ["btcpay.user.canmodifyprofile"],
             "Basic": []
           }
         ]
       },
       "delete": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Deletes user profile picture",
         "description": "Deletes the user profile picture",
         "operationId": "Users_DeleteCurrentUserProfilePicture",
@@ -8605,9 +8004,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.user.canmodifyprofile"
-            ],
+            "API_Key": ["btcpay.user.canmodifyprofile"],
             "Basic": []
           }
         ]
@@ -8616,9 +8013,7 @@
     "/api/v1/users": {
       "get": {
         "operationId": "Users_GetUsers",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Get all users",
         "description": "Load all users that exist.",
         "parameters": [],
@@ -8635,18 +8030,14 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canviewusers"
-            ],
+            "API_Key": ["btcpay.server.canviewusers"],
             "Basic": []
           }
         ]
       },
       "post": {
         "operationId": "Users_CreateUser",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Create user",
         "description": "Create a new user.\n\nThis operation can be called without authentication in any of this cases:\n* There is not any administrator yet on the server,\n* User registrations are not disabled in the server's policies.\n\nIf the first administrator is created by this call, user registrations are automatically disabled.",
         "requestBody": {
@@ -8729,9 +8120,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.cancreateuser"
-            ],
+            "API_Key": ["btcpay.server.cancreateuser"],
             "Basic": []
           }
         ]
@@ -8740,9 +8129,7 @@
     "/api/v1/users/{idOrEmail}": {
       "get": {
         "operationId": "Users_GetUser",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Get user by ID or Email",
         "description": "Get 1 user by ID or Email.",
         "parameters": [
@@ -8773,18 +8160,14 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.server.canviewusers"
-            ],
+            "API_Key": ["btcpay.server.canviewusers"],
             "Basic": []
           }
         ]
       },
       "delete": {
         "operationId": "Users_DeleteUser",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Delete user",
         "description": "Delete a user.\n\nMust be an admin to perform this operation.\n\nAttempting to delete the only admin user will not succeed.\n\nAll data associated with the user will be deleted as well if the operation succeeds.",
         "parameters": [
@@ -8808,9 +8191,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.user.candeleteuser"
-            ],
+            "API_Key": ["btcpay.user.candeleteuser"],
             "Basic": []
           }
         ]
@@ -8819,9 +8200,7 @@
     "/api/v1/users/{idOrEmail}/lock": {
       "post": {
         "operationId": "Users_ToggleUserLock",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Toggle user lock out",
         "description": "Lock or unlock a user.\n\nMust be an admin to perform this operation.\n\nAttempting to lock the only admin user will not succeed.",
         "parameters": [
@@ -8855,9 +8234,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.user.canmodifyserversettings"
-            ],
+            "API_Key": ["btcpay.user.canmodifyserversettings"],
             "Basic": []
           }
         ]
@@ -8866,9 +8243,7 @@
     "/api/v1/users/{idOrEmail}/approve": {
       "post": {
         "operationId": "Users_ToggleUserApproval",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Toggle user approval",
         "description": "Approve or unapprove a user.\n\nMust be an admin to perform this operation.\n\nAttempting to (un)approve a user for which this requirement does not exist will not succeed.",
         "parameters": [
@@ -8902,9 +8277,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.user.canmodifyserversettings"
-            ],
+            "API_Key": ["btcpay.user.canmodifyserversettings"],
             "Basic": []
           }
         ]
@@ -8917,9 +8290,7 @@
         }
       ],
       "get": {
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "summary": "Get webhooks of a store",
         "description": "View webhooks of a store",
         "operationId": "Webhooks_GetWebhooks",
@@ -8940,18 +8311,14 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.webhooks.canmodifywebhooks"
-            ],
+            "API_Key": ["btcpay.store.webhooks.canmodifywebhooks"],
             "Basic": []
           }
         ]
       },
       "post": {
         "operationId": "Webhooks_CreateWebhook",
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "summary": "Create a new webhook",
         "description": "Create a new webhook",
         "requestBody": {
@@ -8990,9 +8357,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.webhooks.canmodifywebhooks"
-            ],
+            "API_Key": ["btcpay.store.webhooks.canmodifywebhooks"],
             "Basic": []
           }
         ]
@@ -9008,9 +8373,7 @@
         }
       ],
       "get": {
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "summary": "Get a webhook of a store",
         "description": "View webhook of a store",
         "operationId": "Webhooks_GetWebhook",
@@ -9031,18 +8394,14 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.webhooks.canmodifywebhooks"
-            ],
+            "API_Key": ["btcpay.store.webhooks.canmodifywebhooks"],
             "Basic": []
           }
         ]
       },
       "put": {
         "operationId": "Webhooks_UpdateWebhook",
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "summary": "Update a webhook",
         "description": "Update a webhook",
         "requestBody": {
@@ -9080,18 +8439,14 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.webhooks.canmodifywebhooks"
-            ],
+            "API_Key": ["btcpay.store.webhooks.canmodifywebhooks"],
             "Basic": []
           }
         ]
       },
       "delete": {
         "operationId": "Webhooks_DeleteWebhook",
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "summary": "Delete a webhook",
         "description": "Delete a webhook",
         "responses": {
@@ -9104,9 +8459,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.webhooks.canmodifywebhooks"
-            ],
+            "API_Key": ["btcpay.store.webhooks.canmodifywebhooks"],
             "Basic": []
           }
         ]
@@ -9123,9 +8476,7 @@
       ],
       "get": {
         "operationId": "Webhooks_GetWebhookDeliveries",
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "summary": "Get latest deliveries",
         "description": "List the latest deliveries to the webhook, ordered from the most recent",
         "parameters": [
@@ -9156,9 +8507,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.webhooks.canmodifywebhooks"
-            ],
+            "API_Key": ["btcpay.store.webhooks.canmodifywebhooks"],
             "Basic": []
           }
         ]
@@ -9178,9 +8527,7 @@
       ],
       "get": {
         "operationId": "Webhooks_GetWebhookDelivery",
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "summary": "Get a webhook delivery",
         "description": "Information about a webhook delivery",
         "responses": {
@@ -9200,9 +8547,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.webhooks.canmodifywebhooks"
-            ],
+            "API_Key": ["btcpay.store.webhooks.canmodifywebhooks"],
             "Basic": []
           }
         ]
@@ -9222,9 +8567,7 @@
       ],
       "get": {
         "operationId": "Webhooks_GetWebhookDeliveryRequests",
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "summary": "Get the delivery's request",
         "description": "The delivery's JSON request sent to the endpoint",
         "responses": {
@@ -9248,9 +8591,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.webhooks.canmodifywebhooks"
-            ],
+            "API_Key": ["btcpay.store.webhooks.canmodifywebhooks"],
             "Basic": []
           }
         ]
@@ -9270,9 +8611,7 @@
       ],
       "post": {
         "operationId": "Webhooks_RedeliverWebhookDelivery",
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "summary": "Redeliver the delivery",
         "description": "Redeliver the delivery",
         "responses": {
@@ -9295,9 +8634,7 @@
         },
         "security": [
           {
-            "API_Key": [
-              "btcpay.store.webhooks.canmodifywebhooks"
-            ],
+            "API_Key": ["btcpay.store.webhooks.canmodifywebhooks"],
             "Basic": []
           }
         ]
@@ -9397,18 +8734,8 @@
                 "type": "string",
                 "description": "App view type (e.g., static, cart, etc...)",
                 "example": "Cart",
-                "x-enumNames": [
-                  "Static",
-                  "Cart",
-                  "Light",
-                  "Print"
-                ],
-                "enum": [
-                  "Static",
-                  "Cart",
-                  "Light",
-                  "Print"
-                ],
+                "x-enumNames": ["Static", "Cart", "Light", "Print"],
+                "enum": ["Static", "Cart", "Light", "Print"],
                 "nullable": true
               },
               "showItems": {
@@ -9482,11 +8809,7 @@
                 "items": {
                   "type": "number"
                 },
-                "default": [
-                  15,
-                  18,
-                  20
-                ],
+                "default": [15, 18, 20],
                 "nullable": true
               },
               "notificationUrl": {
@@ -9732,11 +9055,7 @@
                 "items": {
                   "type": "string"
                 },
-                "example": [
-                  "#FF0000",
-                  "#00FF00",
-                  "#0000FF"
-                ],
+                "example": ["#FF0000", "#00FF00", "#0000FF"],
                 "nullable": true
               },
               "htmlLang": {
@@ -9870,16 +9189,8 @@
           },
           "priceType": {
             "type": "string",
-            "x-enumNames": [
-              "Fixed",
-              "Minimum",
-              "Topup"
-            ],
-            "enum": [
-              "Fixed",
-              "Minimum",
-              "Topup"
-            ]
+            "x-enumNames": ["Fixed", "Minimum", "Topup"],
+            "enum": ["Fixed", "Minimum", "Topup"]
           },
           "buyButtonText": {
             "type": "string",
@@ -10043,32 +9354,14 @@
       "InvoiceStatusMark": {
         "type": "string",
         "description": "",
-        "x-enumNames": [
-          "Invalid",
-          "Settled"
-        ],
-        "enum": [
-          "Invalid",
-          "Settled"
-        ]
+        "x-enumNames": ["Invalid", "Settled"],
+        "enum": ["Invalid", "Settled"]
       },
       "InvoiceStatus": {
         "type": "string",
         "description": "The status of the invoice",
-        "x-enumNames": [
-          "Expired",
-          "Invalid",
-          "New",
-          "Processing",
-          "Settled"
-        ],
-        "enum": [
-          "Expired",
-          "Invalid",
-          "New",
-          "Processing",
-          "Settled"
-        ]
+        "x-enumNames": ["Expired", "Invalid", "New", "Processing", "Settled"],
+        "enum": ["Expired", "Invalid", "New", "Processing", "Settled"]
       },
       "InvoiceAdditionalStatus": {
         "type": "string",
@@ -10692,28 +9985,14 @@
       "PaymentStatus": {
         "type": "string",
         "description": "The status of the payment",
-        "x-enumNames": [
-          "Invalid",
-          "Processing",
-          "Settled"
-        ],
-        "enum": [
-          "Invalid",
-          "Processing",
-          "Settled"
-        ]
+        "x-enumNames": ["Invalid", "Processing", "Settled"],
+        "enum": ["Invalid", "Processing", "Settled"]
       },
       "InvoiceType": {
         "type": "string",
         "description": "The type of the invoice",
-        "x-enumNames": [
-          "Standard",
-          "TopUp"
-        ],
-        "enum": [
-          "Standard",
-          "TopUp"
-        ]
+        "x-enumNames": ["Standard", "TopUp"],
+        "enum": ["Standard", "TopUp"]
       },
       "ValidationProblemDetails": {
         "type": "array",
@@ -10766,12 +10045,7 @@
           "LowSpeed",
           "MediumSpeed"
         ],
-        "enum": [
-          "HighSpeed",
-          "LowMediumSpeed",
-          "LowSpeed",
-          "MediumSpeed"
-        ]
+        "enum": ["HighSpeed", "LowMediumSpeed", "LowSpeed", "MediumSpeed"]
       },
       "TimeSpan": {
         "type": "number",
@@ -10827,16 +10101,8 @@
           "type": {
             "type": "string",
             "description": "The timespan of the histogram data",
-            "x-enumNames": [
-              "Month",
-              "Week",
-              "Year"
-            ],
-            "enum": [
-              "Month",
-              "Week",
-              "Year"
-            ],
+            "x-enumNames": ["Month", "Week", "Year"],
+            "enum": ["Month", "Week", "Year"],
             "default": "Week"
           },
           "balance": {
@@ -11048,32 +10314,14 @@
       "LightningInvoiceStatus": {
         "type": "string",
         "description": "",
-        "x-enumNames": [
-          "Expired",
-          "Paid",
-          "Unpaid"
-        ],
-        "enum": [
-          "Expired",
-          "Paid",
-          "Unpaid"
-        ]
+        "x-enumNames": ["Expired", "Paid", "Unpaid"],
+        "enum": ["Expired", "Paid", "Unpaid"]
       },
       "LightningPaymentStatus": {
         "type": "string",
         "description": "",
-        "x-enumNames": [
-          "Complete",
-          "Failed",
-          "Pending",
-          "Unknown"
-        ],
-        "enum": [
-          "Complete",
-          "Failed",
-          "Pending",
-          "Unknown"
-        ]
+        "x-enumNames": ["Complete", "Failed", "Pending", "Unknown"],
+        "enum": ["Complete", "Failed", "Pending", "Unknown"]
       },
       "LightningNodeInformationData": {
         "type": "object",
@@ -11325,10 +10573,7 @@
               "type": "string"
             },
             "description": "List of the notification type identifiers, which should be disabled. Can also be a single item 'all'.",
-            "example": [
-              "newversion",
-              "pluginupdate"
-            ],
+            "example": ["newversion", "pluginupdate"],
             "nullable": false
           }
         }
@@ -11460,12 +10705,7 @@
               },
               "status": {
                 "type": "string",
-                "enum": [
-                  "Pending",
-                  "Completed",
-                  "Processing",
-                  "Expired"
-                ],
+                "enum": ["Pending", "Completed", "Processing", "Expired"],
                 "description": "Represents the status of a payment request:\n* `Pending`: Not enough has been paid or settled.\n* `Completed`: Paid and fully settled.\n* `Expired`: Expired before full settlement.\n* `Processing`: Paid enough, awaiting full settlement.",
                 "nullable": false
               },
@@ -12448,37 +11688,15 @@
             "type": "number",
             "description": "If `existingMnemonic` is not set, a mnemonic is generated using the specified wordCount.",
             "default": 12,
-            "x-enumNames": [
-              12,
-              15,
-              18,
-              21,
-              24
-            ],
-            "enum": [
-              12,
-              15,
-              18,
-              21,
-              24
-            ]
+            "x-enumNames": [12, 15, 18, 21, 24],
+            "enum": [12, 15, 18, 21, 24]
           },
           "scriptPubKeyType": {
             "type": "string",
             "description": "the type of wallet to generate",
             "default": "Segwit",
-            "x-enumNames": [
-              "Legacy",
-              "Segwit",
-              "SegwitP2SH",
-              "TaprootBIP86"
-            ],
-            "enum": [
-              "Legacy",
-              "Segwit",
-              "SegwitP2SH",
-              "TaprootBIP86"
-            ]
+            "x-enumNames": ["Legacy", "Segwit", "SegwitP2SH", "TaprootBIP86"],
+            "enum": ["Legacy", "Segwit", "SegwitP2SH", "TaprootBIP86"]
           }
         }
       },
@@ -12536,14 +11754,8 @@
       },
       "TransactionStatus": {
         "type": "string",
-        "x-enumNames": [
-          "Confirmed",
-          "Unconfirmed"
-        ],
-        "enum": [
-          "Confirmed",
-          "Unconfirmed"
-        ]
+        "x-enumNames": ["Confirmed", "Unconfirmed"],
+        "enum": ["Confirmed", "Unconfirmed"]
       },
       "LabelData": {
         "type": "object",
@@ -12866,9 +12078,7 @@
             "items": {
               "type": "string"
             },
-            "example": [
-              "btcpay.store.canmodifystoresettings"
-            ]
+            "example": ["btcpay.store.canmodifystoresettings"]
           },
           "isServerRole": {
             "description": "Whether this role is at the scope of the store or scope of the server",
@@ -13161,16 +12371,8 @@
       "NetworkFeeMode": {
         "type": "string",
         "description": "Check whether network fee should be added to the invoice if on-chain payment is used. ([More information](https://docs.btcpayserver.org/FAQ/Stores/#add-network-fee-to-invoice-vary-with-mining-fees))",
-        "x-enumNames": [
-          "Always",
-          "MultiplePaymentsOnly",
-          "Never"
-        ],
-        "enum": [
-          "Always",
-          "MultiplePaymentsOnly",
-          "Never"
-        ]
+        "x-enumNames": ["Always", "MultiplePaymentsOnly", "Never"],
+        "enum": ["Always", "MultiplePaymentsOnly", "Never"]
       },
       "ApplicationUserData": {
         "type": "object",
@@ -13896,9 +13098,7 @@
             }
           }
         ],
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -13939,9 +13139,7 @@
             }
           }
         ],
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -13982,9 +13180,7 @@
             }
           }
         ],
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -14025,9 +13221,7 @@
             }
           }
         ],
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -14068,9 +13262,7 @@
             }
           }
         ],
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -14111,9 +13303,7 @@
             }
           }
         ],
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -14154,9 +13344,7 @@
             }
           }
         ],
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -14197,9 +13385,7 @@
             }
           }
         ],
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -14213,11 +13399,7 @@
                   },
                   "status": {
                     "type": "string",
-                    "enum": [
-                      "Completed",
-                      "Expired",
-                      "Pending"
-                    ],
+                    "enum": ["Completed", "Expired", "Pending"],
                     "description": "The status of the payment request",
                     "nullable": false
                   }
@@ -14257,9 +13439,7 @@
             }
           }
         ],
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -14273,11 +13453,7 @@
                   },
                   "status": {
                     "type": "string",
-                    "enum": [
-                      "Completed",
-                      "Expired",
-                      "Pending"
-                    ],
+                    "enum": ["Completed", "Expired", "Pending"],
                     "description": "The status of the payment request",
                     "nullable": false
                   }
@@ -14317,9 +13493,7 @@
             }
           }
         ],
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -14333,11 +13507,7 @@
                   },
                   "status": {
                     "type": "string",
-                    "enum": [
-                      "Completed",
-                      "Expired",
-                      "Pending"
-                    ],
+                    "enum": ["Completed", "Expired", "Pending"],
                     "description": "The status of the payment request",
                     "nullable": false
                   }
@@ -14377,9 +13547,7 @@
             }
           }
         ],
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -14393,11 +13561,7 @@
                   },
                   "status": {
                     "type": "string",
-                    "enum": [
-                      "Completed",
-                      "Expired",
-                      "Pending"
-                    ],
+                    "enum": ["Completed", "Expired", "Pending"],
                     "description": "The status of the payment request",
                     "nullable": false
                   }
@@ -14437,9 +13601,7 @@
             }
           }
         ],
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -14495,9 +13657,7 @@
             }
           }
         ],
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -14553,9 +13713,7 @@
             }
           }
         ],
-        "tags": [
-          "Webhooks"
-        ],
+        "tags": ["Webhooks"],
         "requestBody": {
           "content": {
             "application/json": {

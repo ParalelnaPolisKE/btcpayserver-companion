@@ -3,9 +3,9 @@
  * Simple SVG-based charts without external dependencies
  */
 
-import React, { useMemo } from 'react';
-import { formatCurrency, formatCompactNumber } from '../../utils/formatters';
-import { CHART_COLORS } from '../../utils/constants';
+import { useMemo } from "react";
+import { CHART_COLORS } from "../../utils/constants";
+import { formatCompactNumber, formatCurrency } from "../../utils/formatters";
 
 interface ChartData {
   date: string;
@@ -15,7 +15,7 @@ interface ChartData {
 
 interface PaymentChartProps {
   data: ChartData[];
-  type?: 'line' | 'bar' | 'area';
+  type?: "line" | "bar" | "area";
   currency?: string;
   height?: number;
   showCount?: boolean;
@@ -23,8 +23,8 @@ interface PaymentChartProps {
 
 export function PaymentChart({
   data,
-  type = 'line',
-  currency = 'USD',
+  type = "line",
+  currency = "USD",
   height = 350,
   showCount = false,
 }: PaymentChartProps) {
@@ -35,36 +35,57 @@ export function PaymentChart({
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
-    const maxAmount = Math.max(...data.map(d => d.amount));
-    const minAmount = Math.min(...data.map(d => d.amount));
+    const maxAmount = Math.max(...data.map((d) => d.amount));
+    const minAmount = Math.min(...data.map((d) => d.amount));
     const yScale = (value: number) => {
       const range = maxAmount - minAmount || 1;
       return innerHeight - ((value - minAmount) / range) * innerHeight;
     };
 
-    const xScale = (index: number) => (index / (data.length - 1 || 1)) * innerWidth;
+    const xScale = (index: number) =>
+      (index / (data.length - 1 || 1)) * innerWidth;
 
-    return { margin, width, innerWidth, innerHeight, yScale, xScale, maxAmount, minAmount };
+    return {
+      margin,
+      width,
+      innerWidth,
+      innerHeight,
+      yScale,
+      xScale,
+      maxAmount,
+      minAmount,
+    };
   }, [data, height]);
 
-  const { margin, width, innerWidth, innerHeight, yScale, xScale, maxAmount, minAmount } = chartDimensions;
+  const {
+    margin,
+    width,
+    innerWidth,
+    innerHeight,
+    yScale,
+    xScale,
+    maxAmount,
+    minAmount,
+  } = chartDimensions;
 
   // Generate path for line/area charts
   const linePath = useMemo(() => {
-    if (data.length === 0) return '';
-    
+    if (data.length === 0) return "";
+
     const points = data.map((d, i) => `${xScale(i)},${yScale(d.amount)}`);
-    return `M ${points.join(' L ')}`;
+    return `M ${points.join(" L ")}`;
   }, [data, xScale, yScale]);
 
   // Generate area path
   const areaPath = useMemo(() => {
-    if (data.length === 0 || type !== 'area') return '';
-    
+    if (data.length === 0 || type !== "area") return "";
+
     const topPoints = data.map((d, i) => `${xScale(i)},${yScale(d.amount)}`);
-    const bottomPoints = data.map((_, i) => `${xScale(i)},${innerHeight}`).reverse();
-    
-    return `M ${topPoints.join(' L ')} L ${bottomPoints.join(' L ')} Z`;
+    const bottomPoints = data
+      .map((_, i) => `${xScale(i)},${innerHeight}`)
+      .reverse();
+
+    return `M ${topPoints.join(" L ")} L ${bottomPoints.join(" L ")} Z`;
   }, [data, type, xScale, yScale, innerHeight]);
 
   // Render Y-axis labels
@@ -131,11 +152,12 @@ export function PaymentChart({
           <g className="text-muted-foreground text-xs">
             {data.map((d, i) => {
               // Show fewer labels if there are many data points
-              if (data.length > 10 && i % Math.ceil(data.length / 10) !== 0) return null;
-              
+              if (data.length > 10 && i % Math.ceil(data.length / 10) !== 0)
+                return null;
+
               const date = new Date(d.date);
               const label = `${date.getMonth() + 1}/${date.getDate()}`;
-              
+
               return (
                 <text
                   key={i}
@@ -151,13 +173,13 @@ export function PaymentChart({
           </g>
 
           {/* Chart content */}
-          {type === 'bar' && (
+          {type === "bar" && (
             <g>
               {data.map((d, i) => {
-                const barWidth = innerWidth / data.length * 0.8;
+                const barWidth = (innerWidth / data.length) * 0.8;
                 const x = xScale(i) - barWidth / 2;
                 const barHeight = innerHeight - yScale(d.amount);
-                
+
                 return (
                   <rect
                     key={i}
@@ -176,13 +198,9 @@ export function PaymentChart({
             </g>
           )}
 
-          {type === 'area' && (
+          {type === "area" && (
             <>
-              <path
-                d={areaPath}
-                fill={CHART_COLORS.primary}
-                opacity={0.3}
-              />
+              <path d={areaPath} fill={CHART_COLORS.primary} opacity={0.3} />
               <path
                 d={linePath}
                 fill="none"
@@ -192,7 +210,7 @@ export function PaymentChart({
             </>
           )}
 
-          {type === 'line' && (
+          {type === "line" && (
             <>
               <path
                 d={linePath}
@@ -224,7 +242,13 @@ export function PaymentChart({
 /**
  * Mini chart for compact displays
  */
-export function MiniChart({ data, color = CHART_COLORS.primary }: { data: number[]; color?: string }) {
+export function MiniChart({
+  data,
+  color = CHART_COLORS.primary,
+}: {
+  data: number[];
+  color?: string;
+}) {
   if (data.length === 0) return null;
 
   const width = 100;
@@ -233,20 +257,17 @@ export function MiniChart({ data, color = CHART_COLORS.primary }: { data: number
   const min = Math.min(...data);
   const range = max - min || 1;
 
-  const points = data.map((value, index) => {
-    const x = (index / (data.length - 1)) * width;
-    const y = height - ((value - min) / range) * height;
-    return `${x},${y}`;
-  }).join(' ');
+  const points = data
+    .map((value, index) => {
+      const x = (index / (data.length - 1)) * width;
+      const y = height - ((value - min) / range) * height;
+      return `${x},${y}`;
+    })
+    .join(" ");
 
   return (
     <svg width={width} height={height} className="inline-block">
-      <polyline
-        points={points}
-        fill="none"
-        stroke={color}
-        strokeWidth={1.5}
-      />
+      <polyline points={points} fill="none" stroke={color} strokeWidth={1.5} />
     </svg>
   );
 }
@@ -254,11 +275,11 @@ export function MiniChart({ data, color = CHART_COLORS.primary }: { data: number
 /**
  * Sparkline chart for inline displays
  */
-export function Sparkline({ 
-  data, 
-  width = 100, 
-  height = 30, 
-  color = CHART_COLORS.primary 
+export function Sparkline({
+  data,
+  width = 100,
+  height = 30,
+  color = CHART_COLORS.primary,
 }: {
   data: number[];
   width?: number;
@@ -271,20 +292,17 @@ export function Sparkline({
   const min = Math.min(...data);
   const range = max - min || 1;
 
-  const points = data.map((value, index) => {
-    const x = (index / (data.length - 1)) * width;
-    const y = height - ((value - min) / range) * height;
-    return `${x},${y}`;
-  }).join(' ');
+  const points = data
+    .map((value, index) => {
+      const x = (index / (data.length - 1)) * width;
+      const y = height - ((value - min) / range) * height;
+      return `${x},${y}`;
+    })
+    .join(" ");
 
   return (
     <svg width={width} height={height} className="inline-block">
-      <polyline
-        points={points}
-        fill="none"
-        stroke={color}
-        strokeWidth={1}
-      />
+      <polyline points={points} fill="none" stroke={color} strokeWidth={1} />
     </svg>
   );
 }

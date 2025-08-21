@@ -1,4 +1,4 @@
-import { Package } from 'lucide-react';
+import { Package } from "lucide-react";
 
 interface TopProductsProps {
   products: Array<{
@@ -8,7 +8,7 @@ interface TopProductsProps {
 }
 
 export function TopProducts({ products }: TopProductsProps) {
-  const maxCount = Math.max(...products.map(p => p.count));
+  const maxCount = Math.max(...products.map((p) => p.count));
 
   return (
     <div className="space-y-4">
@@ -29,7 +29,7 @@ export function TopProducts({ products }: TopProductsProps) {
               </span>
             </div>
             <div className="relative h-2 bg-muted rounded-full overflow-hidden">
-              <div 
+              <div
                 className="absolute inset-y-0 left-0 bg-primary rounded-full transition-all duration-500"
                 style={{ width: `${(product.count / maxCount) * 100}%` }}
               />

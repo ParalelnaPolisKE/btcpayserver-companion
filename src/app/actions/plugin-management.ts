@@ -1,7 +1,7 @@
-'use server';
+"use server";
 
-import { PluginExtractor } from '@/services/plugin-extractor';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath } from "next/cache";
+import { PluginExtractor } from "@/services/plugin-extractor";
 
 export interface PluginRemovalResult {
   success: boolean;
@@ -13,34 +13,36 @@ export interface PluginRemovalResult {
  * Completely removes a plugin from the system (files + database entry)
  * This is a server action that handles the filesystem cleanup
  */
-export async function removePluginCompletely(pluginId: string): Promise<PluginRemovalResult> {
+export async function removePluginCompletely(
+  pluginId: string,
+): Promise<PluginRemovalResult> {
   try {
     // Use the PluginExtractor to remove plugin files
     const extractor = new PluginExtractor();
     const result = await extractor.removePlugin(pluginId);
-    
+
     if (!result.success) {
       return {
         success: false,
         message: result.message,
-        error: result.message
+        error: result.message,
       };
     }
-    
+
     // Revalidate the apps page to reflect the removal
-    revalidatePath('/apps');
+    revalidatePath("/apps");
     revalidatePath(`/apps/${pluginId}`);
-    
+
     return {
       success: true,
-      message: `Plugin "${result.manifest?.name || pluginId}" has been completely removed`
+      message: `Plugin "${result.manifest?.name || pluginId}" has been completely removed`,
     };
   } catch (error) {
-    console.error('Failed to remove plugin:', error);
+    console.error("Failed to remove plugin:", error);
     return {
       success: false,
-      message: 'Failed to remove plugin',
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
+      message: "Failed to remove plugin",
+      error: error instanceof Error ? error.message : "Unknown error occurred",
     };
   }
 }
@@ -48,12 +50,15 @@ export async function removePluginCompletely(pluginId: string): Promise<PluginRe
 /**
  * Checks if a plugin can be uninstalled based on its source
  */
-export async function canUninstallPlugin(pluginId: string, source: string): Promise<boolean> {
+export async function canUninstallPlugin(
+  _pluginId: string,
+  source: string,
+): Promise<boolean> {
   // Built-in plugins cannot be uninstalled
-  if (source === 'builtin') {
+  if (source === "builtin") {
     return false;
   }
-  
+
   // Uploaded and marketplace plugins can be uninstalled
   return true;
 }

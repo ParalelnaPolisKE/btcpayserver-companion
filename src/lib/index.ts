@@ -1,3 +1,3 @@
-export * from './plugin-registry';
-export * as db from './indexeddb';
-export * from './env';
+export * from "./env";
+export * as db from "./indexeddb";
+export * from "./plugin-registry";

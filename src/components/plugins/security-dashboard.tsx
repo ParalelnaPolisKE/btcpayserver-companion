@@ -1,18 +1,35 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, AlertTriangle, CheckCircle, XCircle, Activity, Lock, Eye } from 'lucide-react';
-import { getSecurityMonitor, SecurityEvent } from '@/services/plugin-security-monitor';
-import { usePlugins } from '@/contexts/plugins-context';
+import {
+  Activity,
+  AlertTriangle,
+  CheckCircle,
+  Eye,
+  Lock,
+  Shield,
+  XCircle,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { usePlugins } from "@/contexts/plugins-context";
+import {
+  getSecurityMonitor,
+  type SecurityEvent,
+} from "@/services/plugin-security-monitor";
 
 export function PluginSecurityDashboard() {
   const [events, setEvents] = useState<SecurityEvent[]>([]);
-  const [selectedPlugin, setSelectedPlugin] = useState<string | null>(null);
+  const [_selectedPlugin, setSelectedPlugin] = useState<string | null>(null);
   const { installedPlugins } = usePlugins();
   const monitor = getSecurityMonitor();
 
@@ -22,16 +39,16 @@ export function PluginSecurityDashboard() {
 
     // Subscribe to new events
     const unsubscribe = monitor.subscribe((event) => {
-      setEvents(prev => [...prev.slice(-99), event]);
+      setEvents((prev) => [...prev.slice(-99), event]);
     });
 
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, [monitor.getEvents, monitor.subscribe]);
 
   const getPluginEvents = (pluginId: string) => {
-    return events.filter(e => e.pluginId === pluginId);
+    return events.filter((e) => e.pluginId === pluginId);
   };
 
   const getPluginMetrics = (pluginId: string) => {
@@ -40,25 +57,35 @@ export function PluginSecurityDashboard() {
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'text-red-600 bg-red-100';
-      case 'high': return 'text-orange-600 bg-orange-100';
-      case 'medium': return 'text-yellow-600 bg-yellow-100';
-      case 'low': return 'text-blue-600 bg-blue-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case "critical":
+        return "text-red-600 bg-red-100";
+      case "high":
+        return "text-orange-600 bg-orange-100";
+      case "medium":
+        return "text-yellow-600 bg-yellow-100";
+      case "low":
+        return "text-blue-600 bg-blue-100";
+      default:
+        return "text-gray-600 bg-gray-100";
     }
   };
 
   const getEventTypeIcon = (type: string) => {
     switch (type) {
-      case 'violation': return <XCircle className="h-4 w-4 text-red-500" />;
-      case 'suspicious': return <AlertTriangle className="h-4 w-4 text-orange-500" />;
-      case 'blocked': return <Lock className="h-4 w-4 text-red-500" />;
-      case 'warning': return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
-      default: return <Activity className="h-4 w-4 text-gray-500" />;
+      case "violation":
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      case "suspicious":
+        return <AlertTriangle className="h-4 w-4 text-orange-500" />;
+      case "blocked":
+        return <Lock className="h-4 w-4 text-red-500" />;
+      case "warning":
+        return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+      default:
+        return <Activity className="h-4 w-4 text-gray-500" />;
     }
   };
 
-  const criticalEvents = events.filter(e => e.severity === 'critical');
+  const criticalEvents = events.filter((e) => e.severity === "critical");
   const recentEvents = events.slice(-10).reverse();
 
   return (
@@ -67,12 +94,14 @@ export function PluginSecurityDashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Security Status</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Security Status
+            </CardTitle>
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {criticalEvents.length === 0 ? 'Secure' : 'At Risk'}
+              {criticalEvents.length === 0 ? "Secure" : "At Risk"}
             </div>
             <p className="text-xs text-muted-foreground">
               {criticalEvents.length} critical issues
@@ -87,20 +116,20 @@ export function PluginSecurityDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{events.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Last 24 hours
-            </p>
+            <p className="text-xs text-muted-foreground">Last 24 hours</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Blocked Requests</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Blocked Requests
+            </CardTitle>
             <Lock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {events.filter(e => e.type === 'blocked').length}
+              {events.filter((e) => e.type === "blocked").length}
             </div>
             <p className="text-xs text-muted-foreground">
               Malicious attempts blocked
@@ -110,12 +139,14 @@ export function PluginSecurityDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Plugins</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Active Plugins
+            </CardTitle>
             <Eye className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {installedPlugins.filter(p => p.config.enabled).length}
+              {installedPlugins.filter((p) => p.config.enabled).length}
             </div>
             <p className="text-xs text-muted-foreground">
               {installedPlugins.length} total installed
@@ -130,8 +161,9 @@ export function PluginSecurityDashboard() {
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Critical Security Issues Detected</AlertTitle>
           <AlertDescription>
-            {criticalEvents.length} critical security {criticalEvents.length === 1 ? 'issue' : 'issues'} detected. 
-            Review and take action immediately.
+            {criticalEvents.length} critical security{" "}
+            {criticalEvents.length === 1 ? "issue" : "issues"} detected. Review
+            and take action immediately.
           </AlertDescription>
         </Alert>
       )}
@@ -155,7 +187,9 @@ export function PluginSecurityDashboard() {
             <CardContent>
               <div className="space-y-2">
                 {recentEvents.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No security events recorded</p>
+                  <p className="text-sm text-muted-foreground">
+                    No security events recorded
+                  </p>
                 ) : (
                   recentEvents.map((event) => (
                     <div
@@ -173,7 +207,9 @@ export function PluginSecurityDashboard() {
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
                           <span>Plugin: {event.pluginId}</span>
                           <span>Category: {event.category}</span>
-                          <span>{new Date(event.timestamp).toLocaleString()}</span>
+                          <span>
+                            {new Date(event.timestamp).toLocaleString()}
+                          </span>
                         </div>
                         {event.details && (
                           <details className="text-xs">
@@ -207,8 +243,10 @@ export function PluginSecurityDashboard() {
                 {installedPlugins.map((plugin) => {
                   const pluginEvents = getPluginEvents(plugin.pluginId);
                   const metrics = getPluginMetrics(plugin.pluginId);
-                  const hasCritical = pluginEvents.some(e => e.severity === 'critical');
-                  
+                  const hasCritical = pluginEvents.some(
+                    (e) => e.severity === "critical",
+                  );
+
                   return (
                     <div
                       key={plugin.pluginId}
@@ -269,28 +307,39 @@ export function PluginSecurityDashboard() {
                 {installedPlugins.map((plugin) => (
                   <div key={plugin.pluginId} className="space-y-2">
                     <h4 className="font-medium">{plugin.manifest.name}</h4>
-                    {plugin.manifest.requiredPermissions && plugin.manifest.requiredPermissions.length > 0 ? (
+                    {plugin.manifest.requiredPermissions &&
+                    plugin.manifest.requiredPermissions.length > 0 ? (
                       <div className="grid gap-2">
-                        {plugin.manifest.requiredPermissions.map((perm, idx) => (
-                          <div
-                            key={idx}
-                            className="flex items-start space-x-2 text-sm"
-                          >
-                            <Badge
-                              variant={perm.required ? "default" : "secondary"}
-                              className="mt-0.5"
+                        {plugin.manifest.requiredPermissions.map(
+                          (perm, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-start space-x-2 text-sm"
                             >
-                              {perm.required ? 'Required' : 'Optional'}
-                            </Badge>
-                            <div className="flex-1">
-                              <p className="font-mono text-xs">{perm.permission}</p>
-                              <p className="text-muted-foreground">{perm.description}</p>
+                              <Badge
+                                variant={
+                                  perm.required ? "default" : "secondary"
+                                }
+                                className="mt-0.5"
+                              >
+                                {perm.required ? "Required" : "Optional"}
+                              </Badge>
+                              <div className="flex-1">
+                                <p className="font-mono text-xs">
+                                  {perm.permission}
+                                </p>
+                                <p className="text-muted-foreground">
+                                  {perm.description}
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ),
+                        )}
                       </div>
                     ) : (
-                      <p className="text-sm text-muted-foreground">No permissions required</p>
+                      <p className="text-sm text-muted-foreground">
+                        No permissions required
+                      </p>
                     )}
                   </div>
                 ))}
@@ -305,9 +354,9 @@ export function PluginSecurityDashboard() {
         <Button
           onClick={() => {
             const report = monitor.generateReport();
-            const blob = new Blob([report], { type: 'text/markdown' });
+            const blob = new Blob([report], { type: "text/markdown" });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
+            const a = document.createElement("a");
             a.href = url;
             a.download = `security-report-${new Date().toISOString()}.md`;
             a.click();

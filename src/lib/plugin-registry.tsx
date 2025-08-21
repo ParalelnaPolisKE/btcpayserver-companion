@@ -1,43 +1,52 @@
-'use client';
+"use client";
 
-import React from 'react';
-import dynamic from 'next/dynamic';
+import type React from "react";
+import { lazy } from "react";
 
-// Map of known plugin IDs to their import paths
-// This is client-side so we can't dynamically scan the filesystem
-// Instead, we use a convention-based approach where all plugins follow the same structure
-const PLUGIN_BASE_PATH = '@bps-companion/plugins';
+// Lazy load plugin components
+const FinancialAnalysisApp = lazy(
+  () => import("../../plugins/financial-analysis/FinancialAnalysisWrapper"),
+);
+const FinancialAnalysisSettings = lazy(
+  () => import("../../plugins/financial-analysis/FinancialAnalysisSettings"),
+);
+const EventCheckInApp = lazy(() => import("../../plugins/event-checkin/index"));
+const EventCheckInSettings = lazy(
+  () => import("../../plugins/event-checkin/settings"),
+);
+const PluginTemplateApp = lazy(
+  () => import("../../plugins/plugin-template/index"),
+);
+const PluginTemplateSettings = lazy(
+  () => import("../../plugins/plugin-template/components/PaymentSettings"),
+);
 
-// Get a plugin component by ID with dynamic import
-export function getPluginComponent(pluginId: string): React.ComponentType<any> | null {
-  // Use convention: all plugins have components/FinancialAnalysisApp.tsx as their main component
-  // or they export a default component from index.tsx
-  try {
-    const Component = dynamic(
-      () => import(`${PLUGIN_BASE_PATH}/${pluginId}/index`).then(mod => mod.default || mod.FinancialAnalysisApp),
-      {
-        ssr: false
-      }
-    );
-    return Component;
-  } catch (error) {
-    console.error(`Failed to load plugin component for ${pluginId}:`, error);
-    return null;
-  }
+// Map of plugin IDs to their components
+const pluginComponents: Record<string, React.ComponentType<any>> = {
+  "financial-analysis": FinancialAnalysisApp,
+  "event-checkin": EventCheckInApp,
+  "payment-analytics-template": PluginTemplateApp,
+};
+
+// Map of plugin IDs to their settings components
+const pluginSettingsComponents: Record<string, React.ComponentType<any>> = {
+  "financial-analysis": FinancialAnalysisSettings,
+  "event-checkin": EventCheckInSettings,
+  "payment-analytics-template": PluginTemplateSettings,
+};
+
+// Get a plugin component by ID
+export function getPluginComponent(
+  pluginId: string,
+): React.ComponentType<any> | null {
+  console.log(`Loading plugin component: ${pluginId}`);
+  return pluginComponents[pluginId] || null;
 }
 
-// Get a plugin settings component by ID with dynamic import
-export function getPluginSettingsComponent(pluginId: string): React.ComponentType<any> | null {
-  try {
-    const Component = dynamic(
-      () => import(`${PLUGIN_BASE_PATH}/${pluginId}/index`).then(mod => mod.FinancialAnalysisSettings),
-      {
-        ssr: false
-      }
-    );
-    return Component;
-  } catch (error) {
-    console.error(`Failed to load plugin settings component for ${pluginId}:`, error);
-    return null;
-  }
+// Get a plugin settings component by ID
+export function getPluginSettingsComponent(
+  pluginId: string,
+): React.ComponentType<any> | null {
+  console.log(`Loading plugin settings component: ${pluginId}`);
+  return pluginSettingsComponents[pluginId] || null;
 }

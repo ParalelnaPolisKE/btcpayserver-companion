@@ -1,41 +1,47 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Store, ExternalLink, Settings } from "lucide-react";
+import { ExternalLink, Plus, Settings, Store } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default function StoresPage() {
   const [stores] = useState([
     {
-      id: '1',
-      name: 'Main Store',
-      url: 'https://mainstore.btcpayserver.com',
-      status: 'active',
-      currency: 'BTC',
+      id: "1",
+      name: "Main Store",
+      url: "https://mainstore.btcpayserver.com",
+      status: "active",
+      currency: "BTC",
       invoices: 1234,
-      revenue: '$45,231.89'
+      revenue: "$45,231.89",
     },
     {
-      id: '2',
-      name: 'Event Tickets Store',
-      url: 'https://events.btcpayserver.com',
-      status: 'active',
-      currency: 'BTC',
+      id: "2",
+      name: "Event Tickets Store",
+      url: "https://events.btcpayserver.com",
+      status: "active",
+      currency: "BTC",
       invoices: 456,
-      revenue: '$12,456.78'
+      revenue: "$12,456.78",
     },
     {
-      id: '3',
-      name: 'Test Store',
-      url: 'https://test.btcpayserver.com',
-      status: 'inactive',
-      currency: 'BTC',
+      id: "3",
+      name: "Test Store",
+      url: "https://test.btcpayserver.com",
+      status: "inactive",
+      currency: "BTC",
       invoices: 12,
-      revenue: '$123.45'
-    }
+      revenue: "$123.45",
+    },
   ]);
 
   return (
@@ -43,14 +49,16 @@ export default function StoresPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Stores</h1>
-          <p className="text-muted-foreground">Manage your BTCPay Server stores</p>
+          <p className="text-muted-foreground">
+            Manage your BTCPay Server stores
+          </p>
         </div>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
           Add Store
         </Button>
       </div>
-      
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {stores.map((store) => (
           <Card key={store.id}>
@@ -60,7 +68,9 @@ export default function StoresPage() {
                   <Store className="h-5 w-5" />
                   <CardTitle className="text-lg">{store.name}</CardTitle>
                 </div>
-                <Badge variant={store.status === 'active' ? 'default' : 'secondary'}>
+                <Badge
+                  variant={store.status === "active" ? "default" : "secondary"}
+                >
                   {store.status}
                 </Badge>
               </div>

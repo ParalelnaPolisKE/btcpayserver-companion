@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "BTCPayServer Companion",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "identifier": "com.michaltakac.btcpayserver-companion",
   "build": {
     "frontendDist": "../out",
@@ -48,7 +48,11 @@
     },
     "linux": {
       "deb": {
-        "depends": ["webkit2gtk-4.1", "libgtk-3-0", "libayatana-appindicator3-1"],
+        "depends": [
+          "webkit2gtk-4.1",
+          "libgtk-3-0",
+          "libayatana-appindicator3-1"
+        ],
         "section": "utils",
         "priority": "optional",
         "files": {}

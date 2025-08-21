@@ -3,22 +3,26 @@
  * Displays a list of payment transactions with details
  */
 
-import React from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { 
+import { useQuery } from "@tanstack/react-query";
+import { ChevronRight, ExternalLink } from "lucide-react";
+import React from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { ChevronRight, ExternalLink } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { formatCurrency, formatRelativeTime, truncate } from '../../utils/formatters';
-import { LoadingSkeleton } from '../LoadingSkeleton';
-import type { Payment, TimePeriod } from '../../types';
+} from "@/components/ui/table";
+import type { Payment, TimePeriod } from "../../types";
+import {
+  formatCurrency,
+  formatRelativeTime,
+  truncate,
+} from "../../utils/formatters";
+import { LoadingSkeleton } from "../LoadingSkeleton";
 
 interface TransactionListProps {
   timePeriod?: TimePeriod;
@@ -28,7 +32,7 @@ interface TransactionListProps {
 }
 
 export function TransactionList({
-  timePeriod = '30d',
+  timePeriod = "30d",
   limit = 10,
   showPagination = true,
   compact = false,
@@ -37,7 +41,7 @@ export function TransactionList({
 
   // Fetch transactions
   const { data, isLoading, error } = useQuery({
-    queryKey: ['transactions', timePeriod, page, limit],
+    queryKey: ["transactions", timePeriod, page, limit],
     queryFn: async () => {
       // This would call your API service
       // For now, returning mock data
@@ -89,14 +93,12 @@ export function TransactionList({
                 {truncate(tx.id, 12)}
               </TableCell>
               <TableCell className="font-medium">
-                {formatCurrency(parseFloat(tx.amount), tx.currency)}
+                {formatCurrency(Number.parseFloat(tx.amount), tx.currency)}
               </TableCell>
               <TableCell>
                 <StatusBadge status={tx.status} />
               </TableCell>
-              <TableCell>
-                {tx.paymentMethod || 'Unknown'}
-              </TableCell>
+              <TableCell>{tx.paymentMethod || "Unknown"}</TableCell>
               <TableCell className="text-muted-foreground">
                 {formatRelativeTime(tx.createdTime)}
               </TableCell>
@@ -119,7 +121,7 @@ export function TransactionList({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setPage(p => Math.max(1, p - 1))}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
             >
               Previous
@@ -127,7 +129,7 @@ export function TransactionList({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setPage(p => p + 1)}
+              onClick={() => setPage((p) => p + 1)}
               disabled={!data.hasMore}
             >
               Next
@@ -151,7 +153,7 @@ function CompactTransactionList({ transactions }: { transactions: Payment[] }) {
             <StatusIndicator status={tx.status} />
             <div>
               <p className="text-sm font-medium">
-                {formatCurrency(parseFloat(tx.amount), tx.currency)}
+                {formatCurrency(Number.parseFloat(tx.amount), tx.currency)}
               </p>
               <p className="text-xs text-muted-foreground">
                 {formatRelativeTime(tx.createdTime)}
@@ -170,74 +172,73 @@ function CompactTransactionList({ transactions }: { transactions: Payment[] }) {
 /**
  * Status badge component
  */
-function StatusBadge({ status }: { status: Payment['status'] }) {
+function StatusBadge({ status }: { status: Payment["status"] }) {
   const getVariant = () => {
     switch (status) {
-      case 'Settled':
-        return 'default';
-      case 'Processing':
-        return 'secondary';
-      case 'New':
-        return 'outline';
-      case 'Expired':
-      case 'Invalid':
-        return 'destructive';
+      case "Settled":
+        return "default";
+      case "Processing":
+        return "secondary";
+      case "New":
+        return "outline";
+      case "Expired":
+      case "Invalid":
+        return "destructive";
       default:
-        return 'outline';
+        return "outline";
     }
   };
 
-  return (
-    <Badge variant={getVariant()}>
-      {status}
-    </Badge>
-  );
+  return <Badge variant={getVariant()}>{status}</Badge>;
 }
 
 /**
  * Status indicator dot
  */
-function StatusIndicator({ status }: { status: Payment['status'] }) {
+function StatusIndicator({ status }: { status: Payment["status"] }) {
   const getColor = () => {
     switch (status) {
-      case 'Settled':
-        return 'bg-green-500';
-      case 'Processing':
-        return 'bg-yellow-500';
-      case 'New':
-        return 'bg-blue-500';
-      case 'Expired':
-        return 'bg-gray-500';
-      case 'Invalid':
-        return 'bg-red-500';
+      case "Settled":
+        return "bg-green-500";
+      case "Processing":
+        return "bg-yellow-500";
+      case "New":
+        return "bg-blue-500";
+      case "Expired":
+        return "bg-gray-500";
+      case "Invalid":
+        return "bg-red-500";
       default:
-        return 'bg-gray-500';
+        return "bg-gray-500";
     }
   };
 
-  return (
-    <div className={`h-2 w-2 rounded-full ${getColor()}`} />
-  );
+  return <div className={`h-2 w-2 rounded-full ${getColor()}`} />;
 }
 
 // Mock data fetcher - replace with actual API call
 async function fetchTransactions(
-  timePeriod: TimePeriod,
+  _timePeriod: TimePeriod,
   page: number,
-  limit: number
+  limit: number,
 ): Promise<{ transactions: Payment[]; total: number; hasMore: boolean }> {
   // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 500));
+  await new Promise((resolve) => setTimeout(resolve, 500));
 
   // Generate mock transactions
   const transactions: Payment[] = Array.from({ length: limit }, (_, i) => ({
     id: `inv_${Math.random().toString(36).substr(2, 9)}`,
-    storeId: 'store_123',
+    storeId: "store_123",
     amount: (Math.random() * 1000).toFixed(2),
-    currency: 'USD',
-    status: ['Settled', 'Processing', 'New', 'Expired', 'Invalid'][Math.floor(Math.random() * 5)] as Payment['status'],
-    createdTime: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 86400 * 30),
-    paymentMethod: ['Bitcoin', 'Lightning', 'Credit Card'][Math.floor(Math.random() * 3)],
+    currency: "USD",
+    status: ["Settled", "Processing", "New", "Expired", "Invalid"][
+      Math.floor(Math.random() * 5)
+    ] as Payment["status"],
+    createdTime:
+      Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 86400 * 30),
+    paymentMethod: ["Bitcoin", "Lightning", "Credit Card"][
+      Math.floor(Math.random() * 3)
+    ],
     buyer: {
       email: `user${i}@example.com`,
       name: `User ${i}`,

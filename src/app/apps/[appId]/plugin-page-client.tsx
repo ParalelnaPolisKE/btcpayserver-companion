@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import PluginRenderer from './plugin-renderer';
-import { AvailablePlugin } from '@/app/actions/plugins';
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import type { AvailablePlugin } from "@/app/actions/plugins";
+import PluginRenderer from "./plugin-renderer";
 
 interface PluginPageClientProps {
   appId: string;
@@ -12,26 +12,25 @@ interface PluginPageClientProps {
 
 function PluginPageContent({ appId, manifest }: PluginPageClientProps) {
   const searchParams = useSearchParams();
-  const route = searchParams.get('route') || '/';
-  
-  return (
-    <PluginRenderer 
-      pluginId={appId}
-      manifest={manifest}
-      route={route}
-    />
-  );
+  const route = searchParams.get("route") || "/";
+
+  return <PluginRenderer pluginId={appId} manifest={manifest} route={route} />;
 }
 
-export default function PluginPageClient({ appId, manifest }: PluginPageClientProps) {
+export default function PluginPageClient({
+  appId,
+  manifest,
+}: PluginPageClientProps) {
   return (
-    <Suspense fallback={
-      <div className="p-4 md:p-6">
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">Loading...</p>
+    <Suspense
+      fallback={
+        <div className="p-4 md:p-6">
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Loading...</p>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <PluginPageContent appId={appId} manifest={manifest} />
     </Suspense>
   );

@@ -3,18 +3,18 @@
  * Demonstrates React Query integration and data fetching patterns
  */
 
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
-import { fetchInvoices, fetchAnalytics } from '../services/api';
-import type { AnalyticsData, TimePeriod } from '../types';
-import { POLLING_INTERVALS } from '../utils/constants';
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { fetchAnalytics, fetchInvoices } from "../services/api";
+import type { TimePeriod } from "../types";
+import { POLLING_INTERVALS } from "../utils/constants";
 
-export function usePaymentData(timePeriod: TimePeriod = '30d') {
+export function usePaymentData(timePeriod: TimePeriod = "30d") {
   const queryClient = useQueryClient();
 
   // Main data query
   const query = useQuery({
-    queryKey: ['payment-analytics', timePeriod],
+    queryKey: ["payment-analytics", timePeriod],
     queryFn: async () => {
       const invoices = await fetchInvoices(timePeriod);
       const analytics = await fetchAnalytics(invoices);
@@ -57,12 +57,12 @@ export function usePaymentData(timePeriod: TimePeriod = '30d') {
     }
 
     // Add event listener
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     // Cleanup
     return () => {
       stopPolling();
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [query]);
 
@@ -70,18 +70,18 @@ export function usePaymentData(timePeriod: TimePeriod = '30d') {
   useEffect(() => {
     const prefetchNextPeriod = async () => {
       const nextPeriods: Record<TimePeriod, TimePeriod> = {
-        '24h': '7d',
-        '7d': '30d',
-        '30d': '90d',
-        '90d': '1y',
-        '1y': 'all',
-        'all': 'all',
+        "24h": "7d",
+        "7d": "30d",
+        "30d": "90d",
+        "90d": "1y",
+        "1y": "all",
+        all: "all",
       };
 
       const nextPeriod = nextPeriods[timePeriod];
       if (nextPeriod !== timePeriod) {
         await queryClient.prefetchQuery({
-          queryKey: ['payment-analytics', nextPeriod],
+          queryKey: ["payment-analytics", nextPeriod],
           queryFn: async () => {
             const invoices = await fetchInvoices(nextPeriod);
             return fetchAnalytics(invoices);
@@ -118,13 +118,14 @@ export function useRealtimePayments(enabled = true) {
     // or Server-Sent Events endpoint for real-time updates
     const mockRealtimeUpdate = () => {
       // Invalidate relevant queries when new payment arrives
-      queryClient.invalidateQueries({ queryKey: ['payment-analytics'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({ queryKey: ["payment-analytics"] });
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
     };
 
     // Simulate random payment events
     const intervalId = setInterval(() => {
-      if (Math.random() > 0.7) { // 30% chance of new payment
+      if (Math.random() > 0.7) {
+        // 30% chance of new payment
         mockRealtimeUpdate();
       }
     }, 10000); // Check every 10 seconds
@@ -136,24 +137,28 @@ export function useRealtimePayments(enabled = true) {
 /**
  * Hook for payment statistics
  */
-export function usePaymentStats(timePeriod: TimePeriod = '30d') {
+export function usePaymentStats(timePeriod: TimePeriod = "30d") {
   return useQuery({
-    queryKey: ['payment-stats', timePeriod],
+    queryKey: ["payment-stats", timePeriod],
     queryFn: async () => {
       const invoices = await fetchInvoices(timePeriod);
-      
+
       // Calculate statistics
       const total = invoices.length;
-      const settled = invoices.filter(i => i.status === 'Settled').length;
-      const pending = invoices.filter(i => i.status === 'New' || i.status === 'Processing').length;
-      const failed = invoices.filter(i => i.status === 'Invalid' || i.status === 'Expired').length;
-      
+      const settled = invoices.filter((i) => i.status === "Settled").length;
+      const pending = invoices.filter(
+        (i) => i.status === "New" || i.status === "Processing",
+      ).length;
+      const failed = invoices.filter(
+        (i) => i.status === "Invalid" || i.status === "Expired",
+      ).length;
+
       const totalAmount = invoices
-        .filter(i => i.status === 'Settled')
-        .reduce((sum, i) => sum + parseFloat(i.amount), 0);
-      
+        .filter((i) => i.status === "Settled")
+        .reduce((sum, i) => sum + Number.parseFloat(i.amount), 0);
+
       const avgAmount = total > 0 ? totalAmount / settled : 0;
-      
+
       return {
         total,
         settled,
@@ -171,19 +176,22 @@ export function usePaymentStats(timePeriod: TimePeriod = '30d') {
 /**
  * Hook for payment method distribution
  */
-export function usePaymentMethods(timePeriod: TimePeriod = '30d') {
+export function usePaymentMethods(timePeriod: TimePeriod = "30d") {
   return useQuery({
-    queryKey: ['payment-methods', timePeriod],
+    queryKey: ["payment-methods", timePeriod],
     queryFn: async () => {
       const invoices = await fetchInvoices(timePeriod);
-      
+
       // Group by payment method
-      const methodCounts = invoices.reduce((acc, invoice) => {
-        const method = invoice.paymentMethod || 'Unknown';
-        acc[method] = (acc[method] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-      
+      const methodCounts = invoices.reduce(
+        (acc, invoice) => {
+          const method = invoice.paymentMethod || "Unknown";
+          acc[method] = (acc[method] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
+
       // Convert to array and calculate percentages
       const total = invoices.length;
       return Object.entries(methodCounts)

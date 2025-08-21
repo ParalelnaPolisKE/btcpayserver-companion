@@ -1,6 +1,6 @@
-import PluginPageClient from './plugin-page-client';
-import { getAvailablePlugins, getPluginManifest } from '@/app/actions/plugins';
-import { notFound } from 'next/navigation';
+import { notFound } from "next/navigation";
+import { getAvailablePlugins, getPluginManifest } from "@/app/actions/plugins";
+import PluginPageClient from "./plugin-page-client";
 
 // Generate static params for all known plugins
 export async function generateStaticParams() {
@@ -10,13 +10,17 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function PluginPage({ params }: { params: Promise<{ appId: string }> }) {
+export default async function PluginPage({
+  params,
+}: {
+  params: Promise<{ appId: string }>;
+}) {
   const { appId } = await params;
   const manifest = await getPluginManifest(appId);
-  
+
   if (!manifest) {
     notFound();
   }
-  
+
   return <PluginPageClient appId={appId} manifest={manifest} />;
 }

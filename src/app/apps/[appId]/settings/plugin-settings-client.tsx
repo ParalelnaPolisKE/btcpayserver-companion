@@ -1,30 +1,47 @@
-'use client';
+"use client";
 
-import { useMemo } from 'react';
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
+import { useMemo } from "react";
 
 interface PluginSettingsClientProps {
   appId: string;
 }
 
-export default function PluginSettingsClient({ appId }: PluginSettingsClientProps) {
+export default function PluginSettingsClient({
+  appId,
+}: PluginSettingsClientProps) {
   const PluginSettingsComponent = useMemo(() => {
     return dynamic(
       async () => {
         try {
           // First try to import a dedicated settings file
-          const settingsModule = await import(`../../../../../plugins/${appId}/settings`);
-          return settingsModule.default || settingsModule.Settings || settingsModule.SettingsComponent;
-        } catch (error) {
+          const settingsModule = await import(
+            `../../../../../plugins/${appId}/settings`
+          );
+          return (
+            settingsModule.default ||
+            settingsModule.Settings ||
+            settingsModule.SettingsComponent
+          );
+        } catch (_error) {
           // If no dedicated settings file, try the main index file
           try {
-            const indexModule = await import(`../../../../../plugins/${appId}/index`);
-            return indexModule.FinancialAnalysisSettings || indexModule.SettingsComponent || indexModule.Settings || indexModule.default;
-          } catch (indexError) {
+            const indexModule = await import(
+              `../../../../../plugins/${appId}/index`
+            );
+            return (
+              indexModule.FinancialAnalysisSettings ||
+              indexModule.SettingsComponent ||
+              indexModule.Settings ||
+              indexModule.default
+            );
+          } catch (_indexError) {
             // Return a default component if nothing is found
             return () => (
               <div className="container mx-auto py-8">
-                <p className="text-muted-foreground">No settings available for {appId}</p>
+                <p className="text-muted-foreground">
+                  No settings available for {appId}
+                </p>
               </div>
             );
           }
@@ -37,9 +54,9 @@ export default function PluginSettingsClient({ appId }: PluginSettingsClientProp
             <p className="text-muted-foreground">Loading {appId} settings...</p>
           </div>
         ),
-      }
+      },
     );
   }, [appId]);
-  
+
   return <PluginSettingsComponent />;
 }

@@ -3,10 +3,10 @@
  * Catches React component errors and displays a fallback UI
  */
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { AlertCircle, RefreshCw } from "lucide-react";
+import React, { Component, type ErrorInfo, type ReactNode } from "react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   children: ReactNode;
@@ -38,8 +38,8 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
-    
+    console.error("Error caught by boundary:", error, errorInfo);
+
     this.setState({
       error,
       errorInfo,
@@ -72,12 +72,12 @@ export class ErrorBoundary extends Component<Props, State> {
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Something went wrong</AlertTitle>
               <AlertDescription>
-                {this.state.error?.message || 'An unexpected error occurred'}
+                {this.state.error?.message || "An unexpected error occurred"}
               </AlertDescription>
             </Alert>
 
             {/* Show error details in development */}
-            {process.env.NODE_ENV === 'development' && this.state.errorInfo && (
+            {process.env.NODE_ENV === "development" && this.state.errorInfo && (
               <details className="mt-4 p-4 border rounded-lg">
                 <summary className="cursor-pointer font-medium">
                   Error Details (Development Only)

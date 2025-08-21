@@ -1,15 +1,14 @@
-'use client';
+"use client";
 
-import { Card, CardContent } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
-import { usePlugins } from '@/contexts/plugins-context';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { getPluginComponent } from '@/lib/plugin-registry';
-import { PluginSandbox } from '@/components/plugins/plugin-sandbox';
-import { getSecurityMonitor } from '@/services/plugin-security-monitor';
-import { useState, useEffect } from 'react';
+import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import { PluginSandbox } from "@/components/plugins/plugin-sandbox";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { usePlugins } from "@/contexts/plugins-context";
+import { getPluginComponent } from "@/lib/plugin-registry";
+import { getSecurityMonitor } from "@/services/plugin-security-monitor";
 
 interface PluginRendererProps {
   pluginId: string;
@@ -17,25 +16,29 @@ interface PluginRendererProps {
   route: string;
 }
 
-export default function PluginRenderer({ pluginId, manifest, route }: PluginRendererProps) {
+export default function PluginRenderer({
+  pluginId,
+  manifest,
+  route,
+}: PluginRendererProps) {
   const { isPluginEnabled, getPlugin } = usePlugins();
   const [useSecureSandbox, setUseSecureSandbox] = useState(true);
-  const [pluginCode, setPluginCode] = useState<string>('');
+  const [pluginCode, _setPluginCode] = useState<string>("");
   const monitor = getSecurityMonitor();
-  
+
   useEffect(() => {
     // Load plugin code for sandbox (in production, this would be fetched securely)
     // For now, we'll use the dynamic import approach for trusted plugins
     const plugin = getPlugin(pluginId);
-    if (plugin?.source === 'builtin') {
+    if (plugin?.source === "builtin") {
       // Built-in plugins can run without sandbox
       setUseSecureSandbox(false);
     }
   }, [pluginId, getPlugin]);
-  
+
   // Get the plugin component from the registry
   const PluginComponent = getPluginComponent(pluginId);
-  
+
   // Check if plugin is enabled
   if (!isPluginEnabled(pluginId)) {
     return (
@@ -56,7 +59,7 @@ export default function PluginRenderer({ pluginId, manifest, route }: PluginRend
       </div>
     );
   }
-  
+
   if (!PluginComponent) {
     return (
       <div className="container mx-auto py-8 px-4">
@@ -67,7 +70,7 @@ export default function PluginRenderer({ pluginId, manifest, route }: PluginRend
       </div>
     );
   }
-  
+
   // Use secure sandbox for untrusted plugins
   if (useSecureSandbox && pluginCode) {
     return (
@@ -81,17 +84,37 @@ export default function PluginRenderer({ pluginId, manifest, route }: PluginRend
             id: crypto.randomUUID(),
             pluginId,
             timestamp: new Date(),
-            type: 'violation',
-            category: violation.type === 'access' ? 'permission' : violation.type as any,
+            type: "violation",
+            category:
+              violation.type === "access"
+                ? "permission"
+                : (violation.type as any),
             message: violation.message,
             details: violation.details,
-            severity: 'high'
+            severity: "high",
           });
         }}
       />
     );
   }
-  
-  // Render trusted plugin component directly
-  return <PluginComponent route={route} />;
+
+  // Render trusted plugin component directly with Suspense
+  return (
+    <React.Suspense
+      fallback={
+        <div className="container mx-auto py-8 px-4">
+          <h1 className="text-3xl font-bold mb-8">{manifest.name}</h1>
+          <Card>
+            <CardContent className="py-8">
+              <p className="text-center text-muted-foreground">
+                Loading plugin...
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      }
+    >
+      <PluginComponent route={route} />
+    </React.Suspense>
+  );
 }

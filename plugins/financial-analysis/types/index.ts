@@ -1,4 +1,4 @@
-export type TimeFrame = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+export type TimeFrame = "daily" | "weekly" | "monthly" | "quarterly" | "yearly";
 
 export interface DashboardMetrics {
   currentMonthRevenue: number;
@@ -46,8 +46,12 @@ export interface DashboardMetrics {
 
 export interface RevenueProjection {
   historical: Array<{ period: string; revenue: number }>;
-  projections: Array<{ period: string; revenue: number; isProjection: boolean }>;
-  trend: 'up' | 'down' | 'stable';
+  projections: Array<{
+    period: string;
+    revenue: number;
+    isProjection: boolean;
+  }>;
+  trend: "up" | "down" | "stable";
   primaryCurrency: string;
   timeFrame: TimeFrame;
   exchangeRate: { eur: number; usd: number } | null;

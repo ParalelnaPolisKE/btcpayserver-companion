@@ -1,8 +1,8 @@
 // Application configuration
 export const config = {
   app: {
-    name: 'BTCPayServer Companion',
-    version: '0.1.0',
+    name: "BTCPayServer Companion",
+    version: "0.1.0",
     useMockData: false, // Set to true to use mock data
   },
   api: {
@@ -10,8 +10,8 @@ export const config = {
     retryAttempts: 3,
   },
   btcpay: {
-    defaultCurrency: 'EUR',
-    serverUrl: process.env.NEXT_PUBLIC_BTCPAY_URL || '',
-    apiKey: process.env.BTCPAY_API_KEY || '',
+    defaultCurrency: "EUR",
+    serverUrl: process.env.NEXT_PUBLIC_BTCPAY_URL || "",
+    apiKey: process.env.BTCPAY_API_KEY || "",
   },
 };
