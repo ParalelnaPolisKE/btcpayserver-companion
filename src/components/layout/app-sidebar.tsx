@@ -8,7 +8,6 @@ import {
   DollarSign,
   Github,
   LayoutDashboard,
-  LogOut,
   MessageSquare,
   Package,
   PieChart,
@@ -28,12 +27,6 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -46,7 +39,6 @@ import {
   SidebarMenuItem,
   SidebarRail,
   SidebarSeparator,
-  useSidebar,
 } from "@/components/ui/sidebar";
 import { usePlugins } from "@/contexts/plugins-context";
 import { cn } from "@/lib/utils";
@@ -68,7 +60,6 @@ function getPluginIcon(pluginId: string): React.ComponentType<any> {
 export function AppSidebar() {
   const pathname = usePathname();
   const { installedPlugins, isLoading } = usePlugins();
-  const { state } = useSidebar();
   const [appsOpen, setAppsOpen] = React.useState(true);
   const [guidesOpen, setGuidesOpen] = React.useState(false);
 
@@ -295,7 +286,7 @@ export function AppSidebar() {
                 className="flex items-center gap-2"
               >
                 <MessageSquare className="size-4" />
-                <span>Send Feedback</span>
+                <span>Send feedback</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -311,46 +302,6 @@ export function AppSidebar() {
                 <span>GitHub</span>
               </a>
             </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-
-        <SidebarSeparator />
-
-        {/* User Menu */}
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton className="w-full">
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-muted">
-                    <Users className="size-4" />
-                  </div>
-                  <div className="flex flex-col gap-0.5 text-left">
-                    <span className="text-sm font-medium">Store Admin</span>
-                    <span className="text-xs text-muted-foreground">
-                      admin@store.com
-                    </span>
-                  </div>
-                  <ChevronUp className="ml-auto size-4" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                side="top"
-                align="start"
-                className="w-[--radix-dropdown-menu-trigger-width]"
-              >
-                <DropdownMenuItem asChild>
-                  <Link href="/settings">
-                    <Settings className="mr-2 size-4" />
-                    Settings
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <LogOut className="mr-2 size-4" />
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
