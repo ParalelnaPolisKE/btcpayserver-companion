@@ -10,7 +10,6 @@ import {
   ExternalLink,
   FileText,
   Globe,
-  Info,
   Key,
   Lock,
   Package,
@@ -18,11 +17,14 @@ import {
   Server,
   Shield,
   ShieldCheck,
+  TrendingDown,
+  TrendingUp,
   Users,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { Area, AreaChart } from "recharts";
 import { OnboardingSection } from "@/components/dashboard/onboarding-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,14 +35,37 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { usePlugins } from "@/contexts/plugins-context";
+import { APP_CONFIG } from "@/lib/app-config";
+import {
+  getBitcoinPriceData,
+  calculatePriceChange,
+  formatPrice,
+} from "@/services/bitcoin-price";
+
+const chartConfig = {
+  price: {
+    label: "BTC Price",
+    color: "#52b13d",
+  },
+} satisfies ChartConfig;
 
 export default function DashboardPage() {
   const { installedPlugins } = usePlugins();
   const [serverStatus, setServerStatus] = useState<
     "connected" | "disconnected" | "checking"
   >("checking");
+  
+  // Get Bitcoin price data
+  const btcPriceData = useMemo(() => getBitcoinPriceData(), []);
+  const priceChange = useMemo(() => calculatePriceChange(btcPriceData), [btcPriceData]);
 
   const checkServerConnection = async () => {
     try {
@@ -125,7 +150,12 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-6 p-4 md:p-6">
       {/* Header */}
       <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <Badge variant="secondary" className="text-xs">
+            v{APP_CONFIG.version}
+          </Badge>
+        </div>
         <p className="text-muted-foreground">
           Welcome to BTCPayServer Companion - Your gateway to enhanced
           BTCPayServer functionality
@@ -200,14 +230,73 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="col-span-1 md:col-span-2 lg:col-span-1 overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Version</CardTitle>
-            <Info className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Bitcoin Price</CardTitle>
+            {priceChange.isPositive ? (
+              <TrendingUp className="h-4 w-4 text-green-500" />
+            ) : (
+              <TrendingDown className="h-4 w-4 text-red-500" />
+            )}
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">v0.2.0</div>
-            <p className="text-xs text-muted-foreground">Latest version</p>
+          <CardContent className="flex items-center justify-between">
+            <div>
+              <div className="text-2xl font-bold">
+                {formatPrice(btcPriceData[btcPriceData.length - 1]?.price || 0)}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                <span className={priceChange.isPositive ? "text-green-500" : "text-red-500"}>
+                  {priceChange.isPositive ? "+" : ""}{priceChange.percentage}%
+                </span>
+                {" "}
+                last 30 days
+              </p>
+            </div>
+            <div className="h-[50px] w-[100px] overflow-hidden">
+              <ChartContainer config={chartConfig} className="w-full h-full">
+                <AreaChart
+                  data={btcPriceData}
+                  margin={{
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                    left: 0,
+                  }}
+                >
+                  <defs>
+                    <linearGradient id="fillBtcPrice" x1="0" y1="0" x2="0" y2="1">
+                      <stop
+                        offset="5%"
+                        stopColor="#52b13d"
+                        stopOpacity={0.9}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor="#cedc21"
+                        stopOpacity={0.3}
+                      />
+                    </linearGradient>
+                  </defs>
+                  <ChartTooltip
+                    cursor={false}
+                    content={
+                      <ChartTooltipContent
+                        hideLabel
+                        formatter={(value) => formatPrice(Number(value))}
+                      />
+                    }
+                  />
+                  <Area
+                    dataKey="price"
+                    type="natural"
+                    fill="url(#fillBtcPrice)"
+                    fillOpacity={1}
+                    stroke="#52b13d"
+                    strokeWidth={1.5}
+                  />
+                </AreaChart>
+              </ChartContainer>
+            </div>
           </CardContent>
         </Card>
       </div>
