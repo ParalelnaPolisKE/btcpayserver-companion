@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { getDatabaseInstance } from "@/lib/indexeddb";
+import { getEncryptedDatabase } from "@/lib/encrypted-indexeddb";
 
 interface OnboardingStep {
   id: string;
@@ -65,7 +65,7 @@ export function OnboardingSection() {
 
   const loadOnboardingState = async () => {
     try {
-      const db = getDatabaseInstance();
+      const db = getEncryptedDatabase();
 
       // Check if onboarding is dismissed
       const isDismissed = await db.getSetting("onboarding_dismissed");
@@ -112,7 +112,7 @@ export function OnboardingSection() {
 
   const dismissOnboarding = async () => {
     try {
-      const db = getDatabaseInstance();
+      const db = getEncryptedDatabase();
       await db.setSetting("onboarding_dismissed", true);
       setIsVisible(false);
     } catch (error) {
@@ -122,7 +122,7 @@ export function OnboardingSection() {
 
   const markStepComplete = async (stepId: string) => {
     try {
-      const db = getDatabaseInstance();
+      const db = getEncryptedDatabase();
       const completedSteps = (await db.getSetting("onboarding_steps")) || {};
       completedSteps[stepId] = true;
       await db.setSetting("onboarding_steps", completedSteps);

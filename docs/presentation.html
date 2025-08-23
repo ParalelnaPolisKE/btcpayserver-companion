@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTCPayServer Companion - Empowering Lunarpunk Commerce</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reset.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/theme/black.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/plugin/highlight/monokai.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+    <style>
+        :root {
+            --btc-orange: #f7931a;
+            --lunarpunk-purple: #6b46c1;
+            --dark-bg: #0a0a0a;
+        }
+
+        .reveal {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .reveal h1,
+        .reveal h2,
+        .reveal h3 {
+            font-weight: 700;
+            text-transform: none;
+        }
+
+        .reveal h1 {
+            color: var(--btc-orange);
+        }
+
+        .reveal h2 {
+            color: var(--lunarpunk-purple);
+        }
+
+        .orange {
+            color: var(--btc-orange);
+        }
+
+        .purple {
+            color: var(--lunarpunk-purple);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: left;
+        }
+
+        .feature-card h4 {
+            color: var(--btc-orange);
+            margin-bottom: 0.5rem;
+        }
+
+        .img-placeholder {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            padding: 4rem 2rem;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .reveal .progress {
+            color: var(--btc-orange);
+        }
+
+        .reveal .controls {
+            color: var(--lunarpunk-purple);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 2rem 0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--btc-orange);
+        }
+
+        .stat-label {
+            color: #888;
+            margin-top: 0.5rem;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.8rem;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline-item {
+            margin: 1rem 0;
+            padding-left: 2rem;
+            border-left: 2px solid var(--lunarpunk-purple);
+        }
+
+        .reveal ul {
+            display: block;
+            margin-left: 1em;
+        }
+
+        .reveal .slides section {
+            text-align: center;
+        }
+
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0.5rem auto;
+            min-height: 420px;
+            max-height: 480px;
+            overflow: visible;
+        }
+
+        .mermaid svg {
+            max-width: 90%;
+            height: auto;
+            max-height: 420px;
+        }
+
+        /* Add padding to all subgraphs */
+        .mermaid .cluster rect {
+            rx: 5;
+            ry: 5;
+        }
+
+        .mermaid .cluster {
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <!-- Title Slide -->
+            <section data-background-gradient="linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)">
+                <h1>BTCPayServer Companion</h1>
+                <h3 class="purple">Empowering Lunarpunk Commerce</h3>
+                <p style="margin-top: 2rem;">
+                    <small>Building Privacy-First Business Tools for the Decentralized Future</small>
+                </p>
+                <p style="margin-top: 3rem;">
+                    <small>Paralelná Polis Košice | 2025</small>
+                </p>
+            </section>
+
+            <!-- The Problem -->
+            <section>
+                <h2>The Challenge</h2>
+                <div class="feature-grid">
+                    <div class="feature-card fragment">
+                        <h4>🔍 Limited Analytics</h4>
+                        <p>BTCPayServer lacks comprehensive financial reporting</p>
+                    </div>
+                    <div class="feature-card fragment">
+                        <h4>📊 No Powerful Dashboard</h4>
+                        <p>Missing unified view of multi-store performance</p>
+                    </div>
+                    <div class="feature-card fragment">
+                        <h4>🔌 C# Plugin Barrier</h4>
+                        <p>BTCPay plugins require C# expertise, limiting JS/TS developers</p>
+                    </div>
+                    <div class="feature-card fragment">
+                        <h4>🏢 Enterprise Gaps</h4>
+                        <p>Missing tools for business operations</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Solution Overview -->
+            <section>
+                <h2>BTCPayServer Companion</h2>
+                <div class="img-placeholder">
+                    <img src="./bpsc-dashboard.png">
+                </div>
+            </section>
+
+            <!-- Solution Overview -->
+            <section>
+                <h2>BTCPayServer Companion</h2>
+                <p class="fragment">Open-source extension platform for BTCPayServer</p>
+                <p class="fragment">JavaScript/TypeScript plugin ecosystem via Greenfield API</p>
+                <p class="fragment">Cross-platform desktop app (Windows, Linux, macOS)</p>
+            </section>
+
+            <!-- Core Features -->
+            <section>
+                <h2>Core Capabilities</h2>
+                <div class="stats">
+                    <div class="stat-item fragment">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Self-hosted</div>
+                    </div>
+                    <div class="stat-item fragment">
+                        <div class="stat-number">∞</div>
+                        <div class="stat-label">Extensibility</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dashboard Demo -->
+            <section>
+                <h2>Real-time Dashboard</h2>
+                <div class="img-placeholder">
+                    [Screenshot: Live Dashboard with Charts]
+                </div>
+            </section>
+
+            <!-- Financial Analysis App -->
+            <section>
+                <section>
+                    <h2>Financial Analysis App</h2>
+                    <p class="purple">Powering Paralelná Polis Košice</p>
+                    <div class="img-placeholder">
+                        [Screenshot: Financial Analysis Dashboard]
+                    </div>
+                </section>
+
+                <section>
+                    <h3>Revenue Insights</h3>
+                    <ul>
+                        <li>Monthly/yearly comparisons</li>
+                        <li>Payment method preferences</li>
+                        <li>Customer behavior patterns</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Impact</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>📈 Better insights</h4>
+                            <p>Improved financial visibility</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>⏱️ Timesaver</h4>
+                            <p>Automated reporting</p>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <!-- Included Apps -->
+            <section>
+                <h2>Plugin Ecosystem</h2>
+                <div class="img-placeholder">
+                    [Screenshot: Plugin Marketplace Concept]
+                </div>
+            </section>
+
+            <!-- Security Architecture -->
+            <section>
+                <section>
+                    <h2>Security First</h2>
+                    <div class="mermaid">
+                        %%{init: {'theme':'dark', 'themeVariables': { 'fontSize': '14px'}}}%%
+                        graph TB
+                        subgraph VPN["Optional VPN / Private Network"]
+                        subgraph "Browser/Desktop App"
+                        UI[React Client Components]
+                        IDB[IndexedDB Plugins]
+                        RQ[React Query Cache]
+                        end
+
+                        subgraph "Next.js Server"
+                        SA[Server Actions]
+                        ENV[.env Variables]
+                        SEC[Secure Storage]
+                        API[API Key - Never Exposed]
+                        end
+
+                        subgraph "Tauri Runtime"
+                        TAURI[Native APIs]
+                        FS[File System]
+                        end
+
+                        subgraph "Plugin System"
+                        PM[Plugin Manager]
+                        PS[Plugin Sandbox]
+                        PH[Plugin Hooks]
+                        end
+
+                        subgraph "External"
+                        BTC[BTCPayServer]
+                        GF[Greenfield API]
+                        WH[Webhooks]
+                        end
+                        end
+
+                        UI -->|Calls| SA
+                        UI -->|Settings Page| SEC
+                        SA -->|Reads| ENV
+                        SA -->|Reads| SEC
+                        ENV -->|Can contain| API
+                        SEC -->|Can contain| API
+                        SA -->|HTTP Requests| GF
+                        GF -->|Part of| BTC
+                        BTC -->|Optional events| WH
+                        WH -->|Can trigger| SA
+
+                        UI -->|Manages| PM
+                        PM -->|Stores in| IDB
+                        PM -->|Runs in| PS
+                        PS -->|Executes| PH
+                        PH -->|Request data via| SA
+
+                        UI -->|Desktop only| TAURI
+                        TAURI -->|Access| FS
+
+                        UI -->|Caches data| RQ
+
+                        style API fill:#ff4444
+                        style ENV fill:#f7931a
+                        style SEC fill:#f7931a
+                        style SA fill:#6b46c1
+                        style PS fill:#6b46c1
+                        style TAURI fill:#22c55e
+
+                        classDef vpnBg fill:#0a0a0a80,stroke:#6b46c1,stroke-width:1px,stroke-dasharray: 8 4
+                        classDef subgraphPadding fill:#1a1a2e,stroke:#333,stroke-width:1px,rx:5,ry:5
+                        class VPN vpnBg
+                    </div>
+                </section>
+
+                <section>
+                    <h3>Zero-trust design</h3>
+                    <ul>
+                        <li class="fragment">🔐 API keys never leave server/PC</li>
+                        <li class="fragment">🛡️ Server-side validation</li>
+                        <li class="fragment">🚫 No tracking</li>
+                        <li class="fragment">🔒 Encrypted local storage (WIP)</li>
+                        <li class="fragment">✅ Full audit logging (WIP)</li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- Technical Architecture -->
+            <section>
+                <section>
+                    <h2>Modern Tech Stack</h2>
+                    <ul>
+                        <li class="fragment"><span class="orange">Next.js 15</span> - Server components</li>
+                        <li class="fragment"><span class="orange">TypeScript</span> - Type safety</li>
+                        <li class="fragment"><span class="orange">React Query</span> - Data synchronization</li>
+                        <li class="fragment"><span class="orange">Tauri v2</span> - Cross-platform native apps
+                            (Win/Linux/MacOS)</li>
+                        <li class="fragment"><span class="orange">Greenfield API</span> - BTCPayServer integration</li>
+                        <li class="fragment"><span class="orange">Webhooks</span> - Real-time event handling</li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- WordPress-like Vision -->
+            <section>
+                <section>
+                    <h2>The Vision</h2>
+                    <h3 class="purple">WordPress for Bitcoin Commerce</h3>
+                    <p style="font-size: 0.8rem; margin-top: 1rem;">Web-based plugins connecting via API & webhooks</p>
+                </section>
+
+                <section>
+                    <h3>Community Powered</h3>
+                    <div class="timeline">
+                        <div class="timeline-item fragment">
+                            <strong>Phase 1:</strong> Core platform
+                        </div>
+                        <div class="timeline-item fragment">
+                            <strong>Phase 2:</strong> Plugin API (Current)
+                        </div>
+                        <div class="timeline-item fragment">
+                            <strong>Phase 3:</strong> Marketplace (First apps by us)
+                        </div>
+                        <div class="timeline-item fragment">
+                            <strong>Phase 4:</strong> Ecosystem growth
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <!-- How to Contribute -->
+            <section>
+                <section>
+                    <h2>Let's Build the Ecosystem Together</h2>
+                    <p
+                        style="position: absolute; top: 80px; right: 30px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.7), 0 6px 20px 0 rgba(0, 0, 0, 0.7);">
+                        <img src="./bpsc-github-qr.png" width="300">
+                    </p>
+                    <img src="./bpsc-github.png">
+                </section>
+
+                <section>
+                    <h3>Ways to Contribute</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card fragment">
+                            <h4>💻 Code</h4>
+                            <p>Build plugins, fix bugs, add features</p>
+                        </div>
+                        <div class="feature-card fragment">
+                            <h4>📝 Documentation</h4>
+                            <p>Guides, tutorials, translations</p>
+                        </div>
+                        <div class="feature-card fragment">
+                            <h4>🎨 Design</h4>
+                            <p>UI/UX improvements, themes</p>
+                        </div>
+                        <div class="feature-card fragment">
+                            <h4>🧪 Testing</h4>
+                            <p>Report bugs, test features</p>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <!-- Roadmap -->
+            <section>
+                <h2>Roadmap 2025</h2>
+                <div class="feature-grid" style="font-size: 1.3rem;">
+                    <div class="feature-card fragment">
+                        <h4>Plugin API</h4>
+                        <p>Stable plugin development framework</p>
+                    </div>
+                    <div class="feature-card fragment">
+                        <h4>Marketplace Beta</h4>
+                        <p>Community plugin repository</p>
+                    </div>
+                    <div class="feature-card fragment">
+                        <h4>Integrations</h4>
+                        <p>Signal / Telegram / Slack / Matrix / etc.</p>
+                    </div>
+                    <div class="feature-card fragment">
+                        <h4>Mobile Apps</h4>
+                        <p>iOS/Android companion apps</p>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Demo Time -->
+            <section>
+                <h2>Live Demo</h2>
+                <div class="" style="height: 200px;">
+                    <a href="http://localhost:3000/dashboard" target="_blank">Link to BTCPayServer Companion</a>
+                    <br />
+                    + MacOS app
+                </div>
+            </section>
+
+            <!-- Call to Action -->
+            <section>
+                <h2>Be Part of the Revolution</h2>
+                <div style="margin: 3rem 0;">
+                    <p class="fragment">🌙 Embrace the Lunarpunk ethos</p>
+                    <p class="fragment">🛠️ Build privacy-first commerce tools</p>
+                    <p class="fragment">🌍 Create a decentralized future</p>
+                </div>
+                <div  class="fragment" style="margin-top: 3rem;">
+                    <p><strong class="orange">GitHub:</strong> github.com/ParalelnaPolisKE/btcpayserver-companion</p>
+                    <p><strong class="purple">Contact:</strong> hello@michaltakac.com</p>
+                </div>
+            </section>
+
+            <!-- Thank You -->
+            <section data-background-gradient="linear-gradient(135deg, #1a1a2e 0%, #0a0a0a 100%)">
+                <h1>Thank You</h1>
+                <p class="purple">Questions?</p>
+                <div style="margin-top: 3rem;">
+                    <div>
+                    <img src="./blue-wallet-btc-qr.jpg" width="200" />
+                </div>
+                    <small>
+                        Made with 🧡 at Paralelná Polis Košice
+                    </small>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/plugin/notes/notes.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/plugin/markdown/markdown.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/plugin/highlight/highlight.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/plugin/zoom/zoom.js"></script>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'dark',
+            themeVariables: {
+                primaryColor: '#f7931a',
+                primaryTextColor: '#fff',
+                primaryBorderColor: '#6b46c1',
+                lineColor: '#6b46c1',
+                secondaryColor: '#1a1a2e',
+                tertiaryColor: '#0a0a0a',
+                background: '#0a0a0a',
+                mainBkg: '#1a1a2e',
+                secondBkg: '#0a0a0a',
+                tertiaryBkg: '#2a2a3e',
+                darkMode: true,
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '14px',
+                textColor: '#fff',
+                edgeLabelBackground: '#1a1a2e',
+                nodeSpacing: 50,
+                rankSpacing: 60
+            },
+            flowchart: {
+                nodeSpacing: 50,
+                rankSpacing: 60,
+                diagramPadding: 8,
+                subGraphTitleMargin: {
+                    top: 8,
+                    bottom: 8
+                }
+            }
+        });
+
+        Reveal.initialize({
+            hash: true,
+            controls: true,
+            progress: true,
+            center: true,
+            transition: 'slide',
+            backgroundTransition: 'fade',
+
+            // Presentation size
+            width: 1280,
+            height: 720,
+
+            // Factor of the display size that should remain empty around the content
+            margin: 0.05,
+
+            // Bounds for smallest/largest possible scale to apply to content
+            minScale: 0.2,
+            maxScale: 2.0,
+
+            // Time for auto-advance (20 minutes = 1200000 ms)
+            // Divided by approximate number of slides
+            autoSlide: 0, // Disabled by default, speaker controls timing
+
+            plugins: [RevealMarkdown, RevealHighlight, RevealNotes, RevealZoom]
+        });
+
+        // Render Mermaid diagrams after Reveal is ready
+        Reveal.on('ready', () => {
+            mermaid.run();
+        });
+
+        // Re-render Mermaid on slide change
+        Reveal.on('slidechanged', () => {
+            mermaid.run();
+        });
+    </script>
+</body>
+
+</html>

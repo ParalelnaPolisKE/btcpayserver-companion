@@ -20,12 +20,19 @@ const PluginTemplateApp = lazy(
 const PluginTemplateSettings = lazy(
   () => import("../../plugins/plugin-template/components/PaymentSettings"),
 );
+const CryptoChatApp = lazy(
+  () => import("../../plugins/cryptochat/index"),
+);
+const CryptoChatSettings = lazy(
+  () => import("../../plugins/cryptochat/components/CryptoChatSettings"),
+);
 
 // Map of plugin IDs to their components
 const pluginComponents: Record<string, React.ComponentType<any>> = {
   "financial-analysis": FinancialAnalysisApp,
   "event-checkin": EventCheckInApp,
   "payment-analytics-template": PluginTemplateApp,
+  "cryptochat": CryptoChatApp,
 };
 
 // Map of plugin IDs to their settings components
@@ -33,6 +40,7 @@ const pluginSettingsComponents: Record<string, React.ComponentType<any>> = {
   "financial-analysis": FinancialAnalysisSettings,
   "event-checkin": EventCheckInSettings,
   "payment-analytics-template": PluginTemplateSettings,
+  "cryptochat": CryptoChatSettings,
 };
 
 // Get a plugin component by ID

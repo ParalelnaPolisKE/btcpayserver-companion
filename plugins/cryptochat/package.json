@@ -1,0 +1,14 @@
+{
+  "name": "@bps-companion/cryptochat-plugin",
+  "version": "1.0.0",
+  "description": "AI-powered chat interface with RAG for querying BTCPayServer data",
+  "main": "index.tsx",
+  "dependencies": {
+    "@tanstack/react-query": "^5.0.0",
+    "openai": "^4.20.0"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

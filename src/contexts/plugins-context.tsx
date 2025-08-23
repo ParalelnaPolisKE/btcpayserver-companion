@@ -6,9 +6,9 @@ import {
   useContext,
   useEffect,
   useState,
+  useCallback,
 } from "react";
-import { removePluginCompletely } from "@/app/actions/plugin-management";
-import { getDatabaseInstance, type InstalledPlugin } from "@/lib/indexeddb";
+import { getEncryptedDatabase, type InstalledPlugin } from "@/lib/encrypted-indexeddb";
 import type { PluginManifest } from "@/types/plugin";
 
 interface PluginsContextType {
@@ -34,9 +34,13 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
   );
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadPlugins = async () => {
+  const loadPlugins = useCallback(async () => {
     try {
-      const db = await getDatabaseInstance();
+      const db = getEncryptedDatabase();
+      
+      // Clean up invalid plugins first
+      await db.cleanupInvalidPlugins();
+      
       const plugins = await db.getInstalledPlugins();
       setInstalledPlugins(plugins);
 
@@ -116,16 +120,16 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadPlugins();
-  }, [loadPlugins]);
+  }, []); // Remove loadPlugins dependency to prevent infinite loop
 
-  const installPlugin = async (manifest: PluginManifest) => {
+  const installPlugin = async (manifest: PluginManifest, source: 'builtin' | 'uploaded' | 'marketplace' = 'uploaded') => {
     try {
-      const db = await getDatabaseInstance();
-      await db.installPlugin(manifest);
+      const db = getEncryptedDatabase();
+      await db.installPlugin(manifest, source);
       await loadPlugins();
     } catch (error) {
       console.error("Failed to install plugin:", error);
@@ -135,7 +139,7 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
 
   const uninstallPlugin = async (pluginId: string) => {
     try {
-      const db = await getDatabaseInstance();
+      const db = getEncryptedDatabase();
       const plugin = await db.getPlugin(pluginId);
 
       if (!plugin) {
@@ -144,7 +148,10 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
 
       // For uploaded plugins, remove files from filesystem
       if (plugin.source === "uploaded") {
-        const result = await removePluginCompletely(pluginId);
+        const response = await fetch(`/api/plugins/${pluginId}/remove`, {
+          method: 'DELETE',
+        });
+        const result = await response.json();
         if (!result.success) {
           throw new Error(result.error || "Failed to remove plugin files");
         }
@@ -161,7 +168,7 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
 
   const togglePlugin = async (pluginId: string, enabled: boolean) => {
     try {
-      const db = await getDatabaseInstance();
+      const db = getEncryptedDatabase();
       const plugin = await db.getPlugin(pluginId);
       if (plugin) {
         await db.updatePluginConfig(pluginId, {
@@ -181,7 +188,7 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
     settings: Record<string, any>,
   ) => {
     try {
-      const db = await getDatabaseInstance();
+      const db = getEncryptedDatabase();
       await db.updatePluginSettings(pluginId, settings);
       await loadPlugins();
     } catch (error) {

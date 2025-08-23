@@ -2,7 +2,7 @@
 // This is a mock implementation for static export - in production with Tauri,
 // these operations would use Tauri's filesystem API
 
-import type { AvailablePlugin } from "@/app/actions/plugins";
+import type { AvailablePlugin } from "@/lib/plugins";
 
 // Mock storage for client-side plugin management
 const _STORAGE_KEY = "bps-companion-plugins";

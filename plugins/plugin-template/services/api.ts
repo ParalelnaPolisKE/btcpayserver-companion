@@ -84,7 +84,7 @@ function generateMockInvoices(timePeriod: TimePeriod): Payment[] {
   }
   
   const invoices: Payment[] = [];
-  const statuses = ["Settled", "Processing", "New", "Expired", "Invalid"];
+  const statuses = ["Settled", "Processing", "New", "Expired", "Invalid"] as const;
   const methods = ["Bitcoin", "Lightning", "Litecoin", "Monero"];
   
   for (let i = 0; i < days * 5; i++) {
@@ -96,7 +96,6 @@ function generateMockInvoices(timePeriod: TimePeriod): Payment[] {
       currency: "EUR",
       status: statuses[Math.floor(Math.random() * statuses.length)],
       createdTime,
-      expirationTime: createdTime + 3600,
       paymentMethod: methods[Math.floor(Math.random() * methods.length)],
       metadata: {},
     });
@@ -141,33 +140,31 @@ export async function fetchInvoices(
     default:
       // For 'all', we'll fetch without date filter
       const invoices = await client.getInvoices({ take: 1000 });
-      return invoices.map(invoice => ({
+      return invoices.map((invoice: any) => ({
         id: invoice.id,
         storeId: invoice.storeId,
         amount: invoice.amount || "0",
         currency: invoice.currency,
         status: invoice.status,
         createdTime: invoice.createdTime,
-        expirationTime: invoice.expirationTime,
         paymentMethod: invoice.type || "Unknown",
         metadata: invoice.metadata || {},
       }));
   }
 
   const invoices = await client.getInvoices({
-    dateStart: startDate.toISOString(),
-    dateEnd: now.toISOString(),
+    startDate: startDate.toISOString(),
+    endDate: now.toISOString(),
     take: 1000,
   });
   
-  return invoices.map(invoice => ({
+  return invoices.map((invoice: any) => ({
     id: invoice.id,
     storeId: invoice.storeId,
     amount: invoice.amount || "0",
     currency: invoice.currency,
     status: invoice.status,
     createdTime: invoice.createdTime,
-    expirationTime: invoice.expirationTime,
     paymentMethod: invoice.type || "Unknown",
     metadata: invoice.metadata || {},
   }));

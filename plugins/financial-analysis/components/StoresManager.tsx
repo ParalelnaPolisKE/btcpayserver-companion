@@ -1,9 +1,7 @@
 "use client";
 
-import {
-  getAvailableStores,
-  getStorePOSApps,
-} from "@bps-companion/app/actions/btcpay-stores";
+// Server actions not available in static export - using client-side wrapper
+import { fetchStores, fetchStorePOSApps } from "@/lib/btcpay-client-wrapper";
 import { Alert, AlertDescription } from "@bps-companion/components/ui/alert";
 import { Badge } from "@bps-companion/components/ui/badge";
 import { Button } from "@bps-companion/components/ui/button";
@@ -100,7 +98,7 @@ export function StoresManager() {
   const fetchAvailableStores = async () => {
     setLoadingStores(true);
     try {
-      const result = await getAvailableStores();
+      const result = await fetchStores();
       if (result.success) {
         setAvailableStores(result.stores);
         setIsUsingMockData(result.isUsingMockData);
@@ -127,7 +125,7 @@ export function StoresManager() {
     setLoadingPosApps(true);
     setPosApps([]);
     try {
-      const result = await getStorePOSApps(storeId);
+      const result = await fetchStorePOSApps(storeId);
       console.log("POS apps result:", result);
       if (result.success) {
         setPosApps(result.posApps);

@@ -616,7 +616,7 @@ export default function DashboardPage() {
       {/* Quick Links */}
       <Card>
         <CardHeader>
-          <CardTitle>Quick Links</CardTitle>
+          <CardTitle>BTCPayServer Quick Links</CardTitle>
           <CardDescription>Frequently accessed resources</CardDescription>
         </CardHeader>
         <CardContent>

@@ -24,6 +24,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { clientEnv } from "@/lib/env";
 import { BTCPayClient } from "@/services/btcpay-client";
+import { APP_CONFIG } from "@/lib/app-config";
 
 export default function SettingsClient() {
   const apiKeyId = useId();
@@ -223,11 +224,11 @@ export default function SettingsClient() {
             <div className="space-y-4">
               <div>
                 <p className="text-sm font-medium">Version</p>
-                <p className="text-sm text-muted-foreground">1.0.0</p>
+                <p className="text-sm text-muted-foreground">v{APP_CONFIG.version}</p>
               </div>
               <div>
                 <p className="text-sm font-medium">Build</p>
-                <p className="text-sm text-muted-foreground">Production</p>
+                <p className="text-sm text-muted-foreground">{process.env.NODE_ENV}</p>
               </div>
               <Alert>
                 <InfoIcon className="h-4 w-4" />

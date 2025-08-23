@@ -11,8 +11,8 @@ import {
 import {
   type ExpenseCategory,
   type ExpenseItem,
-  getDatabaseInstance,
-} from "@/lib/indexeddb";
+  getEncryptedDatabase,
+} from "@/lib/encrypted-indexeddb";
 
 interface ExpensesContextType {
   categories: ExpenseCategory[];
@@ -61,7 +61,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true);
       setError(null);
-      const db = getDatabaseInstance();
+      const db = getEncryptedDatabase();
       await db.init();
       await db.initializeDefaultExpenses();
 
@@ -88,7 +88,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
 
   const addCategory = async (category: Omit<ExpenseCategory, "id">) => {
     try {
-      const db = getDatabaseInstance();
+      const db = getEncryptedDatabase();
       await db.addExpenseCategory(category);
       await loadExpenses();
     } catch (err) {
@@ -102,7 +102,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
     updates: Partial<ExpenseCategory>,
   ) => {
     try {
-      const db = getDatabaseInstance();
+      const db = getEncryptedDatabase();
       await db.updateExpenseCategory(id, updates);
       await loadExpenses();
     } catch (err) {
@@ -113,7 +113,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
 
   const deleteCategory = async (id: number) => {
     try {
-      const db = getDatabaseInstance();
+      const db = getEncryptedDatabase();
       await db.deleteExpenseCategory(id);
       await loadExpenses();
     } catch (err) {
@@ -124,7 +124,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = async (item: Omit<ExpenseItem, "id">) => {
     try {
-      const db = getDatabaseInstance();
+      const db = getEncryptedDatabase();
       await db.addExpenseItem(item);
       await loadExpenses();
     } catch (err) {
@@ -135,7 +135,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
 
   const updateItem = async (id: number, updates: Partial<ExpenseItem>) => {
     try {
-      const db = getDatabaseInstance();
+      const db = getEncryptedDatabase();
       await db.updateExpenseItem(id, updates);
       await loadExpenses();
     } catch (err) {
@@ -146,7 +146,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
 
   const deleteItem = async (id: number) => {
     try {
-      const db = getDatabaseInstance();
+      const db = getEncryptedDatabase();
       await db.deleteExpenseItem(id);
       await loadExpenses();
     } catch (err) {
@@ -267,7 +267,7 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
 
   const updateDefaultVatRate = async (rate: number) => {
     try {
-      const db = getDatabaseInstance();
+      const db = getEncryptedDatabase();
       await db.setSetting("defaultVatRate", rate);
       setDefaultVatRate(rate);
     } catch (err) {

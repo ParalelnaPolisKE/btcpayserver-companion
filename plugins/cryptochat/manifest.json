@@ -1,0 +1,17 @@
+{
+  "id": "cryptochat",
+  "name": "CryptoChat",
+  "version": "1.0.0",
+  "description": "AI-powered chat interface with RAG for querying BTCPayServer data using natural language",
+  "author": "BTCPayServer Companion",
+  "icon": "MessageCircle",
+  "permissions": [
+    "btcpay.store.canviewinvoices",
+    "btcpay.store.canviewstoresettings"
+  ],
+  "main": "index.tsx",
+  "settings": true,
+  "tags": ["ai", "chat", "rag", "analytics", "query"],
+  "repository": "https://github.com/ParalelnaPolisKE/btcpayserver-companion",
+  "documentation": "plugins/cryptochat/README.md"
+}

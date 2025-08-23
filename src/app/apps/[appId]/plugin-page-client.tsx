@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import type { AvailablePlugin } from "@/app/actions/plugins";
+import type { AvailablePlugin } from "@/lib/plugins";
 import PluginRenderer from "./plugin-renderer";
 
 interface PluginPageClientProps {

@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import {
   BookOpen,
   ChevronLeft,
@@ -771,16 +773,18 @@ export default function GuidesPage() {
 
   useEffect(() => {
     // Check for hash in URL to auto-select guide and section
-    const hash = window.location.hash.slice(1);
-    if (hash) {
-      const [guideId, sectionId] = hash.split("/");
-      const guide = guides.find((g) => g.id === guideId);
-      if (guide) {
-        setSelectedGuide(guideId);
-        if (sectionId && guide.sections.find((s) => s.id === sectionId)) {
-          setSelectedSection(sectionId);
-        } else {
-          setSelectedSection(guide.sections[0]?.id || null);
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.slice(1);
+      if (hash) {
+        const [guideId, sectionId] = hash.split("/");
+        const guide = guides.find((g) => g.id === guideId);
+        if (guide) {
+          setSelectedGuide(guideId);
+          if (sectionId && guide.sections.find((s) => s.id === sectionId)) {
+            setSelectedSection(sectionId);
+          } else {
+            setSelectedSection(guide.sections[0]?.id || null);
+          }
         }
       }
     }
@@ -791,13 +795,15 @@ export default function GuidesPage() {
     if (guide) {
       setSelectedGuide(guideId);
       setSelectedSection(guide.sections[0]?.id || null);
-      window.location.hash = `${guideId}/${guide.sections[0]?.id || ""}`;
+      if (typeof window !== 'undefined') {
+        window.location.hash = `${guideId}/${guide.sections[0]?.id || ""}`;
+      }
     }
   };
 
   const handleSectionSelect = (sectionId: string) => {
     setSelectedSection(sectionId);
-    if (selectedGuide) {
+    if (selectedGuide && typeof window !== 'undefined') {
       window.location.hash = `${selectedGuide}/${sectionId}`;
     }
   };
@@ -805,7 +811,9 @@ export default function GuidesPage() {
   const handleBackToGuides = () => {
     setSelectedGuide(null);
     setSelectedSection(null);
-    window.location.hash = "";
+    if (typeof window !== 'undefined') {
+      window.location.hash = "";
+    }
   };
 
   const currentGuide = guides.find((g) => g.id === selectedGuide);

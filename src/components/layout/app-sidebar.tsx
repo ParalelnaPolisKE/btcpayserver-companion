@@ -9,17 +9,20 @@ import {
   Github,
   LayoutDashboard,
   MessageSquare,
+  Moon,
   Package,
   PieChart,
   QrCode,
   Settings,
   Shield,
+  Sun,
   TrendingUp,
   Users,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 import * as React from "react";
 import {
   Collapsible,
@@ -60,6 +63,7 @@ function getPluginIcon(pluginId: string): React.ComponentType<any> {
 export function AppSidebar() {
   const pathname = usePathname();
   const { installedPlugins, isLoading } = usePlugins();
+  const { theme, setTheme } = useTheme();
   const [appsOpen, setAppsOpen] = React.useState(true);
   const [guidesOpen, setGuidesOpen] = React.useState(false);
 
@@ -179,7 +183,7 @@ export function AppSidebar() {
                     const Icon = item.icon;
                     const isActive = pathname === "/guides" && item.href === "/guides"
                       ? true
-                      : pathname === "/guides" && window.location.hash === item.href.replace("/guides", "");
+                      : pathname === "/guides" && typeof window !== 'undefined' && window.location.hash === item.href.replace("/guides", "");
 
                     return (
                       <SidebarMenuItem key={item.href}>
@@ -241,6 +245,7 @@ export function AppSidebar() {
                       const Icon = getPluginIcon(plugin.pluginId);
                       const pluginPath = `/apps/${plugin.pluginId}`;
                       const isActive = pathname.startsWith(pluginPath);
+                      const pluginName = plugin.manifest?.name || 'Unknown Plugin';
 
                       return (
                         <SidebarMenuItem key={plugin.pluginId}>
@@ -248,11 +253,11 @@ export function AppSidebar() {
                             <Link
                               href={pluginPath}
                               className="flex items-center gap-2"
-                              title={plugin.manifest.name}
+                              title={pluginName}
                             >
                               <Icon className="size-4" />
                               <span className="truncate">
-                                {plugin.manifest.name}
+                                {pluginName}
                               </span>
                             </Link>
                           </SidebarMenuButton>
@@ -277,6 +282,20 @@ export function AppSidebar() {
 
       <SidebarFooter>
         <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="flex items-center gap-2"
+            >
+              {theme === "dark" ? (
+                <Sun className="size-4" />
+              ) : (
+                <Moon className="size-4" />
+              )}
+              <span>{theme === "dark" ? "Light mode" : "Dark mode"}</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarSeparator className="my-2" />
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <a
