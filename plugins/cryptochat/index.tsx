@@ -1,6 +1,6 @@
 /**
  * CryptoChat Plugin - Main Entry Point
- * 
+ *
  * AI-powered chat interface with RAG for querying BTCPayServer data
  * using natural language processing and vector embeddings.
  */
@@ -32,7 +32,9 @@ export interface CryptoChatPluginProps {
  * Plugin Component
  * This is the main component that gets rendered when the plugin is loaded
  */
-export default function CryptoChatPlugin({ invoices = [] }: CryptoChatPluginProps) {
+export default function CryptoChatPlugin({
+  invoices = [],
+}: CryptoChatPluginProps) {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
@@ -49,7 +51,9 @@ export default function CryptoChatPlugin({ invoices = [] }: CryptoChatPluginProp
  * This component is rendered in the settings panel if settings: true in manifest
  */
 export function Settings() {
-  const SettingsComponent = lazy(() => import("./components/CryptoChatSettings"));
+  const SettingsComponent = lazy(
+    () => import("./components/CryptoChatSettings"),
+  );
 
   return (
     <ErrorBoundary>
@@ -66,13 +70,13 @@ export function Settings() {
  */
 export async function init() {
   console.log("CryptoChat plugin initialized");
-  
+
   // Check if vector DB needs initialization
-  if (typeof window !== 'undefined') {
-    const { initVectorDB } = await import('./utils/vector-db');
+  if (typeof window !== "undefined") {
+    const { initVectorDB } = await import("./utils/vector-db");
     await initVectorDB();
   }
-  
+
   return true;
 }
 
@@ -82,13 +86,13 @@ export async function init() {
  */
 export async function cleanup() {
   console.log("CryptoChat plugin cleanup");
-  
+
   // Clear query cache
   queryClient.clear();
-  
+
   // Clean up vector DB resources
-  if (typeof window !== 'undefined') {
-    const { closeVectorDB } = await import('./utils/vector-db');
+  if (typeof window !== "undefined") {
+    const { closeVectorDB } = await import("./utils/vector-db");
     await closeVectorDB();
   }
 }

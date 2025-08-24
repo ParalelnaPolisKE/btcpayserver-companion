@@ -37,11 +37,12 @@ export default function PaymentAnalytics() {
 
   const { data, isLoading, error, refetch, isRefetching } =
     usePaymentData(timePeriod);
-  
+
   // Check if using mock data - following financial-analysis pattern
-  const isUsingMockData = typeof window !== "undefined" && 
-    (!localStorage.getItem("btcpay_api_key") && 
-     !process.env.NEXT_PUBLIC_BTCPAY_API_KEY) || 
+  const isUsingMockData =
+    (typeof window !== "undefined" &&
+      !localStorage.getItem("btcpay_api_key") &&
+      !process.env.NEXT_PUBLIC_BTCPAY_API_KEY) ||
     process.env.NEXT_PUBLIC_USE_MOCK === "true";
 
   // Calculate derived metrics
@@ -90,11 +91,12 @@ export default function PaymentAnalytics() {
       {isUsingMockData && (
         <Alert>
           <AlertDescription>
-            Using mock data for demonstration. Connect to BTCPay Server with an API key to see real data.
+            Using mock data for demonstration. Connect to BTCPay Server with an
+            API key to see real data.
           </AlertDescription>
         </Alert>
       )}
-      
+
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>

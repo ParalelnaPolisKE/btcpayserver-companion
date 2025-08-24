@@ -13,7 +13,8 @@ const isBrowser = typeof window !== "undefined";
 function getConfig() {
   if (!isBrowser) {
     return {
-      serverUrl: process.env.NEXT_PUBLIC_BTCPAY_URL || "https://btcpay.example.com",
+      serverUrl:
+        process.env.NEXT_PUBLIC_BTCPAY_URL || "https://btcpay.example.com",
       apiKey: "",
       storeId: process.env.NEXT_PUBLIC_STORE_ID || "store-1",
       useMock: true,
@@ -21,10 +22,14 @@ function getConfig() {
   }
 
   const apiKey = localStorage.getItem("btcpay_api_key") || "";
-  const serverUrl = localStorage.getItem("btcpay_server_url") || 
-    process.env.NEXT_PUBLIC_BTCPAY_URL || "https://btcpay.example.com";
-  const storeId = localStorage.getItem("btcpay_store_id") || 
-    process.env.NEXT_PUBLIC_STORE_ID || "store-1";
+  const serverUrl =
+    localStorage.getItem("btcpay_server_url") ||
+    process.env.NEXT_PUBLIC_BTCPAY_URL ||
+    "https://btcpay.example.com";
+  const storeId =
+    localStorage.getItem("btcpay_store_id") ||
+    process.env.NEXT_PUBLIC_STORE_ID ||
+    "store-1";
   const useMock = !apiKey || process.env.NEXT_PUBLIC_USE_MOCK === "true";
 
   return {
@@ -63,7 +68,8 @@ export async function fetchInvoices(params?: {
     return {
       success: false,
       invoices: [],
-      error: error instanceof Error ? error.message : "Failed to fetch invoices",
+      error:
+        error instanceof Error ? error.message : "Failed to fetch invoices",
       isUsingMockData: true,
     };
   }
@@ -108,7 +114,8 @@ export async function fetchStorePOSApps(storeId: string) {
     return {
       success: false,
       posApps: [],
-      error: error instanceof Error ? error.message : "Failed to fetch POS apps",
+      error:
+        error instanceof Error ? error.message : "Failed to fetch POS apps",
       isUsingMockData: true,
     };
   }

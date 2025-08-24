@@ -1,6 +1,6 @@
+import type { Metadata } from "next";
 import { getAvailablePlugins, getPluginManifest } from "@/lib/plugins";
 import PluginSettingsClient from "./plugin-settings-client";
-import type { Metadata } from "next";
 
 // Generate metadata for the page
 export async function generateMetadata({
@@ -33,7 +33,7 @@ export async function generateStaticParams() {
     "cryptochat", // Has settings: true in manifest
     "payment-analytics-template", // Has settings: true in manifest
   ];
-  
+
   return pluginsWithSettings.map((id) => ({
     appId: id,
   }));

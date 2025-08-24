@@ -35,7 +35,7 @@ export async function removePluginCompletely(
 
     return {
       success: true,
-      message: `Plugin "${result.manifest?.name || 'Unknown Plugin'}" has been completely removed`,
+      message: `Plugin "${result.manifest?.name || "Unknown Plugin"}" has been completely removed`,
     };
   } catch (error) {
     console.error("Failed to remove plugin:", error);

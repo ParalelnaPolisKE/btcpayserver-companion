@@ -3,12 +3,16 @@
 import {
   createContext,
   type ReactNode,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
-  useCallback,
 } from "react";
-import { getEncryptedDatabase, type InstalledPlugin } from "@/lib/encrypted-indexeddb";
+import {
+  getEncryptedDatabase,
+  type InstalledPlugin,
+} from "@/lib/encrypted-indexeddb";
 import type { PluginManifest } from "@/types/plugin";
 
 interface PluginsContextType {
@@ -37,10 +41,10 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
   const loadPlugins = useCallback(async () => {
     try {
       const db = getEncryptedDatabase();
-      
+
       // Clean up invalid plugins first
       await db.cleanupInvalidPlugins();
-      
+
       const plugins = await db.getInstalledPlugins();
       setInstalledPlugins(plugins);
 
@@ -126,7 +130,10 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
     loadPlugins();
   }, []); // Remove loadPlugins dependency to prevent infinite loop
 
-  const installPlugin = async (manifest: PluginManifest, source: 'builtin' | 'uploaded' | 'marketplace' = 'uploaded') => {
+  const installPlugin = async (
+    manifest: PluginManifest,
+    source: "builtin" | "uploaded" | "marketplace" = "uploaded",
+  ) => {
     try {
       const db = getEncryptedDatabase();
       await db.installPlugin(manifest, source);
@@ -149,7 +156,7 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
       // For uploaded plugins, remove files from filesystem
       if (plugin.source === "uploaded") {
         const response = await fetch(`/api/plugins/${pluginId}/remove`, {
-          method: 'DELETE',
+          method: "DELETE",
         });
         const result = await response.json();
         if (!result.success) {
@@ -197,29 +204,60 @@ export function PluginsProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const getPlugin = (pluginId: string): InstalledPlugin | undefined => {
-    return installedPlugins.find((p) => p.pluginId === pluginId);
-  };
+  /**
+   * Get a specific plugin by ID
+   * Memoized to prevent recreation on every render
+   */
+  const getPlugin = useCallback(
+    (pluginId: string): InstalledPlugin | undefined => {
+      return installedPlugins.find((p) => p.pluginId === pluginId);
+    },
+    [installedPlugins],
+  );
 
-  const isPluginEnabled = (pluginId: string): boolean => {
-    const plugin = getPlugin(pluginId);
-    return plugin?.config.enabled || false;
-  };
+  /**
+   * Check if a plugin is enabled
+   * Memoized for performance
+   */
+  const isPluginEnabled = useCallback(
+    (pluginId: string): boolean => {
+      const plugin = installedPlugins.find((p) => p.pluginId === pluginId);
+      return plugin?.config.enabled || false;
+    },
+    [installedPlugins],
+  );
+
+  /**
+   * Memoize context value to prevent unnecessary re-renders
+   * Only recreates when dependencies actually change
+   */
+  const contextValue = useMemo<PluginsContextType>(
+    () => ({
+      installedPlugins,
+      isLoading,
+      installPlugin,
+      uninstallPlugin,
+      togglePlugin,
+      updatePluginSettings,
+      getPlugin,
+      isPluginEnabled,
+      refreshPlugins: loadPlugins,
+    }),
+    [
+      installedPlugins,
+      isLoading,
+      installPlugin,
+      uninstallPlugin,
+      togglePlugin,
+      updatePluginSettings,
+      getPlugin,
+      isPluginEnabled,
+      loadPlugins,
+    ],
+  );
 
   return (
-    <PluginsContext.Provider
-      value={{
-        installedPlugins,
-        isLoading,
-        installPlugin,
-        uninstallPlugin,
-        togglePlugin,
-        updatePluginSettings,
-        getPlugin,
-        isPluginEnabled,
-        refreshPlugins: loadPlugins,
-      }}
-    >
+    <PluginsContext.Provider value={contextValue}>
       {children}
     </PluginsContext.Provider>
   );

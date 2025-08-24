@@ -181,9 +181,13 @@ export function AppSidebar() {
                 <SidebarMenu>
                   {guideItems.map((item) => {
                     const Icon = item.icon;
-                    const isActive = pathname === "/guides" && item.href === "/guides"
-                      ? true
-                      : pathname === "/guides" && typeof window !== 'undefined' && window.location.hash === item.href.replace("/guides", "");
+                    const isActive =
+                      pathname === "/guides" && item.href === "/guides"
+                        ? true
+                        : pathname === "/guides" &&
+                          typeof window !== "undefined" &&
+                          window.location.hash ===
+                            item.href.replace("/guides", "");
 
                     return (
                       <SidebarMenuItem key={item.href}>
@@ -245,7 +249,8 @@ export function AppSidebar() {
                       const Icon = getPluginIcon(plugin.pluginId);
                       const pluginPath = `/apps/${plugin.pluginId}`;
                       const isActive = pathname.startsWith(pluginPath);
-                      const pluginName = plugin.manifest?.name || 'Unknown Plugin';
+                      const pluginName =
+                        plugin.manifest?.name || "Unknown Plugin";
 
                       return (
                         <SidebarMenuItem key={plugin.pluginId}>
@@ -256,9 +261,7 @@ export function AppSidebar() {
                               title={pluginName}
                             >
                               <Icon className="size-4" />
-                              <span className="truncate">
-                                {pluginName}
-                              </span>
+                              <span className="truncate">{pluginName}</span>
                             </Link>
                           </SidebarMenuButton>
                         </SidebarMenuItem>

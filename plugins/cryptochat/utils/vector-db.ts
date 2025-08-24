@@ -30,7 +30,7 @@ export class LocalVectorDB {
       const request = indexedDB.open(this.dbName, 1);
 
       request.onerror = () => reject(request.error);
-      
+
       request.onsuccess = () => {
         this.db = request.result;
         resolve();
@@ -38,20 +38,20 @@ export class LocalVectorDB {
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
-        
+
         if (!db.objectStoreNames.contains(this.storeName)) {
-          const store = db.createObjectStore(this.storeName, { keyPath: 'id' });
-          store.createIndex('id', 'id', { unique: true });
+          const store = db.createObjectStore(this.storeName, { keyPath: "id" });
+          store.createIndex("id", "id", { unique: true });
         }
       };
     });
   }
 
   async add(doc: VectorDocument): Promise<void> {
-    if (!this.db) throw new Error('Database not initialized');
+    if (!this.db) throw new Error("Database not initialized");
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([this.storeName], 'readwrite');
+      const transaction = this.db!.transaction([this.storeName], "readwrite");
       const store = transaction.objectStore(this.storeName);
       const request = store.put(doc);
 
@@ -60,21 +60,21 @@ export class LocalVectorDB {
     });
   }
 
-  async search(queryVector: number[], k: number = 5): Promise<VectorDocument[]> {
-    if (!this.db) throw new Error('Database not initialized');
+  async search(queryVector: number[], k = 5): Promise<VectorDocument[]> {
+    if (!this.db) throw new Error("Database not initialized");
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([this.storeName], 'readonly');
+      const transaction = this.db!.transaction([this.storeName], "readonly");
       const store = transaction.objectStore(this.storeName);
       const request = store.getAll();
 
       request.onsuccess = () => {
         const documents = request.result as VectorDocument[];
-        
+
         // Calculate cosine similarity for each document
-        const similarities = documents.map(doc => ({
+        const similarities = documents.map((doc) => ({
           ...doc,
-          similarity: this.cosineSimilarity(queryVector, doc.vector)
+          similarity: this.cosineSimilarity(queryVector, doc.vector),
         }));
 
         // Sort by similarity and return top k
@@ -87,10 +87,10 @@ export class LocalVectorDB {
   }
 
   async clear(): Promise<void> {
-    if (!this.db) throw new Error('Database not initialized');
+    if (!this.db) throw new Error("Database not initialized");
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([this.storeName], 'readwrite');
+      const transaction = this.db!.transaction([this.storeName], "readwrite");
       const store = transaction.objectStore(this.storeName);
       const request = store.clear();
 
@@ -100,10 +100,10 @@ export class LocalVectorDB {
   }
 
   async count(): Promise<number> {
-    if (!this.db) throw new Error('Database not initialized');
+    if (!this.db) throw new Error("Database not initialized");
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([this.storeName], 'readonly');
+      const transaction = this.db!.transaction([this.storeName], "readonly");
       const store = transaction.objectStore(this.storeName);
       const request = store.count();
 
@@ -155,9 +155,9 @@ let vectorDBInstance: LocalVectorDB | null = null;
 export async function initVectorDB(): Promise<LocalVectorDB> {
   if (!vectorDBInstance) {
     vectorDBInstance = new LocalVectorDB({
-      dbName: 'cryptochat-vectors',
-      storeName: 'embeddings',
-      dimensions: 1536 // Default for OpenAI embeddings
+      dbName: "cryptochat-vectors",
+      storeName: "embeddings",
+      dimensions: 1536, // Default for OpenAI embeddings
     });
     await vectorDBInstance.init();
   }

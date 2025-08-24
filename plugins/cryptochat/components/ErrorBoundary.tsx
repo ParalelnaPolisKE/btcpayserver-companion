@@ -1,6 +1,7 @@
-import React, { Component, ReactNode } from 'react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle } from "lucide-react";
+import type React from "react";
+import { Component, type ReactNode } from "react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface Props {
   children: ReactNode;
@@ -22,7 +23,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('CryptoChat plugin error:', error, errorInfo);
+    console.error("CryptoChat plugin error:", error, errorInfo);
   }
 
   render() {
@@ -32,10 +33,13 @@ export class ErrorBoundary extends Component<Props, State> {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Something went wrong</AlertTitle>
           <AlertDescription>
-            The CryptoChat plugin encountered an error. Please try refreshing the page.
+            The CryptoChat plugin encountered an error. Please try refreshing
+            the page.
             {this.state.error && (
               <details className="mt-2">
-                <summary className="cursor-pointer text-sm">Error details</summary>
+                <summary className="cursor-pointer text-sm">
+                  Error details
+                </summary>
                 <pre className="mt-2 text-xs overflow-auto">
                   {this.state.error.message}
                 </pre>

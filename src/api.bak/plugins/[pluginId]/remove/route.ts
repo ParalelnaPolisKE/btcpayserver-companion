@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { PluginExtractor } from "@/services/plugin-extractor";
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ pluginId: string }> }
+  { params }: { params: Promise<{ pluginId: string }> },
 ) {
   try {
     const { pluginId } = await params;
-    
+
     // Use the PluginExtractor to remove plugin files
     const extractor = new PluginExtractor();
     const result = await extractor.removePlugin(pluginId);
@@ -19,13 +19,13 @@ export async function DELETE(
           message: result.message,
           error: result.message,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     return NextResponse.json({
       success: true,
-      message: `Plugin "${result.manifest?.name || 'Unknown Plugin'}" has been completely removed`,
+      message: `Plugin "${result.manifest?.name || "Unknown Plugin"}" has been completely removed`,
     });
   } catch (error) {
     console.error("Failed to remove plugin:", error);
@@ -33,9 +33,10 @@ export async function DELETE(
       {
         success: false,
         message: "Failed to remove plugin",
-        error: error instanceof Error ? error.message : "Unknown error occurred",
+        error:
+          error instanceof Error ? error.message : "Unknown error occurred",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -11,7 +11,6 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import type { AvailablePlugin } from "@/lib/plugins";
 import PluginDropzone from "@/components/apps/plugin-dropzone";
 import {
   AlertDialog,
@@ -42,6 +41,7 @@ import {
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { usePlugins } from "@/contexts/plugins-context";
+import type { AvailablePlugin } from "@/lib/plugins";
 import {
   getAvailablePluginsClient,
   removePluginFolderClient,

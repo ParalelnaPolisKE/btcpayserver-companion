@@ -1,19 +1,19 @@
-import { VectorService, Document } from './vector-service';
+import type { Document, VectorService } from "./vector-service";
 
 export class DataIngestionService {
   constructor(private vectorService: VectorService) {}
 
   async ingestAllData(btcPayData: any): Promise<void> {
-    console.log('Starting data ingestion...');
-    
+    console.log("Starting data ingestion...");
+
     // Clear existing data
     await this.vectorService.clearAll();
-    
+
     // Ingest invoices if available
     if (btcPayData?.invoices) {
       await this.ingestInvoices(btcPayData.invoices);
     }
-    
+
     const count = await this.vectorService.getDocumentCount();
     console.log(`Data ingestion complete. Indexed ${count} documents.`);
   }
@@ -25,15 +25,15 @@ export class DataIngestionService {
       for (const invoice of invoices) {
         // Create a comprehensive text representation of the invoice
         const content = this.createInvoiceContent(invoice);
-        
+
         const doc: Document = {
           id: `invoice-${invoice.id}`,
           content,
           metadata: {
-            type: 'invoice',
+            type: "invoice",
             entityId: invoice.id,
             timestamp: invoice.createdTime,
-            amount: parseFloat(invoice.amount || '0'),
+            amount: Number.parseFloat(invoice.amount || "0"),
             currency: invoice.currency,
             status: invoice.status,
             orderId: invoice.orderId,
@@ -41,21 +41,23 @@ export class DataIngestionService {
             itemDesc: invoice.metadata?.itemDesc,
           },
         };
-        
+
         documents.push(doc);
 
         // Also index payment methods if available
         if (invoice.checkout?.paymentMethods) {
-          for (const [method, details] of Object.entries(invoice.checkout.paymentMethods)) {
+          for (const [method, details] of Object.entries(
+            invoice.checkout.paymentMethods,
+          )) {
             const paymentDoc: Document = {
               id: `payment-method-${invoice.id}-${method}`,
               content: `Payment method ${method} for invoice ${invoice.id}: ${JSON.stringify(details)}`,
               metadata: {
-                type: 'payment',
+                type: "payment",
                 entityId: `${invoice.id}-${method}`,
                 invoiceId: invoice.id,
                 method,
-                ...details as any,
+                ...(details as any),
               },
             };
             documents.push(paymentDoc);
@@ -66,7 +68,7 @@ export class DataIngestionService {
       await this.vectorService.addDocuments(documents);
       console.log(`Indexed ${documents.length} invoice-related documents`);
     } catch (error) {
-      console.error('Failed to ingest invoices:', error);
+      console.error("Failed to ingest invoices:", error);
       throw error;
     }
   }
@@ -108,6 +110,6 @@ export class DataIngestionService {
       parts.push(`Receipt: ${JSON.stringify(invoice.receiptData)}`);
     }
 
-    return parts.join('\n');
+    return parts.join("\n");
   }
 }

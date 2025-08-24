@@ -22,14 +22,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { APP_CONFIG } from "@/lib/app-config";
 import { clientEnv } from "@/lib/env";
 import { BTCPayClient } from "@/services/btcpay-client";
-import { APP_CONFIG } from "@/lib/app-config";
 
 export default function SettingsClient() {
   const apiKeyId = useId();
   const themeId = useId();
-  
+
   const [apiKey, setApiKey] = useState("");
   const [testStatus, setTestStatus] = useState<
     "idle" | "testing" | "success" | "error"
@@ -224,11 +224,15 @@ export default function SettingsClient() {
             <div className="space-y-4">
               <div>
                 <p className="text-sm font-medium">Version</p>
-                <p className="text-sm text-muted-foreground">v{APP_CONFIG.version}</p>
+                <p className="text-sm text-muted-foreground">
+                  v{APP_CONFIG.version}
+                </p>
               </div>
               <div>
                 <p className="text-sm font-medium">Build</p>
-                <p className="text-sm text-muted-foreground">{process.env.NODE_ENV}</p>
+                <p className="text-sm text-muted-foreground">
+                  {process.env.NODE_ENV}
+                </p>
               </div>
               <Alert>
                 <InfoIcon className="h-4 w-4" />

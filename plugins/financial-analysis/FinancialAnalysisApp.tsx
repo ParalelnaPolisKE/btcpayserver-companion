@@ -43,10 +43,10 @@ import {
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ProjectionChart } from "./components/projection-chart";
 import { FinancialAnalysisLoadingSkeleton } from "./components/LoadingSkeleton";
 import { MetricCard } from "./components/metric-card";
 import { PaymentMethodChart } from "./components/payment-method-chart";
+import { ProjectionChart } from "./components/projection-chart";
 import { StatusBreakdown } from "./components/status-breakdown";
 import { TopProducts } from "./components/top-products";
 import { useStores } from "./contexts/stores-context";

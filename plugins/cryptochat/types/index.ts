@@ -4,7 +4,7 @@
 
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   timestamp: Date;
   sources?: MessageSource[];
@@ -12,13 +12,13 @@ export interface ChatMessage {
 
 export interface MessageSource {
   id: string;
-  type: 'invoice' | 'payment' | 'store' | 'app';
+  type: "invoice" | "payment" | "store" | "app";
   relevance: number;
   metadata?: Record<string, any>;
 }
 
 export interface CryptoChatSettings {
-  provider: 'openai' | 'ollama';
+  provider: "openai" | "ollama";
   openaiApiKey?: string;
   ollamaUrl?: string;
   model?: string;
@@ -44,6 +44,6 @@ export interface EmbeddingResponse {
 export interface IndexingProgress {
   current: number;
   total: number;
-  status: 'idle' | 'indexing' | 'completed' | 'error';
+  status: "idle" | "indexing" | "completed" | "error";
   message?: string;
 }

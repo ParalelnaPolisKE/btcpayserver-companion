@@ -1,7 +1,5 @@
 "use client";
 
-// Server actions not available in static export - using client-side wrapper
-import { fetchStores, fetchStorePOSApps } from "@/lib/btcpay-client-wrapper";
 import { Alert, AlertDescription } from "@bps-companion/components/ui/alert";
 import { Badge } from "@bps-companion/components/ui/badge";
 import { Button } from "@bps-companion/components/ui/button";
@@ -52,6 +50,8 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+// Server actions not available in static export - using client-side wrapper
+import { fetchStorePOSApps, fetchStores } from "@/lib/btcpay-client-wrapper";
 import { useStores } from "../contexts/stores-context";
 
 export function StoresManager() {

@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { loadAvailablePlugins } from "@/lib/plugin-loader";
 
 export async function GET(request: NextRequest) {
   try {
     const plugins = await loadAvailablePlugins();
-    
+
     return NextResponse.json({
       success: true,
       plugins,
@@ -15,9 +15,10 @@ export async function GET(request: NextRequest) {
       {
         success: false,
         plugins: [],
-        error: error instanceof Error ? error.message : "Failed to discover plugins",
+        error:
+          error instanceof Error ? error.message : "Failed to discover plugins",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -8,8 +8,13 @@
 import { clientEnv } from "@bps-companion/lib/env";
 import { BTCPayClient } from "@bps-companion/services/btcpay-client";
 import { BTCPayMockClient } from "@bps-companion/services/btcpay-mock";
-import type { AnalyticsData, ApiResponse, Payment, TimePeriod } from "../types";
-import { ErrorType } from "../types";
+import type {
+  AnalyticsData,
+  ApiResponse,
+  ErrorType,
+  Payment,
+  TimePeriod,
+} from "../types";
 
 /**
  * Custom error class for the plugin
@@ -61,7 +66,7 @@ const getClient = (storeId?: string) => {
 function generateMockInvoices(timePeriod: TimePeriod): Payment[] {
   const now = new Date();
   let days = 30;
-  
+
   switch (timePeriod) {
     case "24h":
       days = 1;
@@ -82,13 +87,20 @@ function generateMockInvoices(timePeriod: TimePeriod): Payment[] {
       days = 365 * 2;
       break;
   }
-  
+
   const invoices: Payment[] = [];
-  const statuses = ["Settled", "Processing", "New", "Expired", "Invalid"] as const;
+  const statuses = [
+    "Settled",
+    "Processing",
+    "New",
+    "Expired",
+    "Invalid",
+  ] as const;
   const methods = ["Bitcoin", "Lightning", "Litecoin", "Monero"];
-  
+
   for (let i = 0; i < days * 5; i++) {
-    const createdTime = now.getTime() / 1000 - (Math.random() * days * 24 * 60 * 60);
+    const createdTime =
+      now.getTime() / 1000 - Math.random() * days * 24 * 60 * 60;
     invoices.push({
       id: `inv_${i}`,
       storeId: "store_123",
@@ -100,7 +112,7 @@ function generateMockInvoices(timePeriod: TimePeriod): Payment[] {
       metadata: {},
     });
   }
-  
+
   return invoices.sort((a, b) => b.createdTime - a.createdTime);
 }
 
@@ -112,12 +124,12 @@ export async function fetchInvoices(
   storeId?: string,
 ): Promise<Payment[]> {
   const client = getClient(storeId);
-  
+
   // Check if using mock client
   if (client instanceof BTCPayMockClient) {
     return generateMockInvoices(timePeriod);
   }
-  
+
   const now = new Date();
   let startDate: Date;
 
@@ -137,7 +149,7 @@ export async function fetchInvoices(
     case "1y":
       startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
       break;
-    default:
+    default: {
       // For 'all', we'll fetch without date filter
       const invoices = await client.getInvoices({ take: 1000 });
       return invoices.map((invoice: any) => ({
@@ -150,6 +162,7 @@ export async function fetchInvoices(
         paymentMethod: invoice.type || "Unknown",
         metadata: invoice.metadata || {},
       }));
+    }
   }
 
   const invoices = await client.getInvoices({
@@ -157,7 +170,7 @@ export async function fetchInvoices(
     endDate: now.toISOString(),
     take: 1000,
   });
-  
+
   return invoices.map((invoice: any) => ({
     id: invoice.id,
     storeId: invoice.storeId,

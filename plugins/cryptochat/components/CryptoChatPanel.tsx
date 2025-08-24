@@ -1,39 +1,45 @@
-'use client';
+"use client";
 
-import React, { useState, useRef, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Send, 
-  Loader2, 
-  Database, 
-  Trash2, 
+import {
   AlertCircle,
+  Database,
   FileText,
+  Loader2,
+  RefreshCw,
+  Send,
   Settings,
-  RefreshCw
-} from 'lucide-react';
-import { useCryptoChat } from '../hooks/useCryptoChat';
-import { getCryptoChatSettings } from '../utils/store';
-import { fetchInvoices } from '@/lib/btcpay-client-wrapper';
-import MarkdownRenderer from './MarkdownRenderer';
+  Trash2,
+} from "lucide-react";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { fetchInvoices } from "@/lib/btcpay-client-wrapper";
+import { useCryptoChat } from "../hooks/useCryptoChat";
+import { getCryptoChatSettings } from "../utils/store";
+import MarkdownRenderer from "./MarkdownRenderer";
 
 interface CryptoChatPanelProps {
   invoices?: any[];
 }
 
-export default function CryptoChatPanel({ invoices: initialInvoices = [] }: CryptoChatPanelProps) {
-  const [input, setInput] = useState('');
+export default function CryptoChatPanel({
+  invoices: initialInvoices = [],
+}: CryptoChatPanelProps) {
+  const [input, setInput] = useState("");
   const [invoices, setInvoices] = useState(initialInvoices);
   const [isFetchingInvoices, setIsFetchingInvoices] = useState(false);
-  const [providerStatus, setProviderStatus] = useState<{ provider: string; configured: boolean }>({ provider: 'openai', configured: false });
+  const [providerStatus, setProviderStatus] = useState<{
+    provider: string;
+    configured: boolean;
+  }>({ provider: "openai", configured: false });
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  
+
   const {
     messages,
     isLoading,
@@ -47,16 +53,15 @@ export default function CryptoChatPanel({ invoices: initialInvoices = [] }: Cryp
 
   useEffect(() => {
     // Check provider configuration on client side only
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const settings = getCryptoChatSettings();
-      const provider = settings.provider || 'openai';
-      const configured = provider === 'openai' 
-        ? !!settings.openaiApiKey 
-        : !!settings.ollamaUrl;
-      
+      const provider = settings.provider || "openai";
+      const configured =
+        provider === "openai" ? !!settings.openaiApiKey : !!settings.ollamaUrl;
+
       setProviderStatus({ provider, configured });
     }
-    
+
     // Fetch invoices on mount if not already provided
     if (initialInvoices.length === 0) {
       fetchLatestInvoices();
@@ -74,12 +79,12 @@ export default function CryptoChatPanel({ invoices: initialInvoices = [] }: Cryp
     setIsFetchingInvoices(true);
     try {
       const result = await fetchInvoices({ take: 100 });
-      
+
       if (result.success && result.invoices) {
         setInvoices(result.invoices);
       }
     } catch (error) {
-      console.error('Failed to fetch invoices:', error);
+      console.error("Failed to fetch invoices:", error);
     } finally {
       setIsFetchingInvoices(false);
     }
@@ -88,17 +93,17 @@ export default function CryptoChatPanel({ invoices: initialInvoices = [] }: Cryp
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
-    
+
     const message = input.trim();
-    setInput('');
+    setInput("");
     await sendMessage(message);
-    
+
     // Refocus input after sending
     inputRef.current?.focus();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e as any);
     }
@@ -109,7 +114,7 @@ export default function CryptoChatPanel({ invoices: initialInvoices = [] }: Cryp
     if (invoices.length === 0) {
       await fetchLatestInvoices();
     }
-    
+
     // Then index the data
     if (invoices.length > 0) {
       await indexData({ invoices });
@@ -128,11 +133,12 @@ export default function CryptoChatPanel({ invoices: initialInvoices = [] }: Cryp
                   Mock Mode
                 </Badge>
               )}
-              {providerStatus.provider === 'ollama' && providerStatus.configured && (
-                <Badge variant="secondary" className="ml-2">
-                  Ollama
-                </Badge>
-              )}
+              {providerStatus.provider === "ollama" &&
+                providerStatus.configured && (
+                  <Badge variant="secondary" className="ml-2">
+                    Ollama
+                  </Badge>
+                )}
             </CardTitle>
             <div className="flex gap-2">
               <Button
@@ -142,14 +148,20 @@ export default function CryptoChatPanel({ invoices: initialInvoices = [] }: Cryp
                 disabled={isFetchingInvoices}
                 title="Fetch latest invoices from BTCPayServer"
               >
-                <RefreshCw className={`h-4 w-4 ${isFetchingInvoices ? 'animate-spin' : ''}`} />
+                <RefreshCw
+                  className={`h-4 w-4 ${isFetchingInvoices ? "animate-spin" : ""}`}
+                />
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleIndexData}
                 disabled={isIndexing || isFetchingInvoices}
-                title={invoices.length === 0 ? "Fetch invoices first" : "Index invoices for AI search"}
+                title={
+                  invoices.length === 0
+                    ? "Fetch invoices first"
+                    : "Index invoices for AI search"
+                }
               >
                 {isIndexing ? (
                   <>
@@ -174,7 +186,7 @@ export default function CryptoChatPanel({ invoices: initialInvoices = [] }: Cryp
             </div>
           </div>
         </CardHeader>
-        
+
         <CardContent className="flex-1 flex flex-col p-0">
           {error && (
             <Alert className="mx-4 mb-2">
@@ -182,35 +194,39 @@ export default function CryptoChatPanel({ invoices: initialInvoices = [] }: Cryp
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          
+
           {!providerStatus.configured && (
             <Alert className="mx-4 mb-2">
               <Settings className="h-4 w-4" />
               <AlertDescription>
-                Running in mock mode. Configure your {providerStatus.provider === 'ollama' ? 'Ollama server' : 'OpenAI API key'} in settings for full functionality.
+                Running in mock mode. Configure your{" "}
+                {providerStatus.provider === "ollama"
+                  ? "Ollama server"
+                  : "OpenAI API key"}{" "}
+                in settings for full functionality.
               </AlertDescription>
             </Alert>
           )}
-          
+
           <ScrollArea className="flex-1 px-4" ref={scrollAreaRef}>
             <div className="space-y-4 py-4">
               {messages.map((message) => (
                 <div
                   key={message.id}
                   className={`flex ${
-                    message.role === 'user' ? 'justify-end' : 'justify-start'
+                    message.role === "user" ? "justify-end" : "justify-start"
                   }`}
                 >
                   <div
                     className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                      message.role === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : message.role === 'system'
-                        ? 'bg-muted'
-                        : 'bg-secondary'
+                      message.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : message.role === "system"
+                          ? "bg-muted"
+                          : "bg-secondary"
                     }`}
                   >
-                    {message.role === 'user' ? (
+                    {message.role === "user" ? (
                       <div className="whitespace-pre-wrap break-words">
                         {message.content}
                       </div>
@@ -219,7 +235,7 @@ export default function CryptoChatPanel({ invoices: initialInvoices = [] }: Cryp
                         {message.content}
                       </MarkdownRenderer>
                     )}
-                    
+
                     {message.sources && message.sources.length > 0 && (
                       <div className="mt-2 pt-2 border-t border-current/20">
                         <div className="text-xs opacity-70 mb-1">Sources:</div>
@@ -240,7 +256,7 @@ export default function CryptoChatPanel({ invoices: initialInvoices = [] }: Cryp
                   </div>
                 </div>
               ))}
-              
+
               {isLoading && (
                 <div className="flex justify-start">
                   <div className="bg-secondary rounded-lg px-4 py-2">
@@ -250,7 +266,7 @@ export default function CryptoChatPanel({ invoices: initialInvoices = [] }: Cryp
               )}
             </div>
           </ScrollArea>
-          
+
           <form onSubmit={handleSubmit} className="p-4 border-t">
             <div className="flex gap-2">
               <Input

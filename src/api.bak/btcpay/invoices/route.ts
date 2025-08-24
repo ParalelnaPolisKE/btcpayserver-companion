@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { clientEnv, serverEnv } from "@/lib/env";
 import { BTCPayClient } from "@/services/btcpay-client";
 import { BTCPayMockClient } from "@/services/btcpay-mock";
@@ -6,8 +6,12 @@ import { BTCPayMockClient } from "@/services/btcpay-mock";
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const skip = searchParams.get("skip") ? parseInt(searchParams.get("skip")!) : undefined;
-    const take = searchParams.get("take") ? parseInt(searchParams.get("take")!) : undefined;
+    const skip = searchParams.get("skip")
+      ? Number.parseInt(searchParams.get("skip")!)
+      : undefined;
+    const take = searchParams.get("take")
+      ? Number.parseInt(searchParams.get("take")!)
+      : undefined;
     const startDate = searchParams.get("startDate") || undefined;
     const endDate = searchParams.get("endDate") || undefined;
     const status = searchParams.getAll("status") || undefined;
@@ -48,10 +52,11 @@ export async function GET(request: NextRequest) {
       {
         success: false,
         invoices: [],
-        error: error instanceof Error ? error.message : "Failed to fetch invoices",
+        error:
+          error instanceof Error ? error.message : "Failed to fetch invoices",
         isUsingMockData: true,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

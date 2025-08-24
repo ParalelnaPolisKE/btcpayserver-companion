@@ -45,7 +45,7 @@ import { StoresManager } from "./components/StoresManager";
 
 export default function FinancialAnalysisSettingsContent() {
   const { isPluginEnabled } = usePlugins();
-  
+
   // Generate unique IDs for form elements
   const vatRateId = useId();
   const categoryNameId = useId();

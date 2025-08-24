@@ -205,7 +205,12 @@ export function PluginSecurityDashboard() {
                           </Badge>
                         </div>
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span>Plugin: {installedPlugins.find(p => p.pluginId === event.pluginId)?.manifest?.name || event.pluginId}</span>
+                          <span>
+                            Plugin:{" "}
+                            {installedPlugins.find(
+                              (p) => p.pluginId === event.pluginId,
+                            )?.manifest?.name || event.pluginId}
+                          </span>
                           <span>Category: {event.category}</span>
                           <span>
                             {new Date(event.timestamp).toLocaleString()}

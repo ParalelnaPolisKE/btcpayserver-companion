@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { clientEnv, serverEnv } from "@/lib/env";
 import { BTCPayClient } from "@/services/btcpay-client";
 import { BTCPayMockClient } from "@/services/btcpay-mock";
@@ -34,10 +34,11 @@ export async function GET(request: NextRequest) {
       {
         success: false,
         stores: [],
-        error: error instanceof Error ? error.message : "Failed to fetch stores",
+        error:
+          error instanceof Error ? error.message : "Failed to fetch stores",
         isUsingMockData: true,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -1,8 +1,8 @@
-import { getCryptoService, type CryptoService } from "./crypto";
+import { type CryptoService, getCryptoService } from "./crypto";
 import {
   getDatabaseInstance,
-  type Settings,
   type InstalledPlugin,
+  type Settings,
   type Store,
 } from "./indexeddb";
 
@@ -22,35 +22,43 @@ export class EncryptedIndexedDBService {
   // Settings methods with encryption
   async getSecureSetting(key: string): Promise<any> {
     const value = await this.db.getSetting(key);
-    
+
     // List of settings that should be decrypted
     const encryptedSettings = ["apiKey", "serverUrl", "webhookSecret"];
-    
-    if (encryptedSettings.includes(key) && value && this.crypto.isEncrypted(value)) {
+
+    if (
+      encryptedSettings.includes(key) &&
+      value &&
+      this.crypto.isEncrypted(value)
+    ) {
       return this.crypto.decrypt(value);
     }
-    
+
     return value;
   }
 
   async setSecureSetting(key: string, value: any): Promise<void> {
     // List of settings that should be encrypted
     const encryptedSettings = ["apiKey", "serverUrl", "webhookSecret"];
-    
+
     let finalValue = value;
-    if (encryptedSettings.includes(key) && value !== null && value !== undefined) {
+    if (
+      encryptedSettings.includes(key) &&
+      value !== null &&
+      value !== undefined
+    ) {
       finalValue = this.crypto.encrypt(value);
     }
-    
+
     await this.db.setSetting(key, finalValue);
   }
 
   // Store methods with selective encryption
   async getStores(): Promise<Store[]> {
     const stores = await this.db.getStores();
-    
+
     // Decrypt sensitive fields in stores
-    return stores.map(store => {
+    return stores.map((store) => {
       if (store.posFilter && this.crypto.isEncrypted(store.posFilter)) {
         return {
           ...store,
@@ -64,38 +72,38 @@ export class EncryptedIndexedDBService {
   async addStore(store: Omit<Store, "id">): Promise<number> {
     // Encrypt sensitive fields before storing
     const encryptedStore = { ...store };
-    
+
     if (store.posFilter) {
       encryptedStore.posFilter = this.crypto.encrypt(store.posFilter);
     }
-    
+
     return await this.db.addStore(encryptedStore);
   }
 
   async updateStore(id: number, updates: Partial<Store>): Promise<void> {
     const encryptedUpdates = { ...updates };
-    
+
     if (updates.posFilter !== undefined) {
-      encryptedUpdates.posFilter = updates.posFilter 
+      encryptedUpdates.posFilter = updates.posFilter
         ? this.crypto.encrypt(updates.posFilter)
         : undefined;
     }
-    
+
     await this.db.updateStore(id, encryptedUpdates);
   }
 
   // Plugin methods with encrypted settings
   async getInstalledPlugins(): Promise<InstalledPlugin[]> {
     const plugins = await this.db.getInstalledPlugins();
-    
+
     // Decrypt plugin settings that contain sensitive data
-    return plugins.map(plugin => {
+    return plugins.map((plugin) => {
       const decryptedPlugin = { ...plugin };
-      
+
       // Check if plugin settings contain encrypted fields
       if (plugin.config?.settings) {
         const settings = { ...plugin.config.settings };
-        
+
         // Decrypt known sensitive fields
         if (settings.apiKey && this.crypto.isEncrypted(settings.apiKey)) {
           settings.apiKey = this.crypto.decrypt(settings.apiKey);
@@ -103,31 +111,34 @@ export class EncryptedIndexedDBService {
         if (settings.secret && this.crypto.isEncrypted(settings.secret)) {
           settings.secret = this.crypto.decrypt(settings.secret);
         }
-        if (settings.webhookSecret && this.crypto.isEncrypted(settings.webhookSecret)) {
+        if (
+          settings.webhookSecret &&
+          this.crypto.isEncrypted(settings.webhookSecret)
+        ) {
           settings.webhookSecret = this.crypto.decrypt(settings.webhookSecret);
         }
-        
+
         decryptedPlugin.config = {
           ...plugin.config,
           settings,
         };
       }
-      
+
       return decryptedPlugin;
     });
   }
 
   async getPlugin(pluginId: string): Promise<InstalledPlugin | null> {
     const plugin = await this.db.getPlugin(pluginId);
-    
+
     if (!plugin) return null;
-    
+
     // Decrypt plugin settings
     const decryptedPlugin = { ...plugin };
-    
+
     if (plugin.config?.settings) {
       const settings = { ...plugin.config.settings };
-      
+
       // Decrypt known sensitive fields
       if (settings.apiKey && this.crypto.isEncrypted(settings.apiKey)) {
         settings.apiKey = this.crypto.decrypt(settings.apiKey);
@@ -135,34 +146,37 @@ export class EncryptedIndexedDBService {
       if (settings.secret && this.crypto.isEncrypted(settings.secret)) {
         settings.secret = this.crypto.decrypt(settings.secret);
       }
-      if (settings.webhookSecret && this.crypto.isEncrypted(settings.webhookSecret)) {
+      if (
+        settings.webhookSecret &&
+        this.crypto.isEncrypted(settings.webhookSecret)
+      ) {
         settings.webhookSecret = this.crypto.decrypt(settings.webhookSecret);
       }
-      
+
       decryptedPlugin.config = {
         ...plugin.config,
         settings,
       };
     }
-    
+
     return decryptedPlugin;
   }
 
   async updatePluginSettings(
     pluginId: string,
-    settings: Record<string, any>
+    settings: Record<string, any>,
   ): Promise<void> {
     // Get existing plugin to merge settings
     const existingPlugin = await this.db.getPlugin(pluginId);
     if (!existingPlugin) {
       throw new Error("Plugin not found");
     }
-    
+
     const encryptedSettings = { ...settings };
-    
+
     // Encrypt sensitive fields in settings
     if (settings.apiKey !== undefined) {
-      encryptedSettings.apiKey = settings.apiKey 
+      encryptedSettings.apiKey = settings.apiKey
         ? this.crypto.encrypt(settings.apiKey)
         : null;
     }
@@ -176,7 +190,7 @@ export class EncryptedIndexedDBService {
         ? this.crypto.encrypt(settings.webhookSecret)
         : null;
     }
-    
+
     await this.db.updatePluginSettings(pluginId, encryptedSettings);
   }
 
@@ -207,11 +221,16 @@ export class EncryptedIndexedDBService {
     return await this.db.getExpenseCategories();
   }
 
-  async addExpenseCategory(category: Parameters<typeof this.db.addExpenseCategory>[0]) {
+  async addExpenseCategory(
+    category: Parameters<typeof this.db.addExpenseCategory>[0],
+  ) {
     return await this.db.addExpenseCategory(category);
   }
 
-  async updateExpenseCategory(id: number, updates: Parameters<typeof this.db.updateExpenseCategory>[1]) {
+  async updateExpenseCategory(
+    id: number,
+    updates: Parameters<typeof this.db.updateExpenseCategory>[1],
+  ) {
     return await this.db.updateExpenseCategory(id, updates);
   }
 
@@ -227,7 +246,10 @@ export class EncryptedIndexedDBService {
     return await this.db.addExpenseItem(item);
   }
 
-  async updateExpenseItem(id: number, updates: Parameters<typeof this.db.updateExpenseItem>[1]) {
+  async updateExpenseItem(
+    id: number,
+    updates: Parameters<typeof this.db.updateExpenseItem>[1],
+  ) {
     return await this.db.updateExpenseItem(id, updates);
   }
 
@@ -237,14 +259,14 @@ export class EncryptedIndexedDBService {
 
   async installPlugin(
     manifest: Parameters<typeof this.db.installPlugin>[0],
-    source: Parameters<typeof this.db.installPlugin>[1]
+    source: Parameters<typeof this.db.installPlugin>[1],
   ) {
     return await this.db.installPlugin(manifest, source);
   }
 
   async updatePluginConfig(
     pluginId: string,
-    config: Parameters<typeof this.db.updatePluginConfig>[1]
+    config: Parameters<typeof this.db.updatePluginConfig>[1],
   ) {
     return await this.db.updatePluginConfig(pluginId, config);
   }
@@ -277,4 +299,10 @@ export const getEncryptedDatabase = (): EncryptedIndexedDBService => {
 };
 
 // Export for backwards compatibility
-export { type Store, type Settings, type InstalledPlugin, type ExpenseCategory, type ExpenseItem } from "./indexeddb";
+export type {
+  ExpenseCategory,
+  ExpenseItem,
+  InstalledPlugin,
+  Settings,
+  Store,
+} from "./indexeddb";

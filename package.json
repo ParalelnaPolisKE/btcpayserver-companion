@@ -1,6 +1,6 @@
 {
   "name": "bps-companion",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -12,6 +12,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:perf": "playwright test",
+    "test:perf:report": "playwright show-report",
     "typecheck": "tsc --noEmit",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
@@ -67,6 +69,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.0",
+    "@playwright/test": "^1.55.0",
     "@tailwindcss/postcss": "^4",
     "@tauri-apps/cli": "^2.6.2",
     "@testing-library/jest-dom": "^6.6.3",
@@ -79,6 +82,7 @@
     "@types/react-dom": "^19",
     "jest": "^30.0.4",
     "jest-environment-jsdom": "^30.0.4",
+    "playwright": "^1.55.0",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.5",
     "typescript": "^5"

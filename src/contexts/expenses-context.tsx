@@ -6,6 +6,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import {
@@ -276,24 +277,49 @@ export function ExpensesProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const value: ExpensesContextType = {
-    categories,
-    items,
-    isLoading,
-    error,
-    defaultVatRate,
-    addCategory,
-    updateCategory,
-    deleteCategory,
-    addItem,
-    updateItem,
-    deleteItem,
-    calculateTotalMonthlyExpenses,
-    getExpenseBreakdown,
-    getCategorizedExpenses,
-    updateDefaultVatRate,
-    refreshExpenses: loadExpenses,
-  };
+  /**
+   * Memoize context value to prevent unnecessary re-renders
+   * Only recreates when dependencies actually change
+   * Critical for performance as this context is used throughout the app
+   */
+  const value = useMemo<ExpensesContextType>(
+    () => ({
+      categories,
+      items,
+      isLoading,
+      error,
+      defaultVatRate,
+      addCategory,
+      updateCategory,
+      deleteCategory,
+      addItem,
+      updateItem,
+      deleteItem,
+      calculateTotalMonthlyExpenses,
+      getExpenseBreakdown,
+      getCategorizedExpenses,
+      updateDefaultVatRate,
+      refreshExpenses: loadExpenses,
+    }),
+    [
+      categories,
+      items,
+      isLoading,
+      error,
+      defaultVatRate,
+      addCategory,
+      updateCategory,
+      deleteCategory,
+      addItem,
+      updateItem,
+      deleteItem,
+      calculateTotalMonthlyExpenses,
+      getExpenseBreakdown,
+      getCategorizedExpenses,
+      updateDefaultVatRate,
+      loadExpenses,
+    ],
+  );
 
   return (
     <ExpensesContext.Provider value={value}>

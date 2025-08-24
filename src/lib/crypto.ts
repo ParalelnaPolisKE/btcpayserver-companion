@@ -57,11 +57,11 @@ export class CryptoService {
     try {
       const decrypted = CryptoJS.AES.decrypt(encryptedData, this.encryptionKey);
       const jsonString = decrypted.toString(CryptoJS.enc.Utf8);
-      
+
       if (!jsonString) {
         throw new Error("Decryption resulted in empty string");
       }
-      
+
       return JSON.parse(jsonString);
     } catch (error) {
       console.error("Decryption failed:", error);
@@ -74,7 +74,7 @@ export class CryptoService {
    */
   isEncrypted(value: any): boolean {
     if (typeof value !== "string") return false;
-    
+
     // Check if it looks like an AES encrypted string
     // CryptoJS AES output format: "U2FsdGVkX1..."
     return value.startsWith("U2FsdGVkX1") && value.length > 20;
@@ -85,16 +85,16 @@ export class CryptoService {
    */
   encryptFields<T extends Record<string, any>>(
     obj: T,
-    fieldsToEncrypt: (keyof T)[]
+    fieldsToEncrypt: (keyof T)[],
   ): T {
     const result = { ...obj };
-    
+
     for (const field of fieldsToEncrypt) {
       if (field in result && result[field] !== undefined) {
         result[field] = this.encrypt(result[field]) as any;
       }
     }
-    
+
     return result;
   }
 
@@ -103,10 +103,10 @@ export class CryptoService {
    */
   decryptFields<T extends Record<string, any>>(
     obj: T,
-    fieldsToDecrypt: (keyof T)[]
+    fieldsToDecrypt: (keyof T)[],
   ): T {
     const result = { ...obj };
-    
+
     for (const field of fieldsToDecrypt) {
       if (field in result && this.isEncrypted(result[field])) {
         try {
@@ -117,14 +117,14 @@ export class CryptoService {
         }
       }
     }
-    
+
     return result;
   }
 
   /**
    * Generate a secure random token
    */
-  generateSecureToken(length: number = 32): string {
+  generateSecureToken(length = 32): string {
     return CryptoJS.lib.WordArray.random(length).toString();
   }
 

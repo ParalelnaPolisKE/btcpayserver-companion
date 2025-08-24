@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { clientEnv, serverEnv } from "@/lib/env";
 import { BTCPayClient } from "@/services/btcpay-client";
 import { BTCPayMockClient } from "@/services/btcpay-mock";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ storeId: string }> }
+  { params }: { params: Promise<{ storeId: string }> },
 ) {
   try {
     const { storeId } = await params;
@@ -41,7 +41,7 @@ export async function GET(
           error instanceof Error ? error.message : "Failed to fetch POS apps",
         isUsingMockData: true,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

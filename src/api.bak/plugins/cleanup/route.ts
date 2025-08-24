@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { getEncryptedDatabase } from "@/lib/encrypted-indexeddb";
 
 export async function POST(request: NextRequest) {
   try {
     const db = getEncryptedDatabase();
     const removedCount = await db.cleanupInvalidPlugins();
-    
+
     return NextResponse.json({
       success: true,
       removedCount,
@@ -15,9 +15,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to cleanup plugins",
+        error:
+          error instanceof Error ? error.message : "Failed to cleanup plugins",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

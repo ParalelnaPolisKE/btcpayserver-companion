@@ -1,7 +1,7 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAvailablePlugins, getPluginManifest } from "@/lib/plugins";
 import PluginPageClient from "./plugin-page-client";
-import type { Metadata } from "next";
 
 // Generate metadata for the page
 export async function generateMetadata({

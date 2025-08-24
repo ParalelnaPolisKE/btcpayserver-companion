@@ -596,15 +596,18 @@ class IndexedDBService {
       request.onsuccess = () => {
         const plugins = request.result as InstalledPlugin[];
         // Filter out invalid plugins and remove duplicates
-        const validPlugins = plugins.filter(p => p.pluginId && p.manifest);
-        const uniquePlugins = validPlugins.filter((plugin, index, self) => 
-          index === self.findIndex(p => p.pluginId === plugin.pluginId)
+        const validPlugins = plugins.filter((p) => p.pluginId && p.manifest);
+        const uniquePlugins = validPlugins.filter(
+          (plugin, index, self) =>
+            index === self.findIndex((p) => p.pluginId === plugin.pluginId),
         );
-        
+
         if (uniquePlugins.length !== plugins.length) {
-          console.warn(`Filtered out ${plugins.length - uniquePlugins.length} invalid or duplicate plugins`);
+          console.warn(
+            `Filtered out ${plugins.length - uniquePlugins.length} invalid or duplicate plugins`,
+          );
         }
-        
+
         resolve(uniquePlugins);
       };
 
@@ -829,15 +832,19 @@ class IndexedDBService {
       const transaction = db.transaction(["plugins"], "readwrite");
       const store = transaction.objectStore("plugins");
       const getAllRequest = store.getAll();
-      
+
       getAllRequest.onsuccess = () => {
         const plugins = getAllRequest.result as InstalledPlugin[];
         const seen = new Set<string>();
         let removedCount = 0;
-        
-        plugins.forEach(plugin => {
+
+        plugins.forEach((plugin) => {
           // Remove if missing pluginId, manifest, or is a duplicate
-          if (!plugin.pluginId || !plugin.manifest || seen.has(plugin.pluginId)) {
+          if (
+            !plugin.pluginId ||
+            !plugin.manifest ||
+            seen.has(plugin.pluginId)
+          ) {
             if (plugin.id) {
               store.delete(plugin.id);
               removedCount++;
@@ -846,17 +853,17 @@ class IndexedDBService {
             seen.add(plugin.pluginId);
           }
         });
-        
+
         transaction.oncomplete = () => {
           console.log(`Cleaned up ${removedCount} invalid/duplicate plugins`);
           resolve(removedCount);
         };
-        
+
         transaction.onerror = () => {
           reject(new Error("Failed to cleanup plugins"));
         };
       };
-      
+
       getAllRequest.onerror = () => {
         reject(new Error("Failed to get plugins for cleanup"));
       };

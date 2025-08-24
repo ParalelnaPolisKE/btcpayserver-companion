@@ -47,7 +47,8 @@ export async function fetchInvoicesForCryptoChat(params?: {
     return {
       success: false,
       invoices: [],
-      error: error instanceof Error ? error.message : "Failed to fetch invoices",
+      error:
+        error instanceof Error ? error.message : "Failed to fetch invoices",
       isUsingMockData: true,
     };
   }

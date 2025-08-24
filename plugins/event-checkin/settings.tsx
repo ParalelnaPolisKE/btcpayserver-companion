@@ -48,7 +48,7 @@ export default function EventCheckInSettings() {
   const allowManualEntryId = useId();
   const requireConfirmationId = useId();
   const soundEnabledId = useId();
-  
+
   const [settings, setSettings] = useState<EventCheckInSettings>({
     allowManualEntry: true,
     requireConfirmation: false,

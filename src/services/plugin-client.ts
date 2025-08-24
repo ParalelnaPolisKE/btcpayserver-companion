@@ -15,7 +15,8 @@ export async function getAvailablePluginsClient(): Promise<AvailablePlugin[]> {
       id: "cryptochat",
       name: "CryptoChat",
       version: "1.0.0",
-      description: "AI-powered chat interface with RAG for querying BTCPayServer data using natural language",
+      description:
+        "AI-powered chat interface with RAG for querying BTCPayServer data using natural language",
       author: "BTCPayServer Companion",
       icon: "message-circle",
       route: "/apps/cryptochat",
