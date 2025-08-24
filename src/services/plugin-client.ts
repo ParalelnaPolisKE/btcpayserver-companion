@@ -12,6 +12,23 @@ export async function getAvailablePluginsClient(): Promise<AvailablePlugin[]> {
   // For now, return the default plugins that are bundled with the app
   return [
     {
+      id: "cryptochat",
+      name: "CryptoChat",
+      version: "1.0.0",
+      description: "AI-powered chat interface with RAG for querying BTCPayServer data using natural language",
+      author: "BTCPayServer Companion",
+      icon: "message-circle",
+      route: "/apps/cryptochat",
+      settingsRoute: "/apps/cryptochat/settings",
+      routes: {
+        main: "/apps/cryptochat",
+        settings: "/apps/cryptochat/settings",
+      },
+      isPaid: false,
+      category: "AI",
+      tags: ["ai", "chat", "rag", "analytics", "query"],
+    },
+    {
       id: "event-checkin",
       name: "Event Check-in",
       version: "1.0.0",
