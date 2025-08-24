@@ -1,9 +1,9 @@
-name: Build Tauri App
+name: Build and Release Tauri App
 
 on:
   push:
     branches: [ main ]
-    tags: [ 'v*' ]
+    tags: [ 'v*', '[0-9]+.[0-9]+.[0-9]+' ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
@@ -46,14 +46,25 @@ jobs:
       - name: Build Tauri app
         run: bun run tauri build
 
+      - name: Prepare Linux artifacts
+        run: |
+          mkdir -p dist/linux
+          cp src-tauri/target/release/bundle/deb/*.deb dist/linux/ || true
+          cp src-tauri/target/release/bundle/appimage/*.AppImage dist/linux/ || true
+          cp src-tauri/target/release/bundle/rpm/*.rpm dist/linux/ || true
+          cd dist/linux
+          for file in *; do
+            if [ -f "$file" ]; then
+              sha256sum "$file" > "$file.sha256"
+            fi
+          done
+
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: linux-binaries
-          path: |
-            src-tauri/target/release/bundle/deb/*.deb
-            src-tauri/target/release/bundle/appimage/*.AppImage
-            src-tauri/target/release/bundle/rpm/*.rpm
+          name: BTCPayServer-Companion-linux
+          path: dist/linux/*
+          retention-days: 7
 
   build-windows:
     runs-on: windows-latest
@@ -62,8 +73,10 @@ jobs:
         include:
           - target: x86_64-pc-windows-msvc
             arch: x64
+            name: win64
           - target: i686-pc-windows-msvc
             arch: x86
+            name: win32
     steps:
       - uses: actions/checkout@v4
 
@@ -94,13 +107,26 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ""
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ""
 
+      - name: Prepare Windows artifacts
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "dist\${{ matrix.name }}"
+          Copy-Item "src-tauri\target\${{ matrix.target }}\release\bundle\nsis\*.exe" "dist\${{ matrix.name }}\" -ErrorAction SilentlyContinue
+          Copy-Item "src-tauri\target\${{ matrix.target }}\release\bundle\msi\*.msi" "dist\${{ matrix.name }}\" -ErrorAction SilentlyContinue
+          
+          Get-ChildItem "dist\${{ matrix.name }}" | ForEach-Object {
+            if ($_.Extension -in '.exe', '.msi') {
+              $hash = Get-FileHash $_.FullName -Algorithm SHA256
+              "$($hash.Hash.ToLower())  $($_.Name)" | Out-File "$($_.FullName).sha256" -Encoding ASCII
+            }
+          }
+
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: windows-${{ matrix.arch }}-binaries
-          path: |
-            src-tauri/target/${{ matrix.target }}/release/bundle/nsis/*.exe
-            src-tauri/target/${{ matrix.target }}/release/bundle/msi/*.msi
+          name: BTCPayServer-Companion-${{ matrix.name }}
+          path: dist/${{ matrix.name }}/*
+          retention-days: 7
 
   build-macos:
     runs-on: macos-latest
@@ -131,31 +157,179 @@ jobs:
       - name: Build Tauri app (Universal)
         run: bun run tauri:build:universal
 
+      - name: Prepare macOS artifacts
+        run: |
+          mkdir -p dist/macos
+          cp src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg dist/macos/ || true
+          # Note: .app bundles are directories, so we need to zip them
+          if [ -d "src-tauri/target/universal-apple-darwin/release/bundle/macos/"*.app ]; then
+            cd src-tauri/target/universal-apple-darwin/release/bundle/macos/
+            for app in *.app; do
+              zip -r "../../../../../dist/macos/${app%.app}.zip" "$app"
+            done
+            cd -
+          fi
+          cd dist/macos
+          for file in *; do
+            if [ -f "$file" ]; then
+              shasum -a 256 "$file" > "$file.sha256"
+            fi
+          done
+
       - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: macos-binaries
-          path: |
-            src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
-            src-tauri/target/universal-apple-darwin/release/bundle/macos/*.app
+          name: BTCPayServer-Companion-macos
+          path: dist/macos/*
+          retention-days: 7
 
   release:
     needs: [build-linux, build-windows, build-macos]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
 
-      - name: Create Release
+      - name: Prepare release files
+        run: |
+          mkdir -p release
+          
+          # Extract version from tag
+          VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=${VERSION#v}
+          
+          # Organize files with proper naming
+          for platform in linux win32 win64 macos; do
+            if [ -d "release-artifacts/BTCPayServer-Companion-$platform" ]; then
+              for file in release-artifacts/BTCPayServer-Companion-$platform/*; do
+                if [ -f "$file" ]; then
+                  filename=$(basename "$file")
+                  # Rename files to include version
+                  case "$filename" in
+                    *.deb)
+                      cp "$file" "release/btcpayserver-companion_${VERSION}_linux_amd64.deb"
+                      cp "$file.sha256" "release/btcpayserver-companion_${VERSION}_linux_amd64.deb.sha256" 2>/dev/null || true
+                      ;;
+                    *.AppImage)
+                      cp "$file" "release/BTCPayServer-Companion-${VERSION}-linux-x86_64.AppImage"
+                      cp "$file.sha256" "release/BTCPayServer-Companion-${VERSION}-linux-x86_64.AppImage.sha256" 2>/dev/null || true
+                      ;;
+                    *.rpm)
+                      cp "$file" "release/btcpayserver-companion-${VERSION}-1.x86_64.rpm"
+                      cp "$file.sha256" "release/btcpayserver-companion-${VERSION}-1.x86_64.rpm.sha256" 2>/dev/null || true
+                      ;;
+                    *.exe)
+                      if [[ "$platform" == "win32" ]]; then
+                        cp "$file" "release/BTCPayServer-Companion-${VERSION}-win32-setup.exe"
+                        cp "$file.sha256" "release/BTCPayServer-Companion-${VERSION}-win32-setup.exe.sha256" 2>/dev/null || true
+                      else
+                        cp "$file" "release/BTCPayServer-Companion-${VERSION}-win64-setup.exe"
+                        cp "$file.sha256" "release/BTCPayServer-Companion-${VERSION}-win64-setup.exe.sha256" 2>/dev/null || true
+                      fi
+                      ;;
+                    *.msi)
+                      if [[ "$platform" == "win32" ]]; then
+                        cp "$file" "release/BTCPayServer-Companion-${VERSION}-win32.msi"
+                        cp "$file.sha256" "release/BTCPayServer-Companion-${VERSION}-win32.msi.sha256" 2>/dev/null || true
+                      else
+                        cp "$file" "release/BTCPayServer-Companion-${VERSION}-win64.msi"
+                        cp "$file.sha256" "release/BTCPayServer-Companion-${VERSION}-win64.msi.sha256" 2>/dev/null || true
+                      fi
+                      ;;
+                    *.dmg)
+                      cp "$file" "release/BTCPayServer-Companion-${VERSION}-macos-universal.dmg"
+                      cp "$file.sha256" "release/BTCPayServer-Companion-${VERSION}-macos-universal.dmg.sha256" 2>/dev/null || true
+                      ;;
+                    *.zip)
+                      cp "$file" "release/BTCPayServer-Companion-${VERSION}-macos-universal.app.zip"
+                      cp "$file.sha256" "release/BTCPayServer-Companion-${VERSION}-macos-universal.app.zip.sha256" 2>/dev/null || true
+                      ;;
+                  esac
+                fi
+              done
+            fi
+          done
+          
+          # Create a combined checksums file
+          cd release
+          if ls *.sha256 1> /dev/null 2>&1; then
+            cat *.sha256 > checksums-SHA256.txt
+          fi
+
+      - name: Extract release notes from CHANGELOG
+        id: release_notes
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=${VERSION#v}
+          
+          # Extract release notes for this version from CHANGELOG.md
+          if [ -f "CHANGELOG.md" ]; then
+            awk -v ver="$VERSION" '
+              /^## \[/ {
+                if (found) exit;
+                if ($2 == "["ver"]") found=1;
+                next;
+              }
+              found && /^## \[/ { exit }
+              found { print }
+            ' CHANGELOG.md > release_notes.md
+            
+            # Add download instructions
+            echo "" >> release_notes.md
+            echo "## Installation" >> release_notes.md
+            echo "" >> release_notes.md
+            echo "### Windows" >> release_notes.md
+            echo "- **64-bit**: Download \`BTCPayServer-Companion-${VERSION}-win64-setup.exe\`" >> release_notes.md
+            echo "- **32-bit**: Download \`BTCPayServer-Companion-${VERSION}-win32-setup.exe\`" >> release_notes.md
+            echo "" >> release_notes.md
+            echo "### macOS" >> release_notes.md
+            echo "- Download \`BTCPayServer-Companion-${VERSION}-macos-universal.dmg\`" >> release_notes.md
+            echo "" >> release_notes.md
+            echo "### Linux" >> release_notes.md
+            echo "- **AppImage** (recommended): \`BTCPayServer-Companion-${VERSION}-linux-x86_64.AppImage\`" >> release_notes.md
+            echo "- **Debian/Ubuntu**: \`btcpayserver-companion_${VERSION}_linux_amd64.deb\`" >> release_notes.md
+            echo "- **RedHat/Fedora**: \`btcpayserver-companion-${VERSION}-1.x86_64.rpm\`" >> release_notes.md
+            echo "" >> release_notes.md
+            echo "## Verification" >> release_notes.md
+            echo "" >> release_notes.md
+            echo "All files include SHA256 checksums for verification. You can verify the integrity of downloaded files using:" >> release_notes.md
+            echo "\`\`\`bash" >> release_notes.md
+            echo "# Linux/macOS" >> release_notes.md
+            echo "sha256sum -c <filename>.sha256" >> release_notes.md
+            echo "" >> release_notes.md
+            echo "# Windows (PowerShell)" >> release_notes.md
+            echo "Get-FileHash <filename> -Algorithm SHA256" >> release_notes.md
+            echo "\`\`\`" >> release_notes.md
+          else
+            echo "Release $VERSION" > release_notes.md
+          fi
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            linux-binaries/**/*
-            windows-x64-binaries/**/*
-            windows-x86-binaries/**/*
-            macos-binaries/**/*
+          files: release/*
+          body_path: release_notes.md
+          name: BTCPayServer Companion ${{ github.ref_name }}
           draft: false
-          prerelease: false
+          prerelease: ${{ contains(github.ref_name, 'beta') || contains(github.ref_name, 'alpha') || contains(github.ref_name, 'rc') }}
+          generate_release_notes: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload release summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-summary
+          path: |
+            release_notes.md
+            release/checksums-SHA256.txt
+          retention-days: 30
