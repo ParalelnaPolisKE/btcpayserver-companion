@@ -160,15 +160,29 @@ jobs:
       - name: Prepare macOS artifacts
         run: |
           mkdir -p dist/macos
-          cp src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg dist/macos/ || true
-          # Note: .app bundles are directories, so we need to zip them
-          if [ -d "src-tauri/target/universal-apple-darwin/release/bundle/macos/"*.app ]; then
-            cd src-tauri/target/universal-apple-darwin/release/bundle/macos/
-            for app in *.app; do
-              zip -r "../../../../../dist/macos/${app%.app}.zip" "$app"
-            done
-            cd -
+          
+          # Copy DMG files
+          if ls src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg 1> /dev/null 2>&1; then
+            cp src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg dist/macos/
           fi
+          
+          # Handle .app bundles (directories) - need to zip them
+          APP_DIR="src-tauri/target/universal-apple-darwin/release/bundle/macos"
+          if [ -d "$APP_DIR" ]; then
+            cd "$APP_DIR"
+            for app in *.app; do
+              if [ -d "$app" ]; then
+                # Remove spaces from the zip filename but preserve them in the app bundle
+                zip_name=$(echo "${app%.app}" | tr ' ' '-')
+                echo "Zipping '$app' to 'dist/macos/${zip_name}.zip'"
+                # Use absolute path for destination
+                zip -r "${GITHUB_WORKSPACE}/dist/macos/${zip_name}.zip" "$app"
+              fi
+            done
+            cd "${GITHUB_WORKSPACE}"
+          fi
+          
+          # Generate checksums
           cd dist/macos
           for file in *; do
             if [ -f "$file" ]; then
@@ -250,6 +264,7 @@ jobs:
                       cp "$file.sha256" "release/BTCPayServer-Companion-${VERSION}-macos-universal.dmg.sha256" 2>/dev/null || true
                       ;;
                     *.zip)
+                      # The zip file already has spaces replaced with hyphens
                       cp "$file" "release/BTCPayServer-Companion-${VERSION}-macos-universal.app.zip"
                       cp "$file.sha256" "release/BTCPayServer-Companion-${VERSION}-macos-universal.app.zip.sha256" 2>/dev/null || true
                       ;;
