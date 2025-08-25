@@ -1,153 +1,282 @@
 # BTCPayServer Companion
 
-A comprehensive financial dashboard for BTCPayServer. This companion app provides real-time analytics and financial metrics for your BTCPay store.
+<div align="center">
+  <img src="public/logo.svg" alt="BTCPayServer Companion Logo" width="128" height="128" />
+  
+  [![Version](https://img.shields.io/badge/version-0.3.1-blue.svg)](https://github.com/ParalelnaPolisKE/btcpayserver-companion/releases)
+  [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+  [![Build Status](https://github.com/ParalelnaPolisKE/btcpayserver-companion/workflows/Build%20and%20Release%20Tauri%20App/badge.svg)](https://github.com/ParalelnaPolisKE/btcpayserver-companion/actions)
+  
+  **A powerful web + cross-platform desktop companion app for BTCPayServer with plugins, analytics, and encrypted communication**
+</div>
 
-## Features
+## 🚀 Features
 
-### 📊 Financial Dashboard
-- **Monthly Recurring Revenue (MRR)** tracking with growth rates
-- **Revenue trends** visualization over the last 6 months
-- **Revenue projections** using linear regression analysis
-- **Invoice status breakdown** with visual charts
-- **Payment method analytics** to understand customer preferences
-- **Top products** report showing best-selling items
-- **Average transaction value** calculations
-- **Conversion rate** metrics
+### Core Functionality
+- **🏪 Multi-Store Support** - Manage multiple BTCPayServer stores from a single dashboard
+- **📊 Real-time Dashboard** - Monitor server status, Bitcoin price, and security metrics
+- **🔌 Plugin System** - Extend functionality with secure, sandboxed plugins
+- **💬 CryptoChat** - End-to-end encrypted chat for secure communication
+- **🔐 Encrypted Storage** - Secure IndexedDB with encryption for sensitive data
+- **📈 Bitcoin Price Tracking** - Real-time BTC price charts with historical data
 
-## Getting Started
+### Built-in Plugins
+- **Financial Analysis** - Comprehensive revenue analytics, MRR tracking, and projections
+- **Events Check-in** - QR code-based event management system
+- **Expense Tracking** - Track and categorize business expenses
 
-### Prerequisites
-- Node.js 18+ or Bun runtime
-- BTCPayServer instance with API access
-- Store ID and API key from BTCPayServer
+### Security Features
+- **Plugin Sandboxing** - Isolated execution environment for plugins
+- **Code Scanning** - Automatic detection of malicious patterns
+- **Permission System** - Granular control over plugin capabilities
+- **Server-side API Keys** - Secure handling of sensitive credentials
 
-### Installation
+## 📦 Installation
+
+### Desktop Application (Recommended)
+
+Download the latest release for your platform from the [Releases page](https://github.com/ParalelnaPolisKE/btcpayserver-companion/releases):
+
+#### Windows
+- **64-bit**: `BTCPayServer-Companion-0.3.1-win64-setup.exe`
+- **32-bit**: `BTCPayServer-Companion-0.3.1-win32-setup.exe`
+
+#### macOS
+- Universal: `BTCPayServer-Companion-0.3.1-macos-universal.dmg`
+
+#### Linux
+- AppImage: `BTCPayServer-Companion-0.3.1-linux-x86_64.AppImage`
+- Debian/Ubuntu: `btcpayserver-companion_0.3.1_linux_amd64.deb`
+- RedHat/Fedora: `btcpayserver-companion-0.3.1-1.x86_64.rpm`
+
+### Development Setup
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/bps-companion.git
-cd bps-companion
+git clone https://github.com/ParalelnaPolisKE/btcpayserver-companion.git
+cd btcpayserver-companion
 
-# Install dependencies
+# Install dependencies (requires Bun)
 bun install
 
-# Copy environment variables
-cp .env.example .env
+# Copy environment configuration
+cp .env.example .env.local
+
+# Run development server
+bun dev
+
+# Build for production
+bun run build
 ```
 
-### Configuration
+## ⚙️ Configuration
 
-Edit `.env` with your BTCPayServer details:
+### Environment Variables
+
+Create a `.env.local` file with your BTCPayServer configuration:
 
 ```env
-# BTCPayServer Configuration
-BTCPAYSERVER_API_KEY=your-btcpay-api-key-here
+# BTCPayServer API Configuration (Server-side only)
+BTCPAYSERVER_API_KEY=your-api-key-here
+
+# Client-side Configuration
 NEXT_PUBLIC_BTCPAY_URL=https://your-btcpay-instance.com
 NEXT_PUBLIC_STORE_ID=your-store-id
-
-# Development Settings
 NEXT_PUBLIC_USE_MOCK=false  # Set to true for demo mode
 ```
 
-### Running the App
+### Getting Your API Key
 
-```bash
-# Development mode
-bun dev
+1. Log in to your BTCPayServer instance
+2. Navigate to **Account** → **API Keys**
+3. Click **Generate Key**
+4. Select permissions:
+   - `btcpay.store.canviewinvoices` (required)
+   - Additional permissions as needed
+5. Copy the generated key to your `.env.local`
 
-# Production build
-bun run build
-bun start
+## 🏗️ Architecture
 
-# Run tests
-npm test  # Note: Use npm for Jest tests
-```
+### Technology Stack
 
-## Dashboard Overview
-
-### Key Metrics
-- **MRR**: Current month's revenue with growth percentage
-- **Total Invoices**: Count of all invoices with settled breakdown
-- **Average Transaction**: Mean value per settled invoice
-- **Conversion Rate**: Percentage of settled vs total invoices
-
-### Analytics Views
-1. **Revenue Trend**: Bar chart showing monthly revenue
-2. **Projections**: Line chart with 3-month revenue forecast
-3. **Breakdown**: Invoice status and payment method distributions
-4. **Products**: Top 5 best-selling items
-
-## Architecture
-
-### Tech Stack
-- **Frontend**: Next.js 15 with App Router
+- **Framework**: Next.js 15 with App Router
+- **Desktop**: Tauri 2.0 / Electron
+- **Language**: TypeScript
 - **Styling**: TailwindCSS v4 + shadcn/ui
-- **Charts**: Recharts for data visualization
-- **Data Fetching**: React Query with server actions
-- **Type Safety**: TypeScript throughout
+- **State Management**: React Query + Context API
+- **Charts**: Recharts
+- **Testing**: Jest + React Testing Library
+- **Build Tools**: Bun, Rust (for Tauri)
 
 ### Project Structure
+
 ```
 src/
-├── app/                    # Next.js app directory
-│   ├── actions/           # Server actions for API calls
-│   ├── dashboard/         # Dashboard pages
-│   └── settings/          # Settings pages
-├── components/            # Reusable UI components
-│   ├── dashboard/         # Dashboard-specific components
-│   └── ui/                # shadcn/ui components
-├── services/              # API client services
-│   ├── btcpay-client.ts   # Real BTCPay API integration
-│   └── btcpay-mock.ts     # Mock data for development
-└── types/                 # TypeScript definitions
+├── app/                      # Next.js App Router
+│   ├── actions/             # Server actions for API calls
+│   ├── dashboard/           # Dashboard pages
+│   ├── plugins/             # Plugin management
+│   ├── settings/            # Settings pages
+│   └── cryptochat/          # Encrypted chat feature
+├── components/              # React components
+│   ├── dashboard/           # Dashboard widgets
+│   ├── layout/              # Layout components
+│   └── ui/                  # shadcn/ui components
+├── contexts/                # React contexts
+│   ├── expenses-context.tsx
+│   └── plugins-context.tsx
+├── lib/                     # Utilities
+│   ├── encrypted-indexeddb.ts
+│   ├── env.ts
+│   └── utils.ts
+├── services/                # API services
+│   ├── btcpay-client.ts    # BTCPay API client
+│   ├── btcpay-mock.ts      # Mock data provider
+│   ├── bitcoin-price.ts    # Price API integration
+│   └── plugin-*.ts         # Plugin services
+├── types/                   # TypeScript definitions
+└── plugins/                 # Built-in plugins
+    ├── financial-analysis/
+    ├── events-checkin/
+    └── template/
 ```
 
-## API Integration
+## 🔌 Plugin Development
 
-The app integrates with BTCPayServer's Greenfield API v1:
-- **Invoices**: Fetch, filter, and analyze invoice data
-- **Store Info**: Get store configuration and settings
-- **Payment Methods**: Retrieve enabled payment options
+### Creating a Plugin
 
-## Mock Mode
+1. Use the plugin template as a starting point:
+   ```bash
+   cp -r src/plugins/template src/plugins/my-plugin
+   ```
 
-When `BTCPAYSERVER_API_KEY` is not set or `NEXT_PUBLIC_USE_MOCK=true`, the app runs in mock mode:
-- Generates realistic sample data
-- Simulates network delays
-- Perfect for demos and development
-- Shows "Using mock data" indicator
+2. Update the manifest.json:
+   ```json
+   {
+     "id": "my-plugin",
+     "name": "My Plugin",
+     "version": "1.0.0",
+     "description": "Plugin description",
+     "permissions": ["storage", "btcpay"]
+   }
+   ```
 
-## Security
+3. Implement your plugin logic in `index.html`
 
-- API keys are handled server-side only
-- Server actions prevent client exposure
-- Environment variables follow Next.js conventions
-- No sensitive data in client bundles
+4. Test in development mode
 
-## Troubleshooting
+### Plugin API
 
-### 401 Unauthorized Errors
-If your BTCPayServer is behind an authentication proxy:
-1. Verify API key permissions
-2. Check if additional headers are required
-3. Contact your BTCPay administrator
+Plugins have access to:
+- **Storage API** - Persistent data storage
+- **BTCPay API** - Access to invoice and store data
+- **Message API** - Communication with the host app
+- **UI Components** - Reusable UI elements
 
-### Tests Failing
-Use `npm test` instead of `bun test` - Bun's test runner doesn't support Jest mocks.
+## 🧪 Testing
 
-## Contributing
+```bash
+# Run all tests
+npm test
+
+# Run with coverage
+npm test -- --coverage
+
+# Run specific test suite
+npm test -- src/services/__tests__/
+
+# Watch mode
+npm test -- --watch
+```
+
+**Note**: Use `npm test` instead of `bun test` as Bun's test runner doesn't support Jest mocks properly.
+
+## 📊 Performance
+
+The app includes comprehensive performance optimizations:
+- React component memoization
+- Lazy loading for heavy components
+- Code splitting with dynamic imports
+- Optimized bundle size with tree-shaking
+- Context optimization with useMemo
+- 63% test coverage
+
+## 🔒 Security Considerations
+
+- **API Keys**: Stored server-side only, never exposed to client
+- **Plugin Isolation**: Sandboxed iframe execution
+- **Code Scanning**: Automatic malicious pattern detection
+- **CSP**: Content Security Policy enforcement
+- **Encryption**: AES-GCM for sensitive data storage
+- **HTTPS Only**: Enforced for all external connections
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+#### "Using mock data" appears despite API key
+- Ensure API key is in `.env.local` (not `.env`)
+- Restart the development server
+- Check server logs for API connection errors
+
+#### 401 Unauthorized from proxy
+- Verify API key has correct permissions
+- Check if BTCPayServer is behind an auth proxy
+- Contact your BTCPay administrator for direct API access
+
+#### Build errors on Windows
+- Install Visual Studio Build Tools
+- Ensure Rust toolchain is installed
+- Run as Administrator if permission errors occur
+
+#### Tests failing
+- Use `npm test` instead of `bun test`
+- Clear Jest cache: `npm test -- --clearCache`
+- Check Node version (requires 18.17+)
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests: `npm test`
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## License
+## 📝 Changelog
 
-MIT License - see LICENSE file for details
+See [CHANGELOG.md](CHANGELOG.md) for a detailed version history.
 
-## Acknowledgments
+## 📄 License
 
-- BTCPayServer team for the excellent API
-- shadcn/ui for the component library
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [BTCPayServer](https://btcpayserver.org/) team for the excellent API
+- [shadcn/ui](https://ui.shadcn.com/) for the component library
+- [Tauri](https://tauri.app/) for the desktop framework
+- [Next.js](https://nextjs.org/) team for the web framework
+- [Paralelná Polis Košice](https://www.paralelnapoliske.sk/) for supporting development
+
+## 📞 Support
+
+- **Documentation**: [Read the Docs](https://github.com/ParalelnaPolisKE/btcpayserver-companion/wiki)
+- **Issues**: [GitHub Issues](https://github.com/ParalelnaPolisKE/btcpayserver-companion/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/ParalelnaPolisKE/btcpayserver-companion/discussions)
+- **Security**: Report vulnerabilities to security@paralelnapoliske.sk
+
+## 🚦 Status
+
+- **Current Version**: 0.3.1
+- **Status**: Active Development
+- **Next Release**: 0.4.0 (Plugin Marketplace)
+
+---
+
+<div align="center">
+  Made with ❤️ by the Paralelná Polis Košice community
+  
+  [Website](https://www.paralelnapoliske.sk) • [Twitter](https://twitter.com/paralelnapoliske) • [GitHub](https://github.com/ParalelnaPolisKE)
+</div>
